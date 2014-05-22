@@ -1,0 +1,15 @@
+*.cmake
+*.o
+*.a
+*.obj
+*.so
+*.lib
+*.pdb
+CMakeCache.txt
+CMakeFiles/
+Makefile
+install_manifest.txt
+test/dft
+test/glslvec
+test/linalgperf
+test/vecmath
