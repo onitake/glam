@@ -876,11 +876,6 @@ inline Matrix<T, 4, 4> orthoMatrix(const T &l, const T &r, const T &b, const T &
 	return Matrix<T, 4, 4>::ortho(l, r, b, t, n, f);
 }
 
-// External template instantiations for large functions
-extern template Matrix<float, 2, 2> Matrix<float, 2, 2>::inv() const;
-extern template Matrix<float, 3, 3> Matrix<float, 3, 3>::inv() const;
-extern template Matrix<float, 4, 4> Matrix<float, 4, 4>::inv() const;
-
 #warning TODO Remove deprecation pragma when everyting is moved to the function API
 #pragma GCC diagnostic pop
 
