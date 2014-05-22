@@ -1,0 +1,57 @@
+
+GLAM - GLSL Linear Algebra Math Library
+=======================================
+
+GLAM is a linear algebra math library for C++11 programs.
+The API mimics GLSL ES 3.0, enabling source code to be shared
+between the CPU and the GPU with minimal changes.
+
+The code is Copyright © 2012-2014 by Gregor Riepl
+and released under the terms of a permissive open-source
+license. See the separate LICENSE file for details.
+
+This library was originally developed as part of a larger
+3D engine project. As it grew significantly over time,
+the developer decided to release it as a separate library
+so others may benefit from the effort.
+
+Aside from the GLSL API, it also supports operations on
+arbitrary data types, thanks to the versatility of C++
+templates. Certain features were written using C++11
+features, so a modern compiler is required.
+The original compatibility code may be made available at
+a later point of time.
+
+All code is contained in the glam namespace. If you
+want to use GLSL code in your C++ program directly,
+you may import the whole namespace with a 
+
+using namespace glam;
+
+directive.
+It is recommended to limit the namespace import to single
+files or containing namespaces, however.
+
+All the GLSL vector and matrix types are supported,
+in addition to the base types that GLSL and C++ share.
+You may also create custom types, matrices of arbitrary
+size and composite element types. An example for the C++
+complex type is provided in test/dft.cpp.
+
+All operations are inlined, possibly causing the compiler to
+generate large amounts of machine code for higher-dimensional
+matrices. For example, if you need to use the matrix inversion
+in several places in your code, you should declare the
+template function as extern and place the actual defition in
+a single, separate source code file.
+
+To do this, place the following line in a common header file:
+
+extern template mat4 mat4::inv() const;
+
+and the following in a separate source file:
+
+template mat4 mat4::inv() const;
+
+The code is completely machine independent, relying only on
+the C/C++ standard math library and builtin operations.
