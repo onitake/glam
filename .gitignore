@@ -7,8 +7,10 @@
 *.pdb
 CMakeCache.txt
 CMakeFiles/
+Testing/
 Makefile
 install_manifest.txt
+cxxtest_*.cpp
 glam/config.h
 test/dft
 test/glslvec

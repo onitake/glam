@@ -12,7 +12,14 @@ include(CheckCXXSourceCompiles)
 include(CheckCXXSourceRuns)
 include(CheckIncludeFileCXX)
 
+find_package(CxxTest)
+if(CXXTEST_FOUND)
+	set(HAS_CXXTEST 1)
+	include_directories(${CXXTEST_INCLUDE_DIR})
+endif()
+
 if(GLAM_DEBUG)
+	set(CMAKE_BUILD_TYPE Debug)
 	check_cxx_compiler_flag("-O0 -g" HAS_CXX_OPTION_DEBUG_GCC)
 	if (HAS_CXX_OPTION_DEBUG_GCC)
 		set(GLAM_DEBUG_FLAGS "-O0 -g")
@@ -28,6 +35,7 @@ if(GLAM_DEBUG)
 		message(WARNING "Unknown compiler. Don't know how to set debug flags.")
 	endif()
 else()
+	set(CMAKE_BUILD_TYPE Release)
 	check_cxx_compiler_flag("-Wall -Ofast -ffast-math -ftree-vectorize -g" HAS_CXX_OPTION_OPTIMIZE_GCC)
 	if (HAS_CXX_OPTION_OPTIMIZE_GCC)
 		set(GLAM_OPTIMIZE_FLAGS "-Wall -Ofast -ffast-math -ftree-vectorize -g")
@@ -110,10 +118,9 @@ configure_file (
 	"${PROJECT_BINARY_DIR}/glam/config.h"
 )
 
-include_directories("${PROJECT_BINARY_DIR}")
-
 enable_testing()
-set(CMAKE_BUILD_TYPE Debug)
+
+include_directories("${PROJECT_BINARY_DIR}")
 
 add_subdirectory(glam)
 add_subdirectory(test)
