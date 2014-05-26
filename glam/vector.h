@@ -1503,6 +1503,7 @@ Vector<bool, C> operator ==(const Vector<T, C> &u, const Vector<T, C> &v) {
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] == v[c];
 	}
+	return ret;
 }
 
 template <class T, unsigned int C>
@@ -1511,6 +1512,7 @@ Vector<bool, C> operator !=(const Vector<T, C> &u, const Vector<T, C> &v) {
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] != v[c];
 	}
+	return ret;
 }
 
 template <class T, unsigned int C>
@@ -1519,6 +1521,7 @@ Vector<bool, C> operator <(const Vector<T, C> &u, const Vector<T, C> &v) {
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] < v[c];
 	}
+	return ret;
 }
 
 template <class T, unsigned int C>
@@ -1527,6 +1530,7 @@ Vector<bool, C> operator >(const Vector<T, C> &u, const Vector<T, C> &v) {
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] > v[c];
 	}
+	return ret;
 }
 
 template <class T, unsigned int C>
@@ -1535,6 +1539,7 @@ Vector<bool, C> operator <=(const Vector<T, C> &u, const Vector<T, C> &v) {
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] <= v[c];
 	}
+	return ret;
 }
 
 template <class T, unsigned int C>
@@ -1543,6 +1548,7 @@ Vector<bool, C> operator >=(const Vector<T, C> &u, const Vector<T, C> &v) {
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] >= v[c];
 	}
+	return ret;
 }
 
 template <class T, unsigned int C>
