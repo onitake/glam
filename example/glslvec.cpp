@@ -30,13 +30,15 @@
 using namespace std;
 using namespace glam;
 
+typedef Matrix<int, 2, 2> imat2;
+
 int main(int argc, char **argv) {
-	vec2 a(1.0f, 0.5f);
+	vec2 a = vec2(1.0f, 0.5f);
 	vec2 b = normalize(a);
 	vec3 i;
 	cout << "a=" << a << " b.xyxy=" << b.xyxy() << " i=" << i << endl;
-	vec3 N(1, 2, 3);
-	vec3 T(0.5, 1, 0);
+	vec3 N = vec3(1.0, 2.0, 3.0);
+	vec3 T = vec3(0.5, 1.0, 0.0);
 	cout << "N·T=" << dot(N, T) << " NxT=" << cross(N, T) << " NxT·N=" << dot(cross(N, T), N) << endl;
 	static const float _M[] = {
 		-1, 0, 0, 0,
@@ -44,14 +46,14 @@ int main(int argc, char **argv) {
 		0, 0, -1, 0,
 		0, 0, 0, 1,
 	};
-	mat4 I(1);
-	mat4 M(_M);
-	mat4 O(std::make_pair(_M, &_M[16]));
+	mat4 I = mat4(1);
+	mat4 M = mat4(_M);
+	mat4 O = mat4(std::make_pair(_M, &_M[16]));
 	cout << "M" << (M == O ? "==" : "!=") << "O" << endl;
 	cout << "M·I=" << (M * I) << endl;
 	cout << "M·I·vec4(N)=" << (M * I * vec4(N, 1)) << endl;
-	Matrix<int, 2, 2> M3A(10, 20, 30, 40);
-	Matrix<int, 2, 1> M3B(ivec2(10, 20));
+	imat2 M3A(10, 20, 30, 40);
+	ivec2 M3B(10, 20);
 	cout << "M3A·M3B=" << (M3A * M3B) << endl;
 	return 0;
 }

@@ -75,24 +75,25 @@ public:
 	}
 	void testVec5Equal() {
 		glam::Vector<float, 5> v(1, 2, 3.5, 100, 0.00001);
+		TS_ASSERT(v == v);
+		glam::Vector<float, 5> v2(1, 2, 3.5, 100, 0.00001);
+		TS_ASSERT(v == v2);
 		glam::Vector<float, 5> w(0, 2, 3.5, 200, 0.0001);
-		glam::Vector<float, 5> u = v == w;
-		TS_ASSERT_EQUALS(u[0], false);
-		TS_ASSERT_EQUALS(u[1], true);
-		TS_ASSERT_EQUALS(u[2], true);
-		TS_ASSERT_EQUALS(u[3], false);
-		TS_ASSERT_EQUALS(u[4], false);
+		TS_ASSERT(v != w);
 		glam::Vector<float, 5> w1(1, 2, 3.5, 100, 0.00001);
-		TS_ASSERT(glam::all(v == w1));
+		TS_ASSERT(glam::all(glam::equal(v, w1)));
 		glam::Vector<float, 5> w2(1, 2, 3.5, 100, 0.0001);
-		TS_ASSERT(!glam::all(v == w2));
-		TS_ASSERT(glam::any(v == w2));
+		TS_ASSERT(!glam::all(glam::equal(v, w2)));
+		TS_ASSERT(glam::any(glam::equal(v, w2)));
 		glam::Vector<float, 5> w3(0, 0, 0, 0, 0);
-		TS_ASSERT(!glam::all(v == w3));
-		TS_ASSERT(!glam::any(v == w3));
+		TS_ASSERT(!glam::all(glam::equal(v, w3)));
+		TS_ASSERT(!glam::any(glam::equal(v, w3)));
+		TS_ASSERT(glam::all(glam::notEqual(v, w3)));
+		TS_ASSERT(glam::any(glam::notEqual(v, w3)));
 		glam::Vector<float, 5> w4(0.0001, 100, 3.5, 2, 1);
-		TS_ASSERT(!glam::all(v == w4));
-		TS_ASSERT(glam::any(v == w4));
+		TS_ASSERT(!glam::all(glam::equal(v, w4)));
+		TS_ASSERT(glam::any(glam::equal(v, w4)));
+		TS_ASSERT(glam::any(glam::notEqual(v, w4)));
 	}
 	void testVec4Multiply() {
 		glam::vec4 v(1, 2, 3.5, 100);

@@ -166,15 +166,12 @@ public:
 // Component-wise unary plus operator (no-op if T follows standard algebra)
 template <class T, unsigned int C>
 Vector<T, C> operator +(const Vector<T, C> &u);
-// Component-wise unary minus operator (negation)
+// Component-wise negation operator (negation)
 template <class T, unsigned int C>
 Vector<T, C> operator -(const Vector<T, C> &u);
-// Component-wise bitwise negation operator
+// Component-wise ones complement operator
 template <class T, unsigned int C>
 Vector<T, C> operator ~(const Vector<T, C> &u);
-// Component-wise logical negation operator
-template <class T, unsigned int C>
-Vector<T, C> operator !(const Vector<T, C> &u);
 
 // Component-wise addition operator
 template <class T, unsigned int C>
@@ -208,26 +205,31 @@ Vector<T, C> operator <<(const Vector<T, C> &v, unsigned int s);
 template <class T, unsigned int C>
 Vector<T, C> operator >>(const Vector<T, C> &v, unsigned int s);
 
-// Comparators are implented as operators, unlike the GLSL vector comparison functions
+// Component-wise equality comparison operator (exact compare)
+template <class T, unsigned int C>
+Vector<bool, C> equal(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise inequality comparison operator (exact compare)
+template <class T, unsigned int C>
+Vector<bool, C> notEqual(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise less-than comparison operator (exact compare)
+template <class T, unsigned int C>
+Vector<bool, C> lessThan(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise greater-than comparison operator (exact compare)
+template <class T, unsigned int C>
+Vector<bool, C> greaterThan(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise less-or-equal comparison operator (exact compare)
+template <class T, unsigned int C>
+Vector<bool, C> lessThanEqual(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise greater-or-equal comparison operator (exact compare)
+template <class T, unsigned int C>
+Vector<bool, C> greaterThanEqual(const Vector<T, C> &u, const Vector<T, C> &v);
 
-// Component-wise equality comparison operator (exact compare), corresponds to equal(u, v)
+// Vector comparison operator (exact compare), correspondes to all(equal(u, v))
 template <class T, unsigned int C>
-Vector<bool, C> operator ==(const Vector<T, C> &u, const Vector<T, C> &v);
-// Component-wise inequality comparison operator (exact compare), corresponds to notEqual(u, v)
+bool operator ==(const Vector<T, C> &u, const Vector<T, C> &v);
+// Vector comparison operator (exact compare), correspondes to any(notEqual(u, v))
 template <class T, unsigned int C>
-Vector<bool, C> operator !=(const Vector<T, C> &u, const Vector<T, C> &v);
-// Component-wise less-than comparison operator (exact compare), corresponds to lessThan(u, v)
-template <class T, unsigned int C>
-Vector<bool, C> operator <(const Vector<T, C> &u, const Vector<T, C> &v);
-// Component-wise greater-than comparison operator (exact compare), corresponds to greaterThan(u, v)
-template <class T, unsigned int C>
-Vector<bool, C> operator >(const Vector<T, C> &u, const Vector<T, C> &v);
-// Component-wise less-or-equal comparison operator (exact compare), corresponds to lessThanEqual(u, v)
-template <class T, unsigned int C>
-Vector<bool, C> operator <=(const Vector<T, C> &u, const Vector<T, C> &v);
-// Component-wise greater-or-equal comparison operator (exact compare), corresponds to greaterTanEqual(u, v)
-template <class T, unsigned int C>
-Vector<bool, C> operator >=(const Vector<T, C> &u, const Vector<T, C> &v);
+bool operator !=(const Vector<T, C> &u, const Vector<T, C> &v);
 
 // Convert degrees to radians (works for scalars and vectors, component-wise)
 template <class T>
@@ -490,12 +492,16 @@ Vector<T, C> reflect(const Vector<T, C> &I, const Vector<T, C> &N);
 template <class T, unsigned int C>
 Vector<T, C> refract(const Vector<T, C> &I, const Vector<T, C> &N, const T &eta);
 
-// Return true if any component of x is true (or evaluates to true)
-template <class T, unsigned int C>
-bool any(const Vector<T, C> &v);
-// Return true if all components of x are true (or evaluate to true)
-template <class T, unsigned int C>
-bool all(const Vector<T, C> &v);
+// True if any component of x is true (or evaluates to true)
+template <unsigned int C>
+bool any(const Vector<bool, C> &v);
+// True if all components of x are true (or evaluates to true)
+template <unsigned int C>
+bool all(const Vector<bool, C> &v);
+// Component-wise negation of a boolean vector, this is an overloaded ! operator because
+// not is a reserved word in C++ with the same semantics as !
+template <unsigned int C>
+Vector<bool, C> operator !(const Vector<bool, C> &v);
 
 // Formatted output operator (vectors will be presented in the form "(0.1,1.50)")
 template <class T, unsigned int C>
@@ -792,15 +798,6 @@ inline Vector<T, C> operator ~(const Vector<T, C> &u) {
 	Vector<T, C> v;
 	for (unsigned int c = 0; c < C; c++) {
 		v[c] = ~u[c];
-	}
-	return v;
-}
-
-template <class T, unsigned int C>
-inline Vector<T, C> operator !(const Vector<T, C> &u) {
-	Vector<T, C> v;
-	for (unsigned int c = 0; c < C; c++) {
-		v[c] = !u[c];
 	}
 	return v;
 }
@@ -1458,20 +1455,29 @@ inline Vector<T, C> refract(const Vector<T, C> &I, const Vector<T, C> &N, const 
 	}
 }
 
-template <class T, unsigned int C>
-bool any(const Vector<T, C> &v) {
+template <unsigned int C>
+bool any(const Vector<bool, C> &v) {
 	bool ret = false;
 	for (unsigned int c = 0; c < C; c++) {
-		ret |= v[c] ? true : false;
+		ret = ret || v[c];
 	}
 	return ret;
 }
 
-template <class T, unsigned int C>
-bool all(const Vector<T, C> &v) {
+template <unsigned int C>
+bool all(const Vector<bool, C> &v) {
 	bool ret = true;
 	for (unsigned int c = 0; c < C; c++) {
-		ret &= v[c] ? true : false;
+		ret = ret && v[c];
+	}
+	return ret;
+}
+
+template <unsigned int C>
+Vector<bool, C> operator !(const Vector<bool, C> &v) {
+	Vector <bool, C> ret;
+	for (unsigned int c = 0; c < C; c++) {
+		ret = !v[c];
 	}
 	return ret;
 }
@@ -1498,7 +1504,7 @@ inline std::istream &operator >>(std::istream &stream, const Vector<T, C> &v) {
 }
 
 template <class T, unsigned int C>
-Vector<bool, C> operator ==(const Vector<T, C> &u, const Vector<T, C> &v) {
+inline Vector<bool, C> equal(const Vector<T, C> &u, const Vector<T, C> &v) {
 	Vector<bool, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] == v[c];
@@ -1507,7 +1513,7 @@ Vector<bool, C> operator ==(const Vector<T, C> &u, const Vector<T, C> &v) {
 }
 
 template <class T, unsigned int C>
-Vector<bool, C> operator !=(const Vector<T, C> &u, const Vector<T, C> &v) {
+inline Vector<bool, C> notEqual(const Vector<T, C> &u, const Vector<T, C> &v) {
 	Vector<bool, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] != v[c];
@@ -1516,7 +1522,7 @@ Vector<bool, C> operator !=(const Vector<T, C> &u, const Vector<T, C> &v) {
 }
 
 template <class T, unsigned int C>
-Vector<bool, C> operator <(const Vector<T, C> &u, const Vector<T, C> &v) {
+inline Vector<bool, C> lessThan(const Vector<T, C> &u, const Vector<T, C> &v) {
 	Vector<bool, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] < v[c];
@@ -1525,7 +1531,7 @@ Vector<bool, C> operator <(const Vector<T, C> &u, const Vector<T, C> &v) {
 }
 
 template <class T, unsigned int C>
-Vector<bool, C> operator >(const Vector<T, C> &u, const Vector<T, C> &v) {
+inline Vector<bool, C> greaterThan(const Vector<T, C> &u, const Vector<T, C> &v) {
 	Vector<bool, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] > v[c];
@@ -1534,7 +1540,7 @@ Vector<bool, C> operator >(const Vector<T, C> &u, const Vector<T, C> &v) {
 }
 
 template <class T, unsigned int C>
-Vector<bool, C> operator <=(const Vector<T, C> &u, const Vector<T, C> &v) {
+inline Vector<bool, C> lessThanEqual(const Vector<T, C> &u, const Vector<T, C> &v) {
 	Vector<bool, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] <= v[c];
@@ -1543,12 +1549,22 @@ Vector<bool, C> operator <=(const Vector<T, C> &u, const Vector<T, C> &v) {
 }
 
 template <class T, unsigned int C>
-Vector<bool, C> operator >=(const Vector<T, C> &u, const Vector<T, C> &v) {
+inline Vector<bool, C> greaterThanEqual(const Vector<T, C> &u, const Vector<T, C> &v) {
 	Vector<bool, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = u[c] >= v[c];
 	}
 	return ret;
+}
+
+template <class T, unsigned int C>
+inline bool operator ==(const Vector<T, C> &u, const Vector<T, C> &v) {
+	return all(equal(u, v));
+}
+
+template <class T, unsigned int C>
+inline bool operator !=(const Vector<T, C> &u, const Vector<T, C> &v) {
+	return any(notEqual(u, v));
 }
 
 template <class T, unsigned int C>
