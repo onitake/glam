@@ -124,3 +124,4 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 add_subdirectory(glam)
 add_subdirectory(test)
+add_subdirectory(example)

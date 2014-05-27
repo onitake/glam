@@ -12,7 +12,7 @@ Makefile
 install_manifest.txt
 cxxtest_*.cpp
 glam/config.h
-test/dft
-test/glslvec
-test/linalgperf
-test/vecmath
+example/dft
+example/glslvec
+example/linalgperf
+example/vecmath
