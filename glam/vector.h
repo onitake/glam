@@ -1477,7 +1477,7 @@ template <unsigned int C>
 Vector<bool, C> operator !(const Vector<bool, C> &v) {
 	Vector <bool, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
-		ret = !v[c];
+		ret[c] = !v[c];
 	}
 	return ret;
 }
