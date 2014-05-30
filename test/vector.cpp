@@ -23,6 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
 #include <glam/vector.h>
 #include <glam/matrix.h>
 #include <glam/config.h>
@@ -58,6 +59,16 @@ class VectorTest {
 	}
 #endif
 public:
+	void testInformation() {
+		TS_TRACE(std::string("sizeof(float) is ") + std::to_string(sizeof(float)));
+		TS_TRACE(std::string("sizeof(vec4) is ") + std::to_string(sizeof(glam::vec4)));
+		TS_TRACE(std::string("sizeof(bool) is ") + std::to_string(sizeof(bool)));
+		TS_TRACE(std::string("sizeof(bvec4) is ") + std::to_string(sizeof(glam::bvec4)));
+		TS_TRACE(std::string("sizeof(int) is ") + std::to_string(sizeof(int)));
+		TS_TRACE(std::string("sizeof(ivec2) is ") + std::to_string(sizeof(glam::ivec2)));
+		TS_TRACE(std::string("sizeof(double) is ") + std::to_string(sizeof(double)));
+		TS_TRACE(std::string("sizeof(dvec3) is ") + std::to_string(sizeof(glam::dvec3)));
+	}
 	void testVec4ConstructorAndAccessor() {
 		glam::vec4 v(1, 12.345, 0.5, 30);
 		TS_ASSERT_EQUALS(v[0], 1.0f);
@@ -76,6 +87,7 @@ public:
 	void testVec5Equal() {
 		glam::Vector<float, 5> v(1, 2, 3.5, 100, 0.00001);
 		TS_ASSERT(v == v);
+		TS_ASSERT(!(v != v));
 		glam::Vector<float, 5> v2(1, 2, 3.5, 100, 0.00001);
 		TS_ASSERT(v == v2);
 		glam::Vector<float, 5> w(0, 2, 3.5, 200, 0.0001);
@@ -94,6 +106,14 @@ public:
 		TS_ASSERT(!glam::all(glam::equal(v, w4)));
 		TS_ASSERT(glam::any(glam::equal(v, w4)));
 		TS_ASSERT(glam::any(glam::notEqual(v, w4)));
+	}
+	void testBVec4Logic() {
+		glam::bvec4 v(true, false, true, false);
+		glam::bvec4 u = not(v);
+		TS_ASSERT(!u[0]);
+		TS_ASSERT(u[1]);
+		TS_ASSERT(!u[2]);
+		TS_ASSERT(u[3]);
 	}
 	void testVec4Multiply() {
 		glam::vec4 v(1, 2, 3.5, 100);
@@ -168,6 +188,23 @@ public:
 		TS_ASSERT_DELTA(u[7], 0.50149694863879, 1e-13);
 		TS_ASSERT_DELTA(u[8], 0.56752738020956, 1e-13);
 		TS_ASSERT_DELTA(u[9], 0.90053182274617e-7, 1e-6);
+	}
+	void testVec2Permute() {
+		glam::vec2 v(1, 2);
+		TS_ASSERT_EQUALS(v.x(), 1.0f);
+		TS_ASSERT_EQUALS(v.y(), 2.0f);
+		glam::vec2 u1 = v.xy();
+		TS_ASSERT_EQUALS(u1[0], 1.0f);
+		TS_ASSERT_EQUALS(u1[1], 2.0f);
+		glam::vec2 u2 = v.yx();
+		TS_ASSERT_EQUALS(u2[0], 2.0f);
+		TS_ASSERT_EQUALS(u2[1], 1.0f);
+		glam::vec2 u3 = v.xx();
+		TS_ASSERT_EQUALS(u3[0], 1.0f);
+		TS_ASSERT_EQUALS(u3[1], 1.0f);
+		glam::vec2 u4 = v.yy();
+		TS_ASSERT_EQUALS(u4[0], 2.0f);
+		TS_ASSERT_EQUALS(u4[1], 2.0f);
 	}
 };
 
