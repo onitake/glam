@@ -59,7 +59,7 @@ class VectorTest {
 	}
 #endif
 public:
-	void testInformation() {
+	void testSize() {
 		TS_TRACE(std::string("sizeof(float) is ") + std::to_string(sizeof(float)));
 		TS_TRACE(std::string("sizeof(vec4) is ") + std::to_string(sizeof(glam::vec4)));
 		TS_TRACE(std::string("sizeof(bool) is ") + std::to_string(sizeof(bool)));
@@ -68,6 +68,11 @@ public:
 		TS_TRACE(std::string("sizeof(ivec2) is ") + std::to_string(sizeof(glam::ivec2)));
 		TS_TRACE(std::string("sizeof(double) is ") + std::to_string(sizeof(double)));
 		TS_TRACE(std::string("sizeof(dvec3) is ") + std::to_string(sizeof(glam::dvec3)));
+		// A vectorized implementation may pad to up to 4 vector elements to improve SIMD performance, but not more
+		TS_ASSERT_LESS_THAN_EQUALS(sizeof(glam::Vector<float, 4>), sizeof(float) * 4);
+		TS_ASSERT_LESS_THAN_EQUALS(sizeof(glam::Vector<double, 2>), sizeof(double) * 4);
+		TS_ASSERT_LESS_THAN_EQUALS(sizeof(glam::Vector<bool, 4>), sizeof(bool) * 4);
+		TS_ASSERT_LESS_THAN_EQUALS(sizeof(glam::Vector<int, 256>), sizeof(int) * 256);
 	}
 	void testVec4ConstructorAndAccessor() {
 		glam::vec4 v(1, 12.345, 0.5, 30);
@@ -205,6 +210,17 @@ public:
 		glam::vec2 u4 = v.yy();
 		TS_ASSERT_EQUALS(u4[0], 2.0f);
 		TS_ASSERT_EQUALS(u4[1], 2.0f);
+#if 0
+#warning Permutation lvalue assignment doesnt work yet
+		glam::vec2 w1 = v;
+		w1.x() = 10;
+		TS_ASSERT_EQUALS(w1[0], 10.0f);
+		TS_ASSERT_EQUALS(w1[1], 2.0f);
+		glam::vec2 w2 = v;
+		w2.yx() = glam::vec2(10, 20);
+		TS_ASSERT_EQUALS(w2[0], 20.0f);
+		TS_ASSERT_EQUALS(w2[1], 10.0f);
+#endif
 	}
 };
 
