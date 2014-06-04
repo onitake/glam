@@ -89,14 +89,11 @@ public:
 	// Assignment operator
 	Vector<T, C> &operator =(const Vector<T, C> &v);
 
-	// Implicit cast operator to access the first element
-	operator T() const;
 	// Member access operator
 	T &operator [](unsigned int index);
 	// Const member access operator
 	const T &operator [](unsigned int index) const;
 	// Direct access to internal pointer
-	T *internal();
 	const T *internal() const;
 
 	// Permutation functions
@@ -680,12 +677,6 @@ template <class T, unsigned int C>
 template <typename... Args>
 inline Vector<T, C>::Vector(Args... args) {
 	initialize<0>(args...);
-}
-
-template <class T, unsigned int C>
-inline Vector<T, C>::operator T() const {
-	static_assert(C == 1, "Implicit type cast is only allowed for single-element vectors");
-	return _v[0];
 }
 
 template <class T, unsigned int C>
@@ -1632,11 +1623,6 @@ inline bool operator ==(const Vector<T, C> &u, const Vector<T, C> &v) {
 template <class T, unsigned int C>
 inline bool operator !=(const Vector<T, C> &u, const Vector<T, C> &v) {
 	return any(notEqual(u, v));
-}
-
-template <class T, unsigned int C>
-T *Vector<T, C>::internal() {
-	return _v;
 }
 
 template <class T, unsigned int C>
