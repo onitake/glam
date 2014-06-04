@@ -21,7 +21,7 @@ endif()
 if(GLAM_DEBUG)
 	set(CMAKE_BUILD_TYPE Debug)
 	check_cxx_compiler_flag("-O0 -g" HAS_CXX_OPTION_DEBUG_GCC)
-	if (HAS_CXX_OPTION_DEBUG_GCC)
+	if(HAS_CXX_OPTION_DEBUG_GCC)
 		set(GLAM_DEBUG_FLAGS "-O0 -g")
 	else()
 		check_cxx_compiler_flag("/Od /Zi /DEBUG" HAS_CXX_OPTION_DEBUG_VC)
@@ -37,7 +37,7 @@ if(GLAM_DEBUG)
 else()
 	set(CMAKE_BUILD_TYPE Release)
 	check_cxx_compiler_flag("-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g" HAS_CXX_OPTION_OPTIMIZE_GCC)
-	if (HAS_CXX_OPTION_OPTIMIZE_GCC)
+	if(HAS_CXX_OPTION_OPTIMIZE_GCC)
 		set(GLAM_OPTIMIZE_FLAGS "-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g")
 	else()
 		check_cxx_compiler_flag("/O2 /Qpar /Zi /DEBUG" HAS_CXX_OPTION_OPTIMIZE_VC)
@@ -53,7 +53,7 @@ else()
 endif()
 
 check_cxx_compiler_flag("-std=c++11" HAS_CXX_OPTION_CXX11_GCC47)
-if (HAS_CXX_OPTION_CXX11_GCC47)
+if(HAS_CXX_OPTION_CXX11_GCC47)
 	set(GLAM_CXX11_FLAGS "-std=c++11")
 else()
 	check_cxx_compiler_flag("-std=c++0x" HAS_CXX_OPTION_CXX11_GCC43)
@@ -61,8 +61,20 @@ else()
 		set(GLAM_CXX11_FLAGS "-std=c++0x")
 	endif()
 endif()
-if(GLAM_CXX11_FLAGS)
+if(DEFINED GLAM_CXX11_FLAGS)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLAM_CXX11_FLAGS}")
+endif()
+
+check_cxx_source_runs("
+int f(int &&x) { return x; }
+int main() {
+	f(10);
+	return 0;
+}
+" HAS_XVALUE)
+if(HAS_XVALUE)
+else()
+	message(FATAL_ERROR "Your compiler doesn't support C++11 xvalues.")
 endif()
 
 check_cxx_source_runs("
@@ -73,7 +85,8 @@ int main() {
 	return 0;
 }
 " HAS_TUPLE)
-if (!HAS_TUPLE)
+if(HAS_TUPLE)
+else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 tuples.")
 endif()
 
@@ -83,7 +96,8 @@ int main() {
 	return 0;
 }
 " HAS_STATIC_ASSERT)
-if (!HAS_STATIC_ASSERT)
+if(HAS_STATIC_ASSERT)
+else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 static assert.")
 endif()
 
@@ -94,7 +108,8 @@ int main() {
 	return 0;
 }
 " HAS_CMATH)
-if (!HAS_CMATH)
+if(HAS_CMATH)
+else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 <cmath>.")
 endif()
 
@@ -109,11 +124,12 @@ int main() {
 	return 0;
 }
 " HAS_VARIADIC_TEMPLATES)
-if (!HAS_VARIADIC_TEMPLATES)
+if(HAS_VARIADIC_TEMPLATES)
+else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 variadic templates.")
 endif()
 
-configure_file (
+configure_file(
 	"${PROJECT_SOURCE_DIR}/config.h.in"
 	"${PROJECT_BINARY_DIR}/glam/config.h"
 )
