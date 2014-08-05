@@ -60,6 +60,17 @@ const double M4[10*10] = {
 	74, 46, 184, 164, 253, 254, 42, 225, 229, 183, 
 	214, 41, 224, 111, 125, 214, 22, 2, 92, 24, 
 };
+const float M5[3*3] = {
+	1, 2, 3,
+	4, 5, 6,
+	7, 8, 10,
+};
+const float M5D = -3;
+const float M5I[3*3] = {
+	-0.66666666666666f, -1.333333333333333f, 1.0f,
+	-0.66666666666666f, 3.666666666666666, -2.0f,
+	1.0f, -2.0f, 1.0f,
+};
 
 class MatrixTest : public CxxTest::TestSuite {
 public:
@@ -108,5 +119,20 @@ public:
 		TS_ASSERT_EQUALS(m2t[0][1], M2[2]);
 		TS_ASSERT_EQUALS(m2t[1][0], M2[1]);
 		TS_ASSERT_EQUALS(m2t[1][1], M2[3]);
+	}
+	void testMat3DeterminantAndInverse() {
+		glam::mat3 m5(std::make_pair(M5, &M5[9]));
+		float d = glam::determinant(m5);
+		TS_ASSERT_DELTA(d, M5D, 1e-6f);
+		glam::mat3 m5i = glam::inverse(m5);
+		TS_ASSERT_DELTA(m5i[0][0], M5I[0], 1e-6f);
+		TS_ASSERT_DELTA(m5i[0][1], M5I[1], 1e-6f);
+		TS_ASSERT_DELTA(m5i[0][2], M5I[2], 1e-6f);
+		TS_ASSERT_DELTA(m5i[1][0], M5I[3], 1e-6f);
+		TS_ASSERT_DELTA(m5i[1][1], M5I[4], 1e-6f);
+		TS_ASSERT_DELTA(m5i[1][2], M5I[5], 1e-6f);
+		TS_ASSERT_DELTA(m5i[2][0], M5I[6], 1e-6f);
+		TS_ASSERT_DELTA(m5i[2][1], M5I[7], 1e-6f);
+		TS_ASSERT_DELTA(m5i[2][2], M5I[8], 1e-6f);
 	}
 };

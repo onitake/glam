@@ -132,11 +132,11 @@ inline Matrix<T, M, N> operator +(const Matrix<T, M, N> &a, const Matrix<T, M, N
 template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, M, N> operator -(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b);
 
-// Multiplication of every matrix element with a factor
+// Multiplication of every matrix element with a scalar
 template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, M, N> operator *(const Matrix<T, M, N> &a, const T &x);
 
-// Division of every matrix element by a divisor
+// Division of every matrix element by a scalar
 template <class T, unsigned int M, unsigned int N, class U>
 inline Matrix<T, M, N> operator /(const Matrix<T, M, N> &a, const U &x);
 
@@ -517,7 +517,7 @@ inline LuDecomposition<T, M, N>::LuDecomposition(const Matrix<T, M, N> &m) : low
 		}
 		if (s == M) {
 			// All coefficients of column n are 0
-			throw NonInvertibleMatrixException("Empty equation, can't find solution for inverse");
+			throw NonInvertibleMatrixException("Singular matrix, can't find solution for inverse");
 		} else if (s != n) {
 			// (n, n) is 0, swap row n with row s (which has a non-zero coefficient)
 			// Also swap the corresponding rows in the permutation matrix
@@ -553,7 +553,7 @@ inline Matrix<T, N, M> transpose(const Matrix<T, M, N> &m) {
 }
 
 template <class T, unsigned int M, unsigned int N>
-inline T determinant(const Matrix<T, M, N> &m){
+inline T determinant(const Matrix<T, M, N> &m) {
 	static_assert(M == N && M > 0, "Matrix is not square");
 	// Decompose into triangular parts
 	try {

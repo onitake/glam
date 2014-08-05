@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 project(GLAM)
 
 set(GLAM_VERSION_MAJOR 0)
-set(GLAM_VERSION_MINOR 2)
-set(GLAM_VERSION_MICRO 1)
+set(GLAM_VERSION_MINOR 3)
+set(GLAM_VERSION_MICRO 0)
+# Set GLAM_DEBUG to 1 to enable debugging symbols
 set(GLAM_DEBUG 0)
 
 include(CheckCXXCompilerFlag)
