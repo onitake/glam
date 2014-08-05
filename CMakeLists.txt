@@ -14,7 +14,7 @@ include(CheckIncludeFileCXX)
 
 find_package(CxxTest)
 if(CXXTEST_FOUND)
-	set(HAS_CXXTEST 1)
+	set(GLAM_HAS_CXXTEST 1)
 	include_directories(${CXXTEST_INCLUDE_DIR})
 endif()
 
@@ -71,10 +71,10 @@ int main() {
 	f(10);
 	return 0;
 }
-" HAS_XVALUE)
-if(HAS_XVALUE)
+" GLAM_HAS_XVALUE)
+if(GLAM_HAS_XVALUE)
 else()
-	message(FATAL_ERROR "Your compiler doesn't support C++11 xvalues.")
+	message(WARNING "Your compiler doesn't support C++11 xvalues.")
 endif()
 
 check_cxx_source_runs("
@@ -84,10 +84,10 @@ int main() {
 	std::tuple<int, float, Test> t = std::make_tuple(1, 0.5f, Test());
 	return 0;
 }
-" HAS_TUPLE)
-if(HAS_TUPLE)
+" GLAM_HAS_TUPLE)
+if(GLAM_HAS_TUPLE)
 else()
-	message(FATAL_ERROR "Your compiler doesn't support C++11 tuples.")
+	message(WARNING "Your compiler doesn't support C++11 tuples.")
 endif()
 
 check_cxx_source_runs("
@@ -95,8 +95,8 @@ int main() {
 	static_assert(true, \"true is true\");
 	return 0;
 }
-" HAS_STATIC_ASSERT)
-if(HAS_STATIC_ASSERT)
+" GLAM_HAS_STATIC_ASSERT)
+if(GLAM_HAS_STATIC_ASSERT)
 else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 static assert.")
 endif()
@@ -107,8 +107,8 @@ int main() {
 	std::round(0.5);
 	return 0;
 }
-" HAS_CMATH)
-if(HAS_CMATH)
+" GLAM_HAS_CMATH)
+if(GLAM_HAS_CMATH)
 else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 <cmath>.")
 endif()
@@ -123,8 +123,8 @@ int main() {
 	test(1, 2, 3, 4, 5);
 	return 0;
 }
-" HAS_VARIADIC_TEMPLATES)
-if(HAS_VARIADIC_TEMPLATES)
+" GLAM_HAS_VARIADIC_TEMPLATES)
+if(GLAM_HAS_VARIADIC_TEMPLATES)
 else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 variadic templates.")
 endif()

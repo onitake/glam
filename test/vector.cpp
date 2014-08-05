@@ -29,7 +29,7 @@
 #include <glam/matrix.h>
 #include <glam/config.h>
 
-#ifdef HAS_CXXTEST
+#ifdef GLAM_HAS_CXXTEST
 #include <cxxtest/TestSuite.h>
 #else
 #include <iostream>
@@ -37,23 +37,27 @@ struct AssertException {
 	unsigned long line;
 	AssertException(unsigned long l) : line(l) { }
 };
-#define TS_ASSERT(a) do { if (!a) throw AssertException(__LINE__); };
-#define TS_ASSERT_EQUALS(a, b) do { if (a != b) throw AssertException(__LINE__); };
-#define TS_ASSERT_DELTA(a, b, d) do { if (a - b > d && b - a > d) throw AssertException(__LINE__); };
+#define TS_ASSERT(a) do { if (!a) throw AssertException(__LINE__); } while (0)
+#define TS_ASSERT_EQUALS(a, b) do { if (a != b) throw AssertException(__LINE__); } while (0)
+#define TS_ASSERT_DELTA(a, b, d) do { if (a - b > d && b - a > d) throw AssertException(__LINE__); } while (0)
+#define TS_TRACE(a) do { } while (0)
+#define TS_ASSERT_LESS_THAN_EQUALS(a, b) do { if (a > b) throw AssertException(__LINE__); } while (0)
 #endif
 
-#ifdef HAS_CXXTEST
+#ifdef GLAM_HAS_CXXTEST
 class VectorTest : public CxxTest::TestSuite {
 #else
 class VectorTest {
 	VectorTest() {
+		testSize();
+		testFeatures();
 		testVec4ConstructorAndAccessor();
 		testVec5Equal();
 		testVec4Multiply();
 		testVec4Add();
 		testIVec4ConstructorAndAccessor();
 		testIVec4Cast();
-		testVec4Dot();
+		testVecDot();
 		testDVec10IteratorConstructor();
 		testDVec10Length();
 		testDVec10Normalize();
@@ -277,7 +281,7 @@ public:
 	}
 };
 
-#ifndef HAS_CXXTEST
+#ifndef GLAM_HAS_CXXTEST
 int main(int argc, char **argv) {
 	try {
 		VectorTest();
