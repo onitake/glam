@@ -81,14 +81,14 @@ public:
 	// Vector(const T *m): Populate the vector from a constant array
 	//  Elements are filled up in order of occurrence.
 	//  Note that this overload does not support range checking. Make sure that the input array has the correct size or use the ForwardIterator overload.
-	// Vector<OtherType>(const Vector<OtherType> &arg0, ...): Convert a vector of different element type
+	// Vector<OtherType>(const Vector<OtherType> &arg0): Convert a vector of different element type
 	//  The lengths of the vectors need to match.
 	template <typename... Args>
 	Vector(Args... args);
 
 	// Assignment operator
 	Vector<T, C> &operator =(const Vector<T, C> &v);
-
+	
 	// Member access operator
 	T &operator [](unsigned int index);
 	// Const member access operator
@@ -141,75 +141,47 @@ public:
 // Component-wise pre-increment operator
 template <class T, unsigned int C>
 Vector<T, C> &operator ++(Vector<T, C> &self);
-template <class T, unsigned int C>
-Vector<T, C> &operator ++(Vector<T, C> &&self);
 // Component-wise post-increment operator
 template <class T, unsigned int C>
 Vector<T, C> operator ++(Vector<T, C> &self, int);
-template <class T, unsigned int C>
-Vector<T, C> operator ++(Vector<T, C> &&self, int);
 // Component-wise pre-decrement operator
 template <class T, unsigned int C>
 Vector<T, C> &operator --(Vector<T, C> &self);
-template <class T, unsigned int C>
-Vector<T, C> &operator --(Vector<T, C> &&self);
 // Component-wise post-decrement operator
 template <class T, unsigned int C>
 Vector<T, C> operator --(Vector<T, C> &self, int);
-template <class T, unsigned int C>
-Vector<T, C> operator --(Vector<T, C> &&self, int);
 
 // Component-wise self-addition operator
 template <class T, unsigned int C>
 Vector<T, C> &operator +=(Vector<T, C> &self, const Vector<T, C> &v);
-template <class T, unsigned int C>
-Vector<T, C> &operator +=(Vector<T, C> &&self, const Vector<T, C> &v);
 // Component-wise self-subtraction operator
 template <class T, unsigned int C>
 Vector<T, C> &operator -=(Vector<T, C> &self, const Vector<T, C> &v);
-template <class T, unsigned int C>
-Vector<T, C> &operator -=(Vector<T, C> &&self, const Vector<T, C> &v);
 // Component-wise self-multiplication operator
 template <class T, unsigned int C>
 Vector<T, C> &operator *=(Vector<T, C> &self, const Vector<T, C> &v);
-template <class T, unsigned int C>
-Vector<T, C> &operator *=(Vector<T, C> &&self, const Vector<T, C> &v);
 // Component-wise self-division operator
 template <class T, unsigned int C>
 Vector<T, C> &operator /=(Vector<T, C> &self, const Vector<T, C> &v);
-template <class T, unsigned int C>
-Vector<T, C> &operator /=(Vector<T, C> &&self, const Vector<T, C> &v);
 // Component-wise self-modulus operator
 template <class T, unsigned int C>
 Vector<T, C> &operator %=(Vector<T, C> &self, const Vector<T, C> &v);
-template <class T, unsigned int C>
-Vector<T, C> &operator %=(Vector<T, C> &&self, const Vector<T, C> &v);
 
 // Component-wise bitwise and operator
 template <class T, unsigned int C>
 Vector<T, C> &operator &=(Vector<T, C> &self, const Vector<T, C> &v);
-template <class T, unsigned int C>
-Vector<T, C> &operator &=(Vector<T, C> &&self, const Vector<T, C> &v);
 // Component-wise bitwise or operator
 template <class T, unsigned int C>
 Vector<T, C> &operator |=(Vector<T, C> &self, const Vector<T, C> &v);
-template <class T, unsigned int C>
-Vector<T, C> &operator |=(Vector<T, C> &&self, const Vector<T, C> &v);
 // Component-wise bitwise xor operator
 template <class T, unsigned int C>
 Vector<T, C> &operator ^=(Vector<T, C> &self, const Vector<T, C> &v);
-template <class T, unsigned int C>
-Vector<T, C> &operator ^=(Vector<T, C> &&self, const Vector<T, C> &v);
 // Component-wise bit shift left operator
 template <class T, unsigned int C>
 Vector<T, C> &operator <<=(Vector<T, C> &self, unsigned int s);
-template <class T, unsigned int C>
-Vector<T, C> &operator <<=(Vector<T, C> &&self, unsigned int s);
 // Component-wise bit shift right operator
 template <class T, unsigned int C>
 Vector<T, C> &operator >>=(Vector<T, C> &self, unsigned int s);
-template <class T, unsigned int C>
-Vector<T, C> &operator >>=(Vector<T, C> &&self, unsigned int s);
 
 // Component-wise unary plus operator (no-op if T follows standard algebra)
 template <class T, unsigned int C>
@@ -248,10 +220,10 @@ template <class T, unsigned int C>
 Vector<T, C> operator ^(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise bit shift left operator
 template <class T, unsigned int C>
-Vector<T, C> operator <<(const Vector<T, C> &v, unsigned int s);
+Vector<T, C> operator <<(const Vector<T, C> &u, unsigned int s);
 // Component-wise bit shift right operator
 template <class T, unsigned int C>
-Vector<T, C> operator >>(const Vector<T, C> &v, unsigned int s);
+Vector<T, C> operator >>(const Vector<T, C> &u, unsigned int s);
 
 // Component-wise equality comparison operator (exact compare)
 template <class T, unsigned int C>
@@ -696,6 +668,14 @@ inline const T &Vector<T, C>::operator [](unsigned int index) const {
 }
 
 template <class T, unsigned int C>
+inline Vector<T, C> &Vector<T, C>::operator =(const Vector<T, C> &v) {
+	for (unsigned int c = 0; c < C; c++) {
+		_v[c] = v[c];
+	}
+	return *this;
+}
+
+template <class T, unsigned int C>
 inline Vector<T, C> &operator ++(Vector<T, C> &self) {
 	for (unsigned int c = 0; c < C; c++) {
 		self[c]++;
@@ -730,23 +710,7 @@ inline Vector<T, C> operator --(Vector<T, C> &self, int) {
 }
 
 template <class T, unsigned int C>
-inline Vector<T, C> &Vector<T, C>::operator =(const Vector<T, C> &v) {
-	for (unsigned int c = 0; c < C; c++) {
-		_v[c] = v[c];
-	}
-	return *this;
-}
-
-template <class T, unsigned int C>
 inline Vector<T, C> &operator +=(Vector<T, C> &self, const Vector<T, C> &v) {
-	for (unsigned int c = 0; c < C; c++) {
-		self[c] += v[c];
-	}
-	return self;
-}
-
-template <class T, unsigned int C>
-inline Vector<T, C> &operator +=(Vector<T, C> &&self, const Vector<T, C> &v) {
 	for (unsigned int c = 0; c < C; c++) {
 		self[c] += v[c];
 	}
@@ -763,14 +727,6 @@ inline Vector<T, C> &operator -=(Vector<T, C> &self, const Vector<T, C> &v) {
 
 template <class T, unsigned int C>
 inline Vector<T, C> &operator *=(Vector<T, C> &self, const Vector<T, C> &v) {
-	for (unsigned int c = 0; c < C; c++) {
-		self[c] *= v[c];
-	}
-	return self;
-}
-
-template <class T, unsigned int C>
-inline Vector<T, C> &operator *=(Vector<T, C> &&self, const Vector<T, C> &v) {
 	for (unsigned int c = 0; c < C; c++) {
 		self[c] *= v[c];
 	}
@@ -862,52 +818,72 @@ inline Vector<T, C> operator ~(const Vector<T, C> &u) {
 
 template <class T, unsigned int C>
 inline Vector<T, C> operator +(const Vector<T, C> &u, const Vector<T, C> &v) {
-	return Vector<T, C>(u) += v;
+	Vector<T, C> t(u);
+	t += v;
+	return t;
 }
 
 template <class T, unsigned int C>
 inline Vector<T, C> operator -(const Vector<T, C> &u, const Vector<T, C> &v) {
-	return Vector<T, C>(u) -= v;
+	Vector<T, C> t(u);
+	t -= v;
+	return t;
 }
 
 template <class T, unsigned int C>
 inline Vector<T, C> operator *(const Vector<T, C> &u, const Vector<T, C> &v) {
-	return Vector<T, C>(u) *= v;
+	Vector<T, C> t(u);
+	t *= v;
+	return t;
 }
 
 template <class T, unsigned int C>
 inline Vector<T, C> operator /(const Vector<T, C> &u, const Vector<T, C> &v) {
-	return Vector<T, C>(u) /= v;
+	Vector<T, C> t(u);
+	t /= v;
+	return t;
 }
 
 template <class T, unsigned int C>
 inline Vector<T, C> operator %(const Vector<T, C> &u, const Vector<T, C> &v) {
-	return Vector<T, C>(u) %= v;
+	Vector<T, C> t(u);
+	t %= v;
+	return t;
 }
 
 template <class T, unsigned int C>
 inline Vector<T, C> operator &(const Vector<T, C> &u, const Vector<T, C> &v) {
-	return Vector<T, C>(u) &= v;
+	Vector<T, C> t(u);
+	t &= v;
+	return t;
 }
 
 template <class T, unsigned int C>
 inline Vector<T, C> operator |(const Vector<T, C> &u, const Vector<T, C> &v) {
-	return Vector<T, C>(u) |= v;
+	Vector<T, C> t(u);
+	t |= v;
+	return t;
 }
 
 template <class T, unsigned int C>
 inline Vector<T, C> operator ^(const Vector<T, C> &u, const Vector<T, C> &v) {
-	return Vector<T, C>(u) ^= v;
+	Vector<T, C> t(u);
+	t ^= v;
+	return t;
 }
 
 template <class T, unsigned int C>
-inline Vector<T, C> operator <<(const Vector<T, C> &v, unsigned int s) {
-	return Vector<T, C>(v) <<= s;
+inline Vector<T, C> operator <<(const Vector<T, C> &u, unsigned int s) {
+	Vector<T, C> t(u);
+	t <<= s;
+	return t;
 }
 
 template <class T, unsigned int C>
-inline Vector<T, C> operator >>(const Vector<T, C> &v, unsigned int s) {
-	return Vector<T, C>(v) >>= s;
+inline Vector<T, C> operator >>(const Vector<T, C> &u, unsigned int s) {
+	Vector<T, C> t(u);
+	t >>= s;
+	return t;
 }
 
 template <class T, unsigned int C>

@@ -50,7 +50,7 @@ private:
 	// | a10 a11 a12 |
 	Vector<T, M> _a[N];
 
-	// Single element access by array index
+	// Single element access by array index (inefficient implementation, use sparingly)
 	T &element(unsigned int index);
 	const T &element(unsigned int index) const;
 	// LU(P) decomposition
@@ -197,6 +197,23 @@ inline Matrix<T, M, N> outerProduct(const Vector<T, N> &c, const Vector<T, M> &r
 template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, N, M> transpose(const Matrix<T, M, N> &m);
 
+// LU(P) decomposition
+// LOWER is a lower triangular matrix
+// UPPER is an upper triangular matrix
+// PERMUTATION is a permutation matrix
+// SWAPS is the number of swaps performed to obtain PERMUTATION, with respect to IDENTITY
+// The following equation must hold: PA = LU (where A is *this)
+enum LuDecompositionElement { LOWER = 0, UPPER = 1, PERMUTATION = 2, SWAPS = 3 };
+template <class T, unsigned int M, unsigned int N>
+struct LuDecompositionTuple {
+	Matrix<T, M, N> lower;
+	Matrix<T, M, N> upper;
+	Matrix<T, M, N> permutation;
+	unsigned int swaps;
+};
+template <class T, unsigned int M, unsigned int N>
+std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> luDecomposition(const Matrix<T, M, N> &m);
+
 // Matrix determinant
 template <class T, unsigned int M, unsigned int N>
 inline T determinant(const Matrix<T, M, N> &m);
@@ -216,33 +233,29 @@ template <class T>
 inline Matrix<T, 2, 2> rotationMatrix(const T &angle);
 // 3D linear transform
 template <class T>
-inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const T &x, const T &y, const T &z);
-template <class T>
 inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const Vector<T, 3> &v);
+template <class T>
+inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const T &x, const T &y, const T &z);
 
 // Generate a scaling matrix
+// Linear transform
+template <class T, unsigned int M>
+inline Matrix<T, M, M> scalingMatrix(const Vector<T, M> &v);
 // 2D linear transform
 template <class T>
 inline Matrix<T, 2, 2> scalingMatrix(const T &x, const T &y);
 // 3D linear transform
 template <class T>
 inline Matrix<T, 3, 3> scalingMatrix(const T &x, const T &y, const T &z);
-// 4D linear transform
-template <class T>
-inline Matrix<T, 4, 4> scalingMatrix(const T &x, const T &y, const T &z, const T &w);
-// M-dimensional linear transform
-template <class T, unsigned int M>
-inline Matrix<T, M, M> scalingMatrix(const Vector<T, M> &v);
 
 // Generate a translation matrix
+// Affine transform
+template <class T, unsigned int M>
+inline Matrix<T, M + 1, M + 1> translationMatrix(const Vector<T, M> &v);
 // 2D affine transform
-template <class T>
-inline Matrix<T, 3, 3> translationMatrix(const Vector<T, 2> &v);
 template <class T>
 inline Matrix<T, 3, 3> translationMatrix(const T &x, const T &y);
 // 3D affine transform
-template <class T>
-inline Matrix<T, 4, 4> translationMatrix(const Vector<T, 3> &v);
 template <class T>
 inline Matrix<T, 4, 4> translationMatrix(const T &x, const T &y, const T &z);
 
@@ -276,18 +289,14 @@ typedef Matrix<float, 4, 4> mat4x4;
 
 // Implementation
 
-#warning TODO Remove deprecation pragma when everyting is moved to the function API
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
 template <class T, unsigned int M, unsigned int N>
 T &Matrix<T, M, N>::element(unsigned int index) {
-	return _a[index / M][index % M];
+	return (*this)[index / M][index % M];
 }
 
 template <class T, unsigned int M, unsigned int N>
 const T &Matrix<T, M, N>::element(unsigned int index) const {
-	return _a[index / M][index % M];
+	return (*this)[index / M][index % M];
 }
 
 template <class T, unsigned int M, unsigned int N>
@@ -527,21 +536,47 @@ inline const Vector<T, M> &Matrix<T, M, N>::operator [](unsigned int j) const {
 
 template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, N, M> Matrix<T, M, N>::t() const {
-	Matrix<T, N, M> ret;
+	return transpose(*this);
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> Matrix<T, M, N>::lu() const {
+	return luDecomposition(*this);
+}
+
+
+template <class T, unsigned int M, unsigned int N>
+T Matrix<T, M, N>::det() const {
+	return determinant(*this);
+}
+
+template <class T, unsigned int M, unsigned int N>
+Matrix<T, M, N> Matrix<T, M, N>::inv() const {
+	return inverse(*this);
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> matrixCompMult(const Matrix<T, M, N> &x, const Matrix<T, M, N> &y) {
+	Matrix<T, M, N> ret;
 	for (unsigned int i = 0; i < M; i++) {
 		for (unsigned int j = 0; j < N; j++) {
-			ret[i][j] = (*this)[j][i];
+			ret[j][i] = x[j][i] * y[j][i];
 		}
 	}
 	return ret;
 }
 
 template <class T, unsigned int M, unsigned int N>
-inline std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> Matrix<T, M, N>::lu() const {
+inline Matrix<T, M, N> outerProduct(const Vector<T, M> &c, const Vector<T, N> &r) {
+	return Matrix<T, M, 1>(c) * Matrix<T, 1, N>(r);
+}
+
+template <class T, unsigned int M, unsigned int N>
+std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> luDecomposition(const Matrix<T, M, N> &m) {
 	static_assert(M == N, "Matrix is not square");
 	// Prepare result (lower and upper triangular matrices, permutation)
 	Matrix<T, M, N> l(1);
-	Matrix<T, M, N> u = *this;
+	Matrix<T, M, N> u(m);
 	Matrix<T, M, N> p(1);
 	// Reset the swap counter
 	unsigned int swaps = 0;
@@ -558,7 +593,7 @@ inline std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned in
 		}
 		if (s == M) {
 			// All coefficients of column n are 0
-			throw NonInvertibleMatrixException("Can't find solution for matrix inverse");
+			throw NonInvertibleMatrixException("Empty equation, can't find solution for inverse");
 		} else if (s != n) {
 			// (n, n) is 0, swap row n with row s (which has a non-zero coefficient)
 			// Also swap the corresponding rows in the permutation matrix
@@ -583,13 +618,23 @@ inline std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned in
 	return std::make_tuple(l, u, p, swaps);
 }
 
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, N, M> transpose(const Matrix<T, M, N> &m) {
+	Matrix<T, N, M> ret;
+	for (unsigned int i = 0; i < M; i++) {
+		for (unsigned int j = 0; j < N; j++) {
+			ret[i][j] = m[j][i];
+		}
+	}
+	return ret;
+}
 
 template <class T, unsigned int M, unsigned int N>
-T Matrix<T, M, N>::det() const {
+inline T determinant(const Matrix<T, M, N> &m){
 	static_assert(M == N && M > 0, "Matrix is not square");
 	// Decompose into triangular parts
 	try {
-		std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> lups = lu();
+		std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> lups = luDecomposition(m);
 		// det(A) = det(P^-1) * det(L) * det(U) = (-1)^S * (l11 * l22 * ...) * (u11 * u22 * ...)
 		// Since the diagonal of L is all 1s, its determinant is also 1, so
 		// det(A) = (-1)^S * (u11 * u22 * ...)
@@ -610,10 +655,10 @@ T Matrix<T, M, N>::det() const {
 }
 
 template <class T, unsigned int M, unsigned int N>
-Matrix<T, M, N> Matrix<T, M, N>::inv() const {
+inline Matrix<T, M, N> inverse(const Matrix<T, M, N> &m) {
 	static_assert(M == N && M > 0, "Matrix is not square");
 	// Decompose into triangular parts
-	std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> lups = lu();
+	std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> lups = luDecomposition(m);
 	// Start with AX = I, where X is the inverse of A
 	// A = P^-1LU, so P^-1LUX = I, and thus LUX = P (with P = I if no row swapping was needed)
 	// Substitute UX = Y, yielding LY = P
@@ -654,39 +699,113 @@ Matrix<T, M, N> Matrix<T, M, N>::inv() const {
 }
 
 template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> matrixCompMult(const Matrix<T, M, N> &x, const Matrix<T, M, N> &y) {
-	Matrix<T, M, N> ret;
-	for (unsigned int i = 0; i < M; i++) {
-		for (unsigned int j = 0; j < N; j++) {
-			ret[j][i] = x[j][i] * y[j][i];
-		}
-	}
-	return ret;
-}
-
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> outerProduct(const Vector<T, M> &c, const Vector<T, N> &r) {
-	return Matrix<T, M, 1>(c) * Matrix<T, 1, N>(r);
-}
-
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, N, M> transpose(const Matrix<T, M, N> &m) {
-	return m.t();
-}
-
-template <class T, unsigned int M, unsigned int N>
-inline T determinant(const Matrix<T, M, N> &m){
-	return m.det();
-}
-
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> inverse(const Matrix<T, M, N> &m) {
-	return m.inv();
-}
-
-template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, M, N> Matrix<T, M, N>::scaling(const Vector<T, M> &v) {
-	static_assert(M == N && M > 0, "Matrix is not square");
+	return scalingMatrix(v);
+}
+
+template <>
+inline Matrix<float, 3, 3> Matrix<float, 3, 3>::scaling(const float &a, const float &b, const float &c) {
+	return scalingMatrix(Vector<float, 3>(a, b, c));
+}
+
+template <>
+inline Matrix<float, 4, 4> Matrix<float, 4, 4>::scaling(const float &a, const float &b, const float &c) {
+	return Matrix<float, 4, 4>(scalingMatrix(Vector<float, 3>(a, b, c)));
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> Matrix<T, M, N>::translation(const Vector<T, M - 1> &v) {
+	return translationMatrix(v);
+}
+
+template <>
+inline Matrix<float, 3, 3> Matrix<float, 3, 3>::translation(const float &a, const float &b, const float &c) {
+	return translationMatrix(Vector<float, 2>(a, b));
+}
+
+template <>
+inline Matrix<float, 4, 4> Matrix<float, 4, 4>::translation(const float &a, const float &b, const float &c) {
+	return translationMatrix(Vector<float, 3>(a, b, c));
+}
+
+template <>
+inline Matrix<float, 2, 2> Matrix<float, 2, 2>::rotation(const float &angle) {
+	return rotationMatrix(angle);
+}
+
+template <>
+inline Matrix<float, 3, 3> Matrix<float, 3, 3>::rotation(const float &angle) {
+	return Matrix<float, 3, 3>(rotationMatrix(angle));
+}
+
+template <>
+inline Matrix<float, 3, 3> Matrix<float, 3, 3>::rotation(const float &angle, const Vector<float, 3> &v) {
+	return rotationMatrix(angle, v);
+}
+
+template <>
+inline Matrix<float, 4, 4> Matrix<float, 4, 4>::rotation(const float &angle, const Vector<float, 3> &v) {
+	return Matrix<float, 4, 4>(rotationMatrix(angle, v));
+}
+
+template <>
+inline Matrix<float, 3, 3> Matrix<float, 3, 3>::rotation(const float &angle, const float &a, const float &b, const float &c) {
+	return rotationMatrix(angle, Vector<float, 3>(a, b, c));
+}
+
+template <>
+inline Matrix<float, 4, 4> Matrix<float, 4, 4>::rotation(const float &angle, const float &a, const float &b, const float &c) {
+	return Matrix<float, 4, 4>(rotationMatrix(angle, Vector<float, 3>(a, b, c)));
+}
+
+template <>
+inline Matrix<float, 4, 4> Matrix<float, 4, 4>::frustum(const float &l, const float &r, const float &b, const float &t, const float &n, const float &f) {
+	return frustumMatrix(l, r, b, t, n, f);
+}
+
+template <>
+inline Matrix<float, 4, 4> Matrix<float, 4, 4>::perspective(const float &fovy, const float &aspect, const float &nearz, const float &farz) {
+	return perspectiveMatrix(fovy, aspect, nearz, farz);
+}
+
+template <>
+inline Matrix<float, 4, 4> Matrix<float, 4, 4>::ortho(const float &l, const float &r, const float &b, const float &t, const float &n, const float &f) {
+	return orthoMatrix(l, r, b, t, n, f);
+}
+
+template <class T>
+inline Matrix<T, 2, 2> rotationMatrix(const T &angle) {
+	T s = sin(angle);
+	T c = cos(angle);
+	// note column-major order
+	T data[] = {
+		c, s,
+		-s, c,
+	};
+	return Matrix<T, 2, 2>(data);
+}
+
+template <class T>
+inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const Vector<T, 3> &v) {
+	Vector<T, 3> u = normalize(v);
+	T s = sin(angle);
+	T c = cos(angle);
+	// note column-major order
+	T data[] = {
+		u[0] * u[0] + (1 - u[0] * u[0]) * c, u[0] * u[1] * (1 - c) + u[2] * s, u[0] * u[2] * (1 - c) - u[1] * s,
+		u[0] * u[1] * (1 - c) - u[2] * s, u[1] * u[1] + (1 - u[1] * u[1]) * c, u[1] * u[2] * (1 - c) + u[0] * s,
+		u[0] * u[2] * (1 - c) + u[1] * s, u[1] * u[2] * (1 - c) - u[0] * s, u[2] * u[2] + (1 - u[2] * u[2]) * c,
+	};
+	return Matrix<T, 3, 3>(data);
+}
+
+template <class T>
+inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const T &x, const T &y, const T &z){
+	return rotationMatrix(angle, Vector<T, 3>(x, y, z));
+}
+
+template <class T, unsigned int M>
+inline Matrix<T, M, M> scalingMatrix(const Vector<T, M> &v) {
 	Matrix<T, M, M> ret(1);
 	for (unsigned int i = 0; i < M; i++) {
 		ret[i][i] = v[i];
@@ -694,190 +813,74 @@ inline Matrix<T, M, N> Matrix<T, M, N>::scaling(const Vector<T, M> &v) {
 	return ret;
 }
 
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::scaling(const float &a, const float &b, const float &c) {
-	return Matrix<float, 3, 3>::scaling(Vector<float, 3>(a, b, c));
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::scaling(const float &a, const float &b, const float &c) {
-	return Matrix<float, 4, 4>(Matrix<float, 3, 3>::scaling(Vector<float, 3>(a, b, c)));
-}
-
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> Matrix<T, M, N>::translation(const Vector<T, M - 1> &v) {
-	static_assert(M == N && M > 0, "Matrix is not square");
-	Matrix<T, M, M> ret(1);
-	for (unsigned int i = 0; i < M - 1; i++) {
-		ret[N - 1][i] = v[i];
-	}
-	// As long as the conversion constructor is explicit, this will fail if the matrix isn't square
-	return ret;
-}
-
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::translation(const float &a, const float &b, const float &c) {
-	return Matrix<float, 3, 3>::translation(Vector<float, 2>(a, b));
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::translation(const float &a, const float &b, const float &c) {
-	return Matrix<float, 4, 4>::translation(Vector<float, 3>(a, b, c));
-}
-
-template <>
-inline Matrix<float, 2, 2> Matrix<float, 2, 2>::rotation(const float &angle) {
-	float s = sin(angle);
-	float c = cos(angle);
-	// note column-major order
-	float data[] = {
-		c, s,
-		-s, c,
-	};
-	return Matrix<float, 2, 2>(data);
-}
-
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::rotation(const float &angle, const Vector<float, 3> &v) {
-	Vector<float, 3> u = normalize(v);
-	float s = sin(angle);
-	float c = cos(angle);
-	// note column-major order
-	float data[] = {
-		u[0] * u[0] + (1 - u[0] * u[0]) * c, u[0] * u[1] * (1 - c) + u[2] * s, u[0] * u[2] * (1 - c) - u[1] * s,
-		u[0] * u[1] * (1 - c) - u[2] * s, u[1] * u[1] + (1 - u[1] * u[1]) * c, u[1] * u[2] * (1 - c) + u[0] * s,
-		u[0] * u[2] * (1 - c) + u[1] * s, u[1] * u[2] * (1 - c) - u[0] * s, u[2] * u[2] + (1 - u[2] * u[2]) * c,
-	};
-	return Matrix<float, 3, 3>(data);
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::rotation(const float &angle, const Vector<float, 3> &v) {
-	return Matrix<float, 4, 4>(Matrix<float, 3, 3>::rotation(angle, v));
-}
-
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::rotation(const float &angle, const float &a, const float &b, const float &c) {
-	return Matrix<float, 3, 3>::rotation(angle, Vector<float, 3>(a, b, c));
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::rotation(const float &angle, const float &a, const float &b, const float &c) {
-	return Matrix<float, 4, 4>::rotation(angle, Vector<float, 3>(a, b, c));
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::frustum(const float &l, const float &r, const float &b, const float &t, const float &n, const float &f) {
-	float data[] = {
-		2.0f * n / (r - l), 0, 0, 0,
-		0, 2.0f * n / (t - b), 0, 0,
-		(r + l) / (r - l), (t + b) / (t - b), -((f + n) / (f - n)), -1.0f,
-		0, 0, -2.0f * f * n / (f - n), 0,
-	};
-	return Matrix<float, 4, 4>(data);
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::perspective(const float &fovy, const float &aspect, const float &nearz, const float &farz) {
-	float f = 1.0f / tan(fovy / 2.0f);
-	// note column-major order
-	float data[] = {
-		f / aspect, 0, 0, 0,
-		0, f, 0, 0,
-		0, 0, (farz + nearz) / (nearz - farz), -1.0f,
-		0, 0, 2.0f * farz * nearz / (nearz - farz), 0
-	};
-	return Matrix<float, 4, 4>(data);
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::ortho(const float &l, const float &r, const float &b, const float &t, const float &n, const float &f) {
-	float data[] = {
-		2.0f / (r - l), 0, 0, 0,
-		0, 2.0f / (t - b), 0, 0,
-		0, 0, -2.0f / (f - n), 0,
-		-((r + l) / (r - l)), -((t + b) / (t - b)), -((f + n) / (f - n)), 1,
-	};
-	return Matrix<float, 4, 4>(data);
-}
-
-template <class T>
-inline Matrix<T, 2, 2> rotationMatrix(const T &angle) {
-	return Matrix<T, 2, 2>::rotation(angle);
-}
-
-template <class T>
-inline Matrix<T, 3, 3> rotationMatrix(const T &angle) {
-	return Matrix<T, 3, 3>::rotation(angle);
-}
-
-template <class T>
-inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const T &x, const T &y, const T &z){
-	return Matrix<T, 3, 3>::rotation(angle, x, y, z);
-}
-
-template <class T>
-inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const Vector<T, 3> &v) {
-	return Matrix<T, 3, 3>::rotation(angle, v);
-}
-
 template <class T>
 inline Matrix<T, 2, 2> scalingMatrix(const T &x, const T &y) {
-	return Matrix<T, 2, 2>::scaling(x, y);
+	return scalingMatrix(Vector<T, 2>(x, y));
 }
 
 template <class T>
 inline Matrix<T, 3, 3> scalingMatrix(const T &x, const T &y, const T &z) {
-	return Matrix<T, 3, 3>::scaling(x, y, z);
+	return scalingMatrix(Vector<T, 3>(x, y, z));
 }
 
 template <class T>
 inline Matrix<T, 4, 4> scalingMatrix(const T &x, const T &y, const T &z, const T &w) {
-	return Matrix<T, 2, 2>::scaling(x, y, z, w);
+	return scalingMatrix(Vector<T, 4>(x, y, z, w));
 }
 
 template <class T, unsigned int M>
-inline Matrix<T, M, M> scalingMatrix(const Vector<T, M> &v) {
-	return Matrix<T, M, M>::scaling(v);
-}
-
-template <class T>
-inline Matrix<T, 3, 3> translationMatrix(const Vector<T, 2> &v) {
-	return Matrix<T, 3, 3>::translation(v);
+inline Matrix<T, M + 1, M + 1> translationMatrix(const Vector<T, M> &v) {
+	Matrix<T, M + 1, M + 1> ret(1);
+	for (unsigned int i = 0; i < M; i++) {
+		ret[M][i] = v[i];
+	}
+	return ret;
 }
 
 template <class T>
 inline Matrix<T, 3, 3> translationMatrix(const T &x, const T &y) {
-	return Matrix<T, 3, 3>::translation(x, y);
-}
-
-template <class T>
-inline Matrix<T, 4, 4> translationMatrix(const Vector<T, 3> &v) {
-	return Matrix<T, 4, 4>::translation(v);
+	return translationMatrix(Vector<T, 2>(x, y));
 }
 
 template <class T>
 inline Matrix<T, 4, 4> translationMatrix(const T &x, const T &y, const T &z) {
-	return Matrix<T, 4, 4>::translation(x, y, z);
+	return translationMatrix(Vector<T, 3>(x, y, z));
 }
 
 template <class T>
 inline Matrix<T, 4, 4> perspectiveMatrix(const T &fovy, const T &aspect, const T &nearz, const T &farz) {
-	return Matrix<T, 4, 4>::perspective(fovy, aspect, nearz, farz);
+	T f = T(1) / tan(fovy / T(2));
+	// note column-major order
+	T data[] = {
+		f / aspect, 0, 0, 0,
+		0, f, 0, 0,
+		0, 0, (farz + nearz) / (nearz - farz), T(-1),
+		0, 0, T(2) * farz * nearz / (nearz - farz), 0
+	};
+	return Matrix<T, 4, 4>(data);
 }
 
 template <class T>
 inline Matrix<T, 4, 4> frustumMatrix(const T &l, const T &r, const T &b, const T &t, const T &n, const T &f) {
-	return Matrix<T, 4, 4>::frustum(l, r, b, t, n, f);
+	T data[] = {
+		T(2) * n / (r - l), 0, 0, 0,
+		0, T(2) * n / (t - b), 0, 0,
+		(r + l) / (r - l), (t + b) / (t - b), -((f + n) / (f - n)), T(-1),
+		0, 0, T(-2) * f * n / (f - n), 0,
+	};
+	return Matrix<float, 4, 4>(data);
 }
 
 template <class T>
 inline Matrix<T, 4, 4> orthoMatrix(const T &l, const T &r, const T &b, const T &t, const T &n, const T &f) {
-	return Matrix<T, 4, 4>::ortho(l, r, b, t, n, f);
+	T data[] = {
+		T(2) / (r - l), 0, 0, 0,
+		0, T(2) / (t - b), 0, 0,
+		0, 0, T(-2) / (f - n), 0,
+		-((r + l) / (r - l)), -((t + b) / (t - b)), -((f + n) / (f - n)), T(1),
+	};
+	return Matrix<float, 4, 4>(data);
 }
-
-#warning TODO Remove deprecation pragma when everyting is moved to the function API
-#pragma GCC diagnostic pop
 
 }
 
