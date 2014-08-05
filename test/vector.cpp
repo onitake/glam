@@ -24,6 +24,7 @@
  */
 
 #include <string>
+#include <type_traits>
 #include <glam/vector.h>
 #include <glam/matrix.h>
 #include <glam/config.h>
@@ -73,6 +74,22 @@ public:
 		TS_ASSERT_LESS_THAN_EQUALS(sizeof(glam::Vector<double, 2>), sizeof(double) * 4);
 		TS_ASSERT_LESS_THAN_EQUALS(sizeof(glam::Vector<bool, 4>), sizeof(bool) * 4);
 		TS_ASSERT_LESS_THAN_EQUALS(sizeof(glam::Vector<int, 256>), sizeof(int) * 256);
+	}
+	void testFeatures() {
+		// is_pod requires non-trivial copy/move constructors and non-trivial copy/move assignment operators
+		// since we already provide a const internal pointer accessor, we don't enforce this requirementi
+		TS_ASSERT(std::is_standard_layout<glam::vec2>::value);
+		TS_ASSERT(std::is_standard_layout<glam::vec3>::value);
+		TS_ASSERT(std::is_standard_layout<glam::vec4>::value);
+		TS_ASSERT(std::is_standard_layout<glam::ivec2>::value);
+		TS_ASSERT(std::is_standard_layout<glam::ivec3>::value);
+		TS_ASSERT(std::is_standard_layout<glam::ivec4>::value);
+		TS_ASSERT(std::is_standard_layout<glam::dvec2>::value);
+		TS_ASSERT(std::is_standard_layout<glam::dvec3>::value);
+		TS_ASSERT(std::is_standard_layout<glam::dvec4>::value);
+		TS_ASSERT(std::is_standard_layout<glam::bvec2>::value);
+		TS_ASSERT(std::is_standard_layout<glam::bvec3>::value);
+		TS_ASSERT(std::is_standard_layout<glam::bvec4>::value);
 	}
 	void testVec4ConstructorAndAccessor() {
 		glam::vec4 v(1, 12.345, 0.5, 30);
@@ -132,11 +149,44 @@ public:
 	void testVec4Add() {
 		glam::vec4 v(1, 2, 3.5, 100);
 		glam::vec4 w(0.5, 80, 20, 0.1);
-		glam::vec4 u = v + w;
-		TS_ASSERT_EQUALS(u[0], 1.5f);
-		TS_ASSERT_EQUALS(u[1], 82.0f);
-		TS_ASSERT_EQUALS(u[2], 23.5f);
-		TS_ASSERT_EQUALS(u[3], 100.1f);
+		glam::vec4 u2(v);
+		glam::vec4 u1 = v + w;
+		TS_ASSERT_EQUALS(u1[0], 1.5f);
+		TS_ASSERT_EQUALS(u1[1], 82.0f);
+		TS_ASSERT_EQUALS(u1[2], 23.5f);
+		TS_ASSERT_EQUALS(u1[3], 100.1f);
+		u2 += w;
+		TS_ASSERT_EQUALS(u2[0], 1.5f);
+		TS_ASSERT_EQUALS(u2[1], 82.0f);
+		TS_ASSERT_EQUALS(u2[2], 23.5f);
+		TS_ASSERT_EQUALS(u2[3], 100.1f);
+	}
+	void testIVec10Subtract() {
+		glam::Vector<int, 10> v(1, 2, 3, 100, 4, 5, 6, 200, 7, 8);
+		glam::Vector<int, 10> w(1000, 9, 8, 7, 800, 6, 5, 4, 600, 3);
+		glam::Vector<int, 10> u2(v);
+		glam::Vector<int, 10> u1 = v - w;
+		TS_ASSERT_EQUALS(u1[0], -999);
+		TS_ASSERT_EQUALS(u1[1], -7);
+		TS_ASSERT_EQUALS(u1[2], -5);
+		TS_ASSERT_EQUALS(u1[3], 93);
+		TS_ASSERT_EQUALS(u1[4], -796);
+		TS_ASSERT_EQUALS(u1[5], -1);
+		TS_ASSERT_EQUALS(u1[6], 1);
+		TS_ASSERT_EQUALS(u1[7], 196);
+		TS_ASSERT_EQUALS(u1[8], -593);
+		TS_ASSERT_EQUALS(u1[9], 5);
+		u2 -= w;
+		TS_ASSERT_EQUALS(u2[0], -999);
+		TS_ASSERT_EQUALS(u2[1], -7);
+		TS_ASSERT_EQUALS(u2[2], -5);
+		TS_ASSERT_EQUALS(u2[3], 93);
+		TS_ASSERT_EQUALS(u2[4], -796);
+		TS_ASSERT_EQUALS(u2[5], -1);
+		TS_ASSERT_EQUALS(u2[6], 1);
+		TS_ASSERT_EQUALS(u2[7], 196);
+		TS_ASSERT_EQUALS(u2[8], -593);
+		TS_ASSERT_EQUALS(u2[9], 5);
 	}
 	void testIVec4ConstructorAndAccessor() {
 		glam::ivec4 v(1, 12.345, 0.5, 30);
@@ -153,11 +203,14 @@ public:
 		TS_ASSERT_EQUALS(w[2], 0);
 		TS_ASSERT_EQUALS(w[3], 30);
 	}
-	void testVec4Dot() {
-		glam::vec4 v(1, 2, 3.5, 100);
-		glam::vec4 w(0.5, 80, 20, 0.1);
-		float u = glam::dot(v, w);
-		TS_ASSERT_EQUALS(u, 240.5f);
+	void testVecDot() {
+		glam::vec4 v1(1, 2, 3.5, 100);
+		glam::vec4 w1(0.5, 80, 20, 0.1);
+		float u1 = glam::dot(v1, w1);
+		TS_ASSERT_EQUALS(u1, 240.5f);
+		glam::Vector<double, 7> v2(1, 2, 3, 4, 5, 6, 0);
+		glam::Vector<double, 7> w2(0, 6, 5, 4, 3, 2, 1);
+		TS_ASSERT_EQUALS(glam::dot(v2, w2), 70);
 	}
 	void testDVec10IteratorConstructor() {
 		double values[] = { 10, 100.1, 42, 9.856, 19, 0, 37.3, 90, 101.85, 0.00007 };
