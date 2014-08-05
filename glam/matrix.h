@@ -30,7 +30,6 @@
 #include <cmath>
 #include <ostream>
 #include <utility>
-#include <tuple>
 #include <glam/vector.h>
 #include <glam/exception.h>
 #include <glam/config.h>
@@ -53,14 +52,6 @@ private:
 	// Single element access by array index (inefficient implementation, use sparingly)
 	T &element(unsigned int index);
 	const T &element(unsigned int index) const;
-	// LU(P) decomposition
-	// LOWER is a lower triangular matrix
-	// UPPER is an upper triangular matrix
-	// PERMUTATION is a permutation matrix
-	// SWAPS is the number of swaps performed to obtain PERMUTATION, with respect to IDENTITY
-	// The following equation must hold: PA = LU (where A is *this)
-	enum TupleElement { LOWER = 0, UPPER = 1, PERMUTATION = 2, SWAPS = 3 };
-	std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> lu() const;
 
 	// Supporting initializers to avoid trouble from delegate constructors
 	template <unsigned int X>
@@ -98,37 +89,6 @@ public:
 	template <typename... Args>
 	Matrix(Args... args);
 	
-	// Rotation matrices
-	// Angle must be specified in radians
-	// Only implemented for mat2 (2D linear transform) and Matrix3f (2D affine transform)
-	static Matrix<T, M, N> rotation(const T &angle) __attribute__((deprecated));
-	// Only implemented for mat3 and mat4 (3D linear/affine transform)
-	static Matrix<T, M, N> rotation(const T &angle, const T &a, const T &b, const T &c) __attribute__((deprecated));
-	// Only implemented for mat3 (3D linear transform)
-	static Matrix<T, M, N> rotation(const T &angle, const Vector<T, M> &v) __attribute__((deprecated));
-	// Only implemented for mat4 (3D affine transform)
-	static Matrix<T, M, N> rotation(const T &angle, const Vector<T, M - 1> &v) __attribute__((deprecated));
-	// Scaling matrix
-	// Only implemented for M = N
-	static Matrix<T, M, N> scaling(const Vector<T, M> &v) __attribute__((deprecated));
-	// Only implemented for mat3 and mat4 (3D linear/affine transform)
-	static Matrix<T, M, N> scaling(const T &a, const T &b, const T &c) __attribute__((deprecated));
-	// Affine translation matrix
-	// Only implemented for M = N
-	static Matrix<T, M, N> translation(const Vector<T, M - 1> &v) __attribute__((deprecated));
-	// Only implemented for mat3 and mat4 (affine transform)
-	static Matrix<T, M, N> translation(const T &a, const T &b, const T &c = 0) __attribute__((deprecated));
-	// Perspective projection matrix, specification through field-of-view angle, aspect ratio and near/far planes
-	// Angle must be specified in radians
-	// Only implemented for mat4
-	static Matrix<T, M, N> perspective(const T &fovy, const T &aspect, const T &nearz, const T &farz) __attribute__((deprecated));
-	// Perspective projection matrix, specification through view frustum edges (left, right, bottom, top, near, far)
-	// Only implemented for mat4
-	static Matrix<T, M, N> frustum(const T &l, const T &r, const T &b, const T &t, const T &n, const T &f) __attribute__((deprecated));
-	// Orthographic projection matrix, specification through view cube edges (left, right, bottom, top, near, far)
-	// Only implemented for mat4
-	static Matrix<T, M, N> ortho(const T &l, const T &r, const T &b, const T &t, const T &n, const T &f) __attribute__((deprecated));
-
 	// Get internal pointer, subject to memory alignment (padding between column vectors)
 	const T *internal() const;
 	// Column vector access operator
@@ -147,14 +107,21 @@ public:
 	Matrix<T, M, N> &operator *=(const T &x);
 	// Matrix-scalar division
 	Matrix<T, M, N> &operator /=(const T &x);
+};
 
-	// Transpose
-	Matrix<T, N, M> t() const __attribute__((deprecated));
-
-	// Matrix determinant through LU decomposition
-	T det() const __attribute__((deprecated));
-	// Matrix inverse through LU decomposition
-	Matrix<T, M, N> inv() const __attribute__((deprecated));
+// LU(P) decomposition of M
+// lower is a lower triangular matrix (L)
+// upper is an upper triangular matrix (U)
+// permutation is a permutation matrix (P)
+// swaps is the number of swaps performed to obtain permutation, with respect to identity (S)
+// The following equation must hold: PM = LU
+template <class T, unsigned int M, unsigned int N>
+struct LuDecomposition {
+	Matrix<T, M, N> lower;
+	Matrix<T, M, N> upper;
+	Matrix<T, M, N> permutation;
+	unsigned int swaps;
+	LuDecomposition(const Matrix<T, M, N> &m);
 };
 
 // Component-wise matrix sum
@@ -196,23 +163,6 @@ inline Matrix<T, M, N> outerProduct(const Vector<T, N> &c, const Vector<T, M> &r
 // Matrix transpose (columns and rows are swapped)
 template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, N, M> transpose(const Matrix<T, M, N> &m);
-
-// LU(P) decomposition
-// LOWER is a lower triangular matrix
-// UPPER is an upper triangular matrix
-// PERMUTATION is a permutation matrix
-// SWAPS is the number of swaps performed to obtain PERMUTATION, with respect to IDENTITY
-// The following equation must hold: PA = LU (where A is *this)
-enum LuDecompositionElement { LOWER = 0, UPPER = 1, PERMUTATION = 2, SWAPS = 3 };
-template <class T, unsigned int M, unsigned int N>
-struct LuDecompositionTuple {
-	Matrix<T, M, N> lower;
-	Matrix<T, M, N> upper;
-	Matrix<T, M, N> permutation;
-	unsigned int swaps;
-};
-template <class T, unsigned int M, unsigned int N>
-std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> luDecomposition(const Matrix<T, M, N> &m);
 
 // Matrix determinant
 template <class T, unsigned int M, unsigned int N>
@@ -535,27 +485,6 @@ inline const Vector<T, M> &Matrix<T, M, N>::operator [](unsigned int j) const {
 }
 
 template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, N, M> Matrix<T, M, N>::t() const {
-	return transpose(*this);
-}
-
-template <class T, unsigned int M, unsigned int N>
-inline std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> Matrix<T, M, N>::lu() const {
-	return luDecomposition(*this);
-}
-
-
-template <class T, unsigned int M, unsigned int N>
-T Matrix<T, M, N>::det() const {
-	return determinant(*this);
-}
-
-template <class T, unsigned int M, unsigned int N>
-Matrix<T, M, N> Matrix<T, M, N>::inv() const {
-	return inverse(*this);
-}
-
-template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, M, N> matrixCompMult(const Matrix<T, M, N> &x, const Matrix<T, M, N> &y) {
 	Matrix<T, M, N> ret;
 	for (unsigned int i = 0; i < M; i++) {
@@ -572,14 +501,9 @@ inline Matrix<T, M, N> outerProduct(const Vector<T, M> &c, const Vector<T, N> &r
 }
 
 template <class T, unsigned int M, unsigned int N>
-std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> luDecomposition(const Matrix<T, M, N> &m) {
+inline LuDecomposition<T, M, N>::LuDecomposition(const Matrix<T, M, N> &m) : lower(1), upper(m), permutation(1), swaps(0) {
 	static_assert(M == N, "Matrix is not square");
-	// Prepare result (lower and upper triangular matrices, permutation)
-	Matrix<T, M, N> l(1);
-	Matrix<T, M, N> u(m);
-	Matrix<T, M, N> p(1);
-	// Reset the swap counter
-	unsigned int swaps = 0;
+	// Initializer list: prepare result (lower and upper triangular matrices, permutation, reset the swap counter)
 	// Loop through all rows except the last (which will simply become 0 0 .. 0 1 in L)
 	for (unsigned int n = 0; n < M - 1; n++) {
 		// Prepare the intermediate lower matrix (one column filled)
@@ -587,7 +511,7 @@ std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> luDe
 		// Check if a swap is needed
 		unsigned int s = M;
 		for (unsigned int i = n; i < M && s == M; i++) {
-			if (u[i][n] != 0) {
+			if (upper[i][n] != 0) {
 				s = i;
 			}
 		}
@@ -598,24 +522,23 @@ std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> luDe
 			// (n, n) is 0, swap row n with row s (which has a non-zero coefficient)
 			// Also swap the corresponding rows in the permutation matrix
 			for (unsigned int j = 0; j < N; j++) {
-				std::swap(u[j][n], u[j][s]);
-				std::swap(p[j][n], p[j][s]);
+				std::swap(upper[j][n], upper[j][s]);
+				std::swap(permutation[j][n], permutation[j][s]);
 			}
 			// Increment the swap counter
 			swaps++;
 		}
 		// Calculate lower matrix coefficients for this column
 		for (unsigned int i = n + 1; i < M; i++) {
-			T v = u[n][i] / u[n][n];
+			T v = upper[n][i] / upper[n][n];
 			// And assign them to the appropriate Ln
 			ln[n][i] = -v;
 			// and L fields
-			l[n][i] = v;
+			lower[n][i] = v;
 		}
 		// Apply Ln to U, this cancels out all coefficients under U(n,n)
-		u = ln * u;
+		upper = ln * upper;
 	}
-	return std::make_tuple(l, u, p, swaps);
 }
 
 template <class T, unsigned int M, unsigned int N>
@@ -634,23 +557,23 @@ inline T determinant(const Matrix<T, M, N> &m){
 	static_assert(M == N && M > 0, "Matrix is not square");
 	// Decompose into triangular parts
 	try {
-		std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> lups = luDecomposition(m);
+		LuDecomposition<T, M, N> lups(m);
 		// det(A) = det(P^-1) * det(L) * det(U) = (-1)^S * (l11 * l22 * ...) * (u11 * u22 * ...)
 		// Since the diagonal of L is all 1s, its determinant is also 1, so
 		// det(A) = (-1)^S * (u11 * u22 * ...)
 		// Calculate d according to (-1)^S here, S = number of exchanges in P^-1
 		T d;
-		if (std::get<SWAPS>(lups) & 1) {
+		if (lups.swaps & 1) {
 			d = static_cast<T>(-1);
 		} else {
 			d = static_cast<T>(1);
 		}
 		for (unsigned int i = 0; i < M; i++) {
-			d *= std::get<UPPER>(lups)[i][i];
+			d *= lups.upper[i][i];
 		}
 		return d;
 	} catch (NonInvertibleMatrixException &ex) {
-		return static_cast<T>(0);
+		return T(0);
 	}
 }
 
@@ -658,7 +581,7 @@ template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, M, N> inverse(const Matrix<T, M, N> &m) {
 	static_assert(M == N && M > 0, "Matrix is not square");
 	// Decompose into triangular parts
-	std::tuple<Matrix<T, M, N>, Matrix<T, M, N>, Matrix<T, M, N>, unsigned int> lups = luDecomposition(m);
+	LuDecomposition<T, M, N> lups(m);
 	// Start with AX = I, where X is the inverse of A
 	// A = P^-1LU, so P^-1LUX = I, and thus LUX = P (with P = I if no row swapping was needed)
 	// Substitute UX = Y, yielding LY = P
@@ -669,10 +592,10 @@ inline Matrix<T, M, N> inverse(const Matrix<T, M, N> &m) {
 		// Substitute each row from the previous rows
 		for (unsigned int i = 0; i < M; i++) {
 			// Fetch the starting value from P
-			T diff = std::get<PERMUTATION>(lups)[j][i];
+			T diff = lups.permutation[j][i];
 			// Subtract the product of the values from the previous rows (from the top) times the corresponding values in L
 			for (unsigned int k = 0; k < i; k++) {
-				diff -= std::get<LOWER>(lups)[k][i] * y[j][k];
+				diff -= lups.lower[k][i] * y[j][k];
 			}
 			// No division necessary, the diagonal is always 1
 			y[j][i] = diff;
@@ -688,89 +611,14 @@ inline Matrix<T, M, N> inverse(const Matrix<T, M, N> &m) {
 			T diff = y[j][i];
 			// Subtract the product of the values from the previous rows (from the bottom) times the corresponding values in U
 			for (unsigned int k = i + 1; k < M; k++) {
-				diff -= std::get<UPPER>(lups)[k][i] * x[j][k];
+				diff -= lups.upper[k][i] * x[j][k];
 			}
 			// Divide by the diagonal coefficient
-			x[j][i] = diff / std::get<UPPER>(lups)[i][i];
+			x[j][i] = diff / lups.upper[i][i];
 		}
 	}
 	// X is the inverse of A
 	return x;
-}
-
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> Matrix<T, M, N>::scaling(const Vector<T, M> &v) {
-	return scalingMatrix(v);
-}
-
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::scaling(const float &a, const float &b, const float &c) {
-	return scalingMatrix(Vector<float, 3>(a, b, c));
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::scaling(const float &a, const float &b, const float &c) {
-	return Matrix<float, 4, 4>(scalingMatrix(Vector<float, 3>(a, b, c)));
-}
-
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> Matrix<T, M, N>::translation(const Vector<T, M - 1> &v) {
-	return translationMatrix(v);
-}
-
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::translation(const float &a, const float &b, const float &c) {
-	return translationMatrix(Vector<float, 2>(a, b));
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::translation(const float &a, const float &b, const float &c) {
-	return translationMatrix(Vector<float, 3>(a, b, c));
-}
-
-template <>
-inline Matrix<float, 2, 2> Matrix<float, 2, 2>::rotation(const float &angle) {
-	return rotationMatrix(angle);
-}
-
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::rotation(const float &angle) {
-	return Matrix<float, 3, 3>(rotationMatrix(angle));
-}
-
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::rotation(const float &angle, const Vector<float, 3> &v) {
-	return rotationMatrix(angle, v);
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::rotation(const float &angle, const Vector<float, 3> &v) {
-	return Matrix<float, 4, 4>(rotationMatrix(angle, v));
-}
-
-template <>
-inline Matrix<float, 3, 3> Matrix<float, 3, 3>::rotation(const float &angle, const float &a, const float &b, const float &c) {
-	return rotationMatrix(angle, Vector<float, 3>(a, b, c));
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::rotation(const float &angle, const float &a, const float &b, const float &c) {
-	return Matrix<float, 4, 4>(rotationMatrix(angle, Vector<float, 3>(a, b, c)));
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::frustum(const float &l, const float &r, const float &b, const float &t, const float &n, const float &f) {
-	return frustumMatrix(l, r, b, t, n, f);
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::perspective(const float &fovy, const float &aspect, const float &nearz, const float &farz) {
-	return perspectiveMatrix(fovy, aspect, nearz, farz);
-}
-
-template <>
-inline Matrix<float, 4, 4> Matrix<float, 4, 4>::ortho(const float &l, const float &r, const float &b, const float &t, const float &n, const float &f) {
-	return orthoMatrix(l, r, b, t, n, f);
 }
 
 template <class T>
