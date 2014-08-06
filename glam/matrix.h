@@ -51,23 +51,23 @@ private:
 
 	// Single element access by array index (inefficient implementation, use sparingly)
 	T &element(unsigned int index);
-	const T &element(unsigned int index) const;
+	inline const T &element(unsigned int index) const;
 
 	// Supporting initializers to avoid trouble from delegate constructors
 	template <unsigned int X>
-	void initialize();
+	inline void initialize();
 	template <unsigned int X>
-	void initialize(const T &v);
+	inline void initialize(const T &v);
 	template <unsigned int X, typename ForwardIterator>
-	void initialize(std::pair<ForwardIterator, ForwardIterator> iterator);
+	inline void initialize(std::pair<ForwardIterator, ForwardIterator> iterator);
 	template <unsigned int X>
-	void initialize(const T *v);
+	inline void initialize(const T *v);
 	template <unsigned int X, class U, unsigned int P, unsigned int R>
-	void initialize(const Matrix<U, P, R> &m);
+	inline void initialize(const Matrix<U, P, R> &m);
 	template <unsigned int X, typename... Args, unsigned int P>
-	void initialize(const Vector<T, P> &v, Args... args);
+	inline void initialize(const Vector<T, P> &v, Args... args);
 	template <unsigned int X, typename... Args>
-	void initialize(const T &v, Args... args);
+	inline void initialize(const T &v, Args... args);
 	
 public:
 	// Catch-all variadic constructor
@@ -87,26 +87,26 @@ public:
 	//  Elements are filled up in order of occurrence, column by column, row by row. Transpose if you want the same layout as in a const array.
 	//  Note that this overload does not support range checking. Make sure that the input array has the correct size or use the ForwardIterator overload.
 	template <typename... Args>
-	Matrix(Args... args);
+	inline Matrix(Args... args);
 	
 	// Get internal pointer, subject to memory alignment (padding between column vectors)
-	const T *internal() const;
+	inline const T *internal() const;
 	// Column vector access operator
 	// Use double index operators (i.e. [j][i]) to access a single element
-	Vector<T, M> &operator [](unsigned int j);
+	inline Vector<T, M> &operator [](unsigned int j);
 	// Const column vector access operator
 	// Use double index operators (i.e. [j][i]) to access a single element
-	const Vector<T, M> &operator [](unsigned int j) const;
+	inline const Vector<T, M> &operator [](unsigned int j) const;
 	// Assignment operator
-	Matrix<T, M, N> &operator =(const Matrix<T, M, N> &other);
+	inline Matrix<T, M, N> &operator =(const Matrix<T, M, N> &other);
 	// Component-wise sum
-	Matrix<T, M, N> &operator +=(const Matrix<T, M, N> &other);
+	inline Matrix<T, M, N> &operator +=(const Matrix<T, M, N> &other);
 	// Component-wise difference
-	Matrix<T, M, N> &operator -=(const Matrix<T, M, N> &other);
+	inline 	Matrix<T, M, N> &operator -=(const Matrix<T, M, N> &other);
 	// Matrix-scalar product
-	Matrix<T, M, N> &operator *=(const T &x);
+	inline Matrix<T, M, N> &operator *=(const T &x);
 	// Matrix-scalar division
-	Matrix<T, M, N> &operator /=(const T &x);
+	inline Matrix<T, M, N> &operator /=(const T &x);
 };
 
 // LU(P) decomposition of M
@@ -121,7 +121,7 @@ struct LuDecomposition {
 	Matrix<T, M, N> upper;
 	Matrix<T, M, N> permutation;
 	unsigned int swaps;
-	LuDecomposition(const Matrix<T, M, N> &m);
+	inline LuDecomposition(const Matrix<T, M, N> &m);
 };
 
 // Component-wise matrix sum
@@ -142,7 +142,7 @@ inline Matrix<T, M, N> operator /(const Matrix<T, M, N> &a, const U &x);
 
 // Matrix-vector product
 template <class T, unsigned int M, unsigned int N>
-inline Vector<T, N> operator *(const Matrix<T, M, N> &a, const Vector<T, N> &b);
+inline Vector<T, M> operator *(const Matrix<T, M, N> &a, const Vector<T, N> &b);
 
 // Matrix product
 template <class T, unsigned int M, unsigned int N, unsigned int P>
@@ -240,12 +240,12 @@ typedef Matrix<float, 4, 4> mat4x4;
 // Implementation
 
 template <class T, unsigned int M, unsigned int N>
-T &Matrix<T, M, N>::element(unsigned int index) {
+inline T &Matrix<T, M, N>::element(unsigned int index) {
 	return (*this)[index / M][index % M];
 }
 
 template <class T, unsigned int M, unsigned int N>
-const T &Matrix<T, M, N>::element(unsigned int index) const {
+inline const T &Matrix<T, M, N>::element(unsigned int index) const {
 	return (*this)[index / M][index % M];
 }
 
@@ -422,13 +422,18 @@ inline std::ostream &operator <<(std::ostream &o, const Matrix<T, M, N> &m) {
 
 template <class T, unsigned int M, unsigned int N>
 inline bool operator ==(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b) {
-	for (unsigned int i = 0; i < M; i++) {
+	for (unsigned int j = 0; j < N; j++) {
+		if (a[j] != b[j]) {
+			return false;
+		}
+	}
+	/*for (unsigned int i = 0; i < M; i++) {
 		for (unsigned int j = 0; j < N; j++) {
 			if (a[j][i] != b[j][i]) {
 				return false;
 			}
 		}
-	}
+	}*/
 	return true;
 }
 
@@ -440,26 +445,37 @@ inline Matrix<T, M, P> operator *(const Matrix<T, M, N> &a, const Matrix<T, N, P
 	// | a20 a21 a22 |   | b20 b21 b22 b33 |   | ...                                                 |
 	// | a30 a31 a32 |                         | ...                                                 |
 	Matrix<T, M, P> ret;
+	Matrix<T, N, M> t = transpose(a);
 	for (unsigned int i = 0; i < M; i++) {
+		for (unsigned int j = 0; j < P; j++) {
+			ret[j][i] = dot(t[i], b[j]);
+		}
+	}
+	/*for (unsigned int i = 0; i < M; i++) {
 		for (unsigned int j = 0; j < P; j++) {
 			ret[j][i] = 0;
 			for (unsigned int k = 0; k < N; k++) {
 				ret[j][i] += a[k][i] * b[j][k];
 			}
 		}
-	}
+	}*/
 	return ret;
 }
 
 template <class T, unsigned int M, unsigned int N>
-inline Vector<T, N> operator *(const Matrix<T, M, N> &a, const Vector<T, N> &b) {
+inline Vector<T, M> operator *(const Matrix<T, M, N> &a, const Vector<T, N> &b) {
+	// Transpose the matrix
 	Vector<T, M> ret;
+	Matrix<T, N, M> t = transpose(a);
 	for (unsigned int i = 0; i < M; i++) {
+		ret[i] = dot(t[i], b);
+	}
+	/*for (unsigned int i = 0; i < M; i++) {
 		ret[i] = 0;
 		for (unsigned int k = 0; k < N; k++) {
 			ret[i] += a[k][i] * b[k];
 		}
-	}
+	}*/
 	return ret;
 }
 

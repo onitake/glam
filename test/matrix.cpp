@@ -68,8 +68,36 @@ const float M5[3*3] = {
 const float M5D = -3;
 const float M5I[3*3] = {
 	-0.66666666666666f, -1.333333333333333f, 1.0f,
-	-0.66666666666666f, 3.666666666666666, -2.0f,
+	-0.66666666666666f, 3.666666666666666f, -2.0f,
 	1.0f, -2.0f, 1.0f,
+};
+const int M6[4*4] = {
+	100, 33, 71, 19,
+	21, 69, 98, 3,
+	45, 28, 13, 74,
+	62, 7, 19, 48,
+};
+const int V6[4] = {
+	10, 20, 30, 40,
+};
+const int P6[4] = {
+	5250, 2830, 3820, 4390,
+};
+const float M7A[4*2] = {
+	0.3f, 0.5f,
+	0.7f, 1.1f,
+	1.3f, 1.7f,
+	1.9f, 2.3f,
+};
+const float M7B[3*4] = {
+	2.7f, 3.1f, 3.7f, 4.1f,
+	4.3f, 4.7f, 5.1f, 5.3f,
+	5.7f, 5.9f, 6.1f, 6.7f,
+};
+const float P7[3*2] = {
+	15.58f, 20.48f,
+	21.28f, 28.18f,
+	26.5f, 35.12f,
 };
 
 class MatrixTest : public CxxTest::TestSuite {
@@ -134,5 +162,25 @@ public:
 		TS_ASSERT_DELTA(m5i[2][0], M5I[6], 1e-6f);
 		TS_ASSERT_DELTA(m5i[2][1], M5I[7], 1e-6f);
 		TS_ASSERT_DELTA(m5i[2][2], M5I[8], 1e-6f);
+	}
+	void testIMat4Vector4Product() {
+		glam::Matrix<int, 4, 4> m6(std::make_pair(M6, &M6[16]));
+		glam::Vector<int, 4> v6(std::make_pair(V6, &V6[4]));
+		glam::Vector<int, 4> p6 = m6 * v6;
+		TS_ASSERT_EQUALS(p6[0], P6[0]);
+		TS_ASSERT_EQUALS(p6[1], P6[1]);
+		TS_ASSERT_EQUALS(p6[2], P6[2]);
+		TS_ASSERT_EQUALS(p6[3], P6[3]);
+	}
+	void testMat42Mat23Product() {
+		glam::mat4x2 m7a(std::make_pair(M7A, &M7A[8]));
+		glam::mat3x4 m7b(std::make_pair(M7B, &M7B[12]));
+		glam::mat3x2 p7 = m7a * m7b;
+		TS_ASSERT_DELTA(p7[0][0], P7[0], 1e-6f);
+		TS_ASSERT_DELTA(p7[0][1], P7[1], 1e-6f);
+		TS_ASSERT_DELTA(p7[1][0], P7[2], 1e-6f);
+		TS_ASSERT_DELTA(p7[1][1], P7[3], 1e-6f);
+		TS_ASSERT_DELTA(p7[2][0], P7[4], 1e-6f);
+		TS_ASSERT_DELTA(p7[2][1], P7[5], 1e-6f);
 	}
 };

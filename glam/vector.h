@@ -45,26 +45,26 @@ private:
 	T _v[C];
 
 	// Overloadable template functions for use by the generator macro
-	T permutation(unsigned int x) const;
-	Vector<T, 2> permutation(unsigned int x, unsigned int y) const;
-	Vector<T, 3> permutation(unsigned int x, unsigned int y, unsigned int z) const;
-	Vector<T, 4> permutation(unsigned int x, unsigned int y, unsigned int z, unsigned int w) const;
+	inline T permutation(unsigned int x) const;
+	inline Vector<T, 2> permutation(unsigned int x, unsigned int y) const;
+	inline Vector<T, 3> permutation(unsigned int x, unsigned int y, unsigned int z) const;
+	inline Vector<T, 4> permutation(unsigned int x, unsigned int y, unsigned int z, unsigned int w) const;
 	
 	// Supporting initializers to avoid trouble from delegate constructors
 	template <unsigned int X>
-	void initialize();
+	inline void initialize();
 	template <unsigned int X, typename ForwardIterator>
-	void initialize(std::pair<ForwardIterator, ForwardIterator> iterator);
+	inline void initialize(std::pair<ForwardIterator, ForwardIterator> iterator);
 	template <unsigned int X>
-	void initialize(const T *v);
+	inline void initialize(const T *v);
 	template <unsigned int X, class U>
-	void initialize(const Vector<U, C> &v);
+	inline void initialize(const Vector<U, C> &v);
 	template <unsigned int X>
-	void initialize(const T &s);
+	inline void initialize(const T &s);
 	template <unsigned int X, typename... Args, unsigned int P>
-	void initialize(const Vector<T, P> &v, Args... args);
+	inline void initialize(const Vector<T, P> &v, Args... args);
 	template <unsigned int X, typename... Args>
-	void initialize(const T &v, Args... args);
+	inline void initialize(const T &v, Args... args);
 	
 public:
 	// Catch-all variadic constructor
@@ -84,26 +84,26 @@ public:
 	// Vector<OtherType>(const Vector<OtherType> &arg0): Convert a vector of different element type
 	//  The lengths of the vectors need to match.
 	template <typename... Args>
-	Vector(Args... args);
+	inline Vector(Args... args);
 
 	// Assignment operator
-	Vector<T, C> &operator =(const Vector<T, C> &v);
+	inline Vector<T, C> &operator =(const Vector<T, C> &v);
 	
 	// Member access operator
-	T &operator [](unsigned int index);
+	inline T &operator [](unsigned int index);
 	// Const member access operator
-	const T &operator [](unsigned int index) const;
+	inline const T &operator [](unsigned int index) const;
 	// Direct access to internal pointer
-	const T *internal() const;
+	inline const T *internal() const;
 
 	// Permutation functions
 	// These are in the form of function calls, not member access like in GLSL
 	// Eg.: v.xxyy() instead of v.xxyy
 	// All the 340 1-, 2-, 3- and 4-member permutations are generated on the fly.
-	#define GLAM_PERM_MAKE1_1(type, length, name, member0) T name() const { static_assert(member0 < length, "Invalid member index for this vector type"); return permutation(member0); }
-	#define GLAM_PERM_MAKE2_2(type, length, name, member0, member1) Vector<type, 2> name() const { static_assert(member0 < length && member1 < length, "Invalid member index for this vector type"); return permutation(member0, member1); }
-	#define GLAM_PERM_MAKE3_3(type, length, name, member0, member1, member2) Vector<type, 3> name() const { static_assert(member0 < length && member1 < length && member2 < length, "Invalid member index for this vector type"); return permutation(member0, member1, member2); }
-	#define GLAM_PERM_MAKE4_4(type, length, name, member0, member1, member2, member3) Vector<type, 4> name() const { static_assert(member0 < length && member1 < length && member2 < length && member3 < length, "Invalid member index for this vector type"); return permutation(member0, member1, member2, member3); }
+	#define GLAM_PERM_MAKE1_1(type, length, name, member0) inline T name() const { static_assert(member0 < length, "Invalid member index for this vector type"); return permutation(member0); }
+	#define GLAM_PERM_MAKE2_2(type, length, name, member0, member1) inline Vector<type, 2> name() const { static_assert(member0 < length && member1 < length, "Invalid member index for this vector type"); return permutation(member0, member1); }
+	#define GLAM_PERM_MAKE3_3(type, length, name, member0, member1, member2) inline Vector<type, 3> name() const { static_assert(member0 < length && member1 < length && member2 < length, "Invalid member index for this vector type"); return permutation(member0, member1, member2); }
+	#define GLAM_PERM_MAKE4_4(type, length, name, member0, member1, member2, member3) inline Vector<type, 4> name() const { static_assert(member0 < length && member1 < length && member2 < length && member3 < length, "Invalid member index for this vector type"); return permutation(member0, member1, member2, member3); }
 	#define GLAM_PERM_MAKE4_3(type, length, prefix, member0, member1, member2) \
 		GLAM_PERM_MAKE4_4(type, length, prefix##x, member0, member1, member2, 0) \
 		GLAM_PERM_MAKE4_4(type, length, prefix##y, member0, member1, member2, 1) \
@@ -138,397 +138,404 @@ public:
 	#undef GLAM_PERM_MAKE4_0
 };
 
+// Various mathematical constants overloaded for float, double and long double
+template <class T>
+struct CONSTANTS {
+	// static const T PI = 3.14...
+	// static const T E = 2.71...
+};
+
 // Component-wise pre-increment operator
 template <class T, unsigned int C>
-Vector<T, C> &operator ++(Vector<T, C> &self);
+inline Vector<T, C> &operator ++(Vector<T, C> &self);
 // Component-wise post-increment operator
 template <class T, unsigned int C>
-Vector<T, C> operator ++(Vector<T, C> &self, int);
+inline Vector<T, C> operator ++(Vector<T, C> &self, int);
 // Component-wise pre-decrement operator
 template <class T, unsigned int C>
-Vector<T, C> &operator --(Vector<T, C> &self);
+inline Vector<T, C> &operator --(Vector<T, C> &self);
 // Component-wise post-decrement operator
 template <class T, unsigned int C>
-Vector<T, C> operator --(Vector<T, C> &self, int);
+inline Vector<T, C> operator --(Vector<T, C> &self, int);
 
 // Component-wise self-addition operator
 template <class T, unsigned int C>
-Vector<T, C> &operator +=(Vector<T, C> &self, const Vector<T, C> &v);
+inline Vector<T, C> &operator +=(Vector<T, C> &self, const Vector<T, C> &v);
 // Component-wise self-subtraction operator
 template <class T, unsigned int C>
-Vector<T, C> &operator -=(Vector<T, C> &self, const Vector<T, C> &v);
+inline Vector<T, C> &operator -=(Vector<T, C> &self, const Vector<T, C> &v);
 // Component-wise self-multiplication operator
 template <class T, unsigned int C>
-Vector<T, C> &operator *=(Vector<T, C> &self, const Vector<T, C> &v);
+inline Vector<T, C> &operator *=(Vector<T, C> &self, const Vector<T, C> &v);
 // Component-wise self-division operator
 template <class T, unsigned int C>
-Vector<T, C> &operator /=(Vector<T, C> &self, const Vector<T, C> &v);
+inline Vector<T, C> &operator /=(Vector<T, C> &self, const Vector<T, C> &v);
 // Component-wise self-modulus operator
 template <class T, unsigned int C>
-Vector<T, C> &operator %=(Vector<T, C> &self, const Vector<T, C> &v);
+inline Vector<T, C> &operator %=(Vector<T, C> &self, const Vector<T, C> &v);
 
 // Component-wise bitwise and operator
 template <class T, unsigned int C>
-Vector<T, C> &operator &=(Vector<T, C> &self, const Vector<T, C> &v);
+inline Vector<T, C> &operator &=(Vector<T, C> &self, const Vector<T, C> &v);
 // Component-wise bitwise or operator
 template <class T, unsigned int C>
-Vector<T, C> &operator |=(Vector<T, C> &self, const Vector<T, C> &v);
+inline Vector<T, C> &operator |=(Vector<T, C> &self, const Vector<T, C> &v);
 // Component-wise bitwise xor operator
 template <class T, unsigned int C>
-Vector<T, C> &operator ^=(Vector<T, C> &self, const Vector<T, C> &v);
+inline Vector<T, C> &operator ^=(Vector<T, C> &self, const Vector<T, C> &v);
 // Component-wise bit shift left operator
 template <class T, unsigned int C>
-Vector<T, C> &operator <<=(Vector<T, C> &self, unsigned int s);
+inline Vector<T, C> &operator <<=(Vector<T, C> &self, unsigned int s);
 // Component-wise bit shift right operator
 template <class T, unsigned int C>
-Vector<T, C> &operator >>=(Vector<T, C> &self, unsigned int s);
+inline Vector<T, C> &operator >>=(Vector<T, C> &self, unsigned int s);
 
 // Component-wise unary plus operator (no-op if T follows standard algebra)
 template <class T, unsigned int C>
-Vector<T, C> operator +(const Vector<T, C> &u);
+inline Vector<T, C> operator +(const Vector<T, C> &u);
 // Component-wise negation operator (negation)
 template <class T, unsigned int C>
-Vector<T, C> operator -(const Vector<T, C> &u);
+inline Vector<T, C> operator -(const Vector<T, C> &u);
 // Component-wise ones complement operator
 template <class T, unsigned int C>
-Vector<T, C> operator ~(const Vector<T, C> &u);
+inline Vector<T, C> operator ~(const Vector<T, C> &u);
 
 // Component-wise addition operator
 template <class T, unsigned int C>
-Vector<T, C> operator +(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<T, C> operator +(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise subtraction operator
 template <class T, unsigned int C>
-Vector<T, C> operator -(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<T, C> operator -(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise multiplication operator
 template <class T, unsigned int C>
-Vector<T, C> operator *(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<T, C> operator *(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise division operator
 template <class T, unsigned int C>
-Vector<T, C> operator /(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<T, C> operator /(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise modulus operator
 template <class T, unsigned int C>
-Vector<T, C> operator %(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<T, C> operator %(const Vector<T, C> &u, const Vector<T, C> &v);
 
 // Component-wise bitwise and operator
 template <class T, unsigned int C>
-Vector<T, C> operator &(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<T, C> operator &(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise bitwise or operator
 template <class T, unsigned int C>
-Vector<T, C> operator |(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<T, C> operator |(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise bitwise xor operator
 template <class T, unsigned int C>
-Vector<T, C> operator ^(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<T, C> operator ^(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise bit shift left operator
 template <class T, unsigned int C>
-Vector<T, C> operator <<(const Vector<T, C> &u, unsigned int s);
+inline Vector<T, C> operator <<(const Vector<T, C> &u, unsigned int s);
 // Component-wise bit shift right operator
 template <class T, unsigned int C>
-Vector<T, C> operator >>(const Vector<T, C> &u, unsigned int s);
+inline Vector<T, C> operator >>(const Vector<T, C> &u, unsigned int s);
 
 // Component-wise equality comparison operator (exact compare)
 template <class T, unsigned int C>
-Vector<bool, C> equal(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<bool, C> equal(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise inequality comparison operator (exact compare)
 template <class T, unsigned int C>
-Vector<bool, C> notEqual(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<bool, C> notEqual(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise less-than comparison operator (exact compare)
 template <class T, unsigned int C>
-Vector<bool, C> lessThan(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<bool, C> lessThan(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise greater-than comparison operator (exact compare)
 template <class T, unsigned int C>
-Vector<bool, C> greaterThan(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<bool, C> greaterThan(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise less-or-equal comparison operator (exact compare)
 template <class T, unsigned int C>
-Vector<bool, C> lessThanEqual(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<bool, C> lessThanEqual(const Vector<T, C> &u, const Vector<T, C> &v);
 // Component-wise greater-or-equal comparison operator (exact compare)
 template <class T, unsigned int C>
-Vector<bool, C> greaterThanEqual(const Vector<T, C> &u, const Vector<T, C> &v);
+inline Vector<bool, C> greaterThanEqual(const Vector<T, C> &u, const Vector<T, C> &v);
 
 // Vector comparison operator (exact compare), correspondes to all(equal(u, v))
 template <class T, unsigned int C>
-bool operator ==(const Vector<T, C> &u, const Vector<T, C> &v);
+inline bool operator ==(const Vector<T, C> &u, const Vector<T, C> &v);
 // Vector comparison operator (exact compare), correspondes to any(notEqual(u, v))
 template <class T, unsigned int C>
-bool operator !=(const Vector<T, C> &u, const Vector<T, C> &v);
+inline bool operator !=(const Vector<T, C> &u, const Vector<T, C> &v);
 
 // Convert degrees to radians (works for scalars and vectors, component-wise)
 template <class T>
-T radians(const T &degrees);
+inline T radians(const T &degrees);
 // Convert radians to degrees (works for scalars and vectors, component-wise)
 template <class T>
-T degrees(const T &radians);
+inline T degrees(const T &radians);
 // Sclar sine
 template <class T>
-T sin(const T &x);
+inline T sin(const T &x);
 // Component-wise sine
 template <class T, unsigned int C>
-Vector<T, C> sin(const Vector<T, C> &v);
+inline Vector<T, C> sin(const Vector<T, C> &v);
 // Scalar cosine
 template <class T>
-T cos(const T &x);
+inline T cos(const T &x);
 // Component-wise cosine
 template <class T, unsigned int C>
-Vector<T, C> cos(const Vector<T, C> &v);
+inline Vector<T, C> cos(const Vector<T, C> &v);
 // Scalar tangent
 template <class T>
-T tan(const T &x);
+inline T tan(const T &x);
 // Component-wise tangent
 template <class T, unsigned int C>
-Vector<T, C> tan(const Vector<T, C> &v);
+inline Vector<T, C> tan(const Vector<T, C> &v);
 // Scalar arc sine
 template <class T>
-T asin(const T &x);
+inline T asin(const T &x);
 // Component-wise arc sine
 template <class T, unsigned int C>
-Vector<T, C> asin(const Vector<T, C> &v);
+inline Vector<T, C> asin(const Vector<T, C> &v);
 // Scalar arc cosine
 template <class T>
-T acos(const T &x);
+inline T acos(const T &x);
 // Component-wise arc cosine
 template <class T, unsigned int C>
-Vector<T, C> acos(const Vector<T, C> &v);
+inline Vector<T, C> acos(const Vector<T, C> &v);
 // Scalar arc tangent
 template <class T>
-T atan(const T &x);
+inline T atan(const T &x);
 // Component-wise arc tangent
 template <class T, unsigned int C>
-Vector<T, C> atan(const Vector<T, C> &v);
+inline Vector<T, C> atan(const Vector<T, C> &v);
 // Scalar arc tangent of y/xs (works for scalars and vectors, component-wise)
 template <class T>
-T atan(const T &y, const T &x);
+inline T atan(const T &y, const T &x);
 // Scalar sinus hyperbolicus
 template <class T>
-T sinh(const T &x);
+inline T sinh(const T &x);
 // Component-wise sinus hyperbolicus
 template <class T, unsigned int C>
-Vector<T, C> sinh(const Vector<T, C> &v);
+inline Vector<T, C> sinh(const Vector<T, C> &v);
 // Scalar cosinus hyperbolicus
 template <class T>
-T cosh(const T &x);
+inline T cosh(const T &x);
 // Component-wise cosinus hyperbolicus
 template <class T, unsigned int C>
-Vector<T, C> cosh(const Vector<T, C> &v);
+inline Vector<T, C> cosh(const Vector<T, C> &v);
 // Scalar tangens hyperbolicus
 template <class T>
-T tanh(const T &x);
+inline T tanh(const T &x);
 // Component-wise tangens hyperbolicus
 template <class T, unsigned int C>
-Vector<T, C> tanh(const Vector<T, C> &v);
+inline Vector<T, C> tanh(const Vector<T, C> &v);
 // Inverse of sinus hyperbolicus (works for scalars and vectors, component-wise)
 template <class T>
-T asinh(const T &x);
+inline T asinh(const T &x);
 // Inverse of cosinus hyperbolicus (works for scalars and vectors, component-wise)
 template <class T>
-T acosh(const T &x);
+inline T acosh(const T &x);
 // Inverse of tangens hyperbolicus (works for scalars and vectors, component-wise)
 template <class T>
-T atanh(const T &x);
+inline T atanh(const T &x);
 
 // x raised to the power of y
 template <class T>
-T pow(const T &x, const T &y);
+inline T pow(const T &x, const T &y);
 // Component-wise power
 template <class T, unsigned int C>
-Vector<T, C> pow(const Vector<T, C> &x, const Vector<T, C> &y);
+inline Vector<T, C> pow(const Vector<T, C> &x, const Vector<T, C> &y);
 // e raised to the power of x
 template <class T>
-T exp(const T &x);
+inline T exp(const T &x);
 // Component-wise exponential (e^v)
 template <class T, unsigned int C>
-Vector<T, C> exp(const Vector<T, C> &v);
+inline Vector<T, C> exp(const Vector<T, C> &v);
 // Natual logarithm (base e)
 template <class T>
-T log(const T &x);
+inline T log(const T &x);
 // Component-wise natural logarithm
 template <class T, unsigned int C>
-Vector<T, C> log(const Vector<T, C> &v);
+inline Vector<T, C> log(const Vector<T, C> &v);
 // 2 raised to the power of x
 template <class T>
-T exp2(const T &x);
+inline T exp2(const T &x);
 // Component-wise power of 2
 template <class T, unsigned int C>
-Vector<T, C> exp2(const Vector<T, C> &v);
+inline Vector<T, C> exp2(const Vector<T, C> &v);
 // Base 2 logarithm
 template <class T>
-T log2(const T &x);
+inline T log2(const T &x);
 // Component-wise base 2 logarithm
 template <class T, unsigned int C>
-Vector<T, C> log2(const Vector<T, C> &v);
+inline Vector<T, C> log2(const Vector<T, C> &v);
 // Square root
 template <class T>
-T sqrt(const T &x);
+inline T sqrt(const T &x);
 // Component-wise square root
 template <class T, unsigned int C>
-Vector<T, C> sqrt(const Vector<T, C> &v);
+inline Vector<T, C> sqrt(const Vector<T, C> &v);
 // Inverse squareroot
 template <class T>
-T inversesqrt(const T &x);
+inline T inversesqrt(const T &x);
 
 // Absolute value |x|
 template <class T>
-T abs(const T &x);
+inline T abs(const T &x);
 // Component-wise absolute value
 template <class T, unsigned int C>
-Vector<T, C> abs(const Vector<T, C> &v);
+inline Vector<T, C> abs(const Vector<T, C> &v);
 // Sign (1 if positive, -1 if negative, 0 if 0)
 template <class T>
-T sign(const T &x);
+inline T sign(const T &x);
 // Component-wise sign
 template <class T, unsigned int C>
-Vector<T, C> sign(const Vector<T, C> &v);
+inline Vector<T, C> sign(const Vector<T, C> &v);
 // Round towards negative infinity
 template <class T>
-T floor(const T &x);
+inline T floor(const T &x);
 // Component-wise round towards negative infinity
 template <class T, unsigned int C>
-Vector<T, C> floor(const Vector<T, C> &v);
+inline Vector<T, C> floor(const Vector<T, C> &v);
 // Truncate (round towards 0)
 template <class T>
-T trunc(const T &x);
+inline T trunc(const T &x);
 // Component-wise truncate
 template <class T, unsigned int C>
-Vector<T, C> trunc(const Vector<T, C> &v);
+inline Vector<T, C> trunc(const Vector<T, C> &v);
 // Round to the nearest integer
 template <class T>
-T round(const T &x);
+inline T round(const T &x);
 // Component-wise round to the nearest integer
 template <class T, unsigned int C>
-Vector<T, C> round(const Vector<T, C> &v);
+inline Vector<T, C> round(const Vector<T, C> &v);
 // Round to the nearest even integer
 template <class T>
-T roundEven(const T &x);
+inline T roundEven(const T &x);
 // Component-wise round to the nearest even integer
 template <class T, unsigned int C>
-Vector<T, C> roundEven(const Vector<T, C> &v);
+inline Vector<T, C> roundEven(const Vector<T, C> &v);
 // Round towards positive infinity
 template <class T>
-T ceil(const T &x);
+inline T ceil(const T &x);
 // Component-wise round towards positive infinity
 template <class T, unsigned int C>
-Vector<T, C> ceil(const Vector<T, C> &v);
+inline Vector<T, C> ceil(const Vector<T, C> &v);
 // Fractional part (x - trunc(x))
 template <class T>
-T fract(const T &x);
+inline T fract(const T &x);
 // Component-wise fractional part
 template <class T, unsigned int C>
-Vector<T, C> fract(const Vector<T, C> &v);
+inline Vector<T, C> fract(const Vector<T, C> &v);
 // Modulus (x - y * floor (x/y)), works for both scalar and vector arguments
 template <class T>
-T mod(const T &x, const T &y);
+inline T mod(const T &x, const T &y);
 // Separate x into its fractional and integer parts. The fraction is returned, the integral assigned to i.
 template <class T>
-T modf(const T &x, T &i);
+inline T modf(const T &x, T &i);
 // Component-wise fractional part separation
 template <class T, unsigned int C>
-Vector<T, C> modf(const Vector<T, C> &v, Vector<T, C> &i);
+inline Vector<T, C> modf(const Vector<T, C> &v, Vector<T, C> &i);
 // Return the smaller value of x and y
 template <class T>
-T &min(T &x, T &y);
+inline T &min(T &x, T &y);
 template <class T>
-const T &min(const T &x, const T &y);
+inline const T &min(const T &x, const T &y);
 // Component-wise minimum
 template <class T, unsigned int C>
-Vector<T, C> min(const Vector<T, C> &x, const Vector<T, C> &y);
+inline Vector<T, C> min(const Vector<T, C> &x, const Vector<T, C> &y);
 // Return the larger value of x and y
 template <class T>
-T &max(T &x, T &y);
+inline T &max(T &x, T &y);
 template <class T>
-const T &max(const T &x, const T &y);
+inline const T &max(const T &x, const T &y);
 // Component-wise maximum
 template <class T, unsigned int C>
-Vector<T, C> max(const Vector<T, C> &x, const Vector<T, C> &y);
+inline Vector<T, C> max(const Vector<T, C> &x, const Vector<T, C> &y);
 // Saturation (min(max(x, minVal), maxVal)), works for both scalar and vector arguments
 template <class T>
-T clamp(const T &x, const T &minVal, const T &maxVal);
+inline T clamp(const T &x, const T &minVal, const T &maxVal);
 // Saturation with single min/max values (applied to all vector components)
 template <class T, unsigned int C>
-T clamp(const Vector<T, C> &x, const T &minVal, const T &maxVal);
+inline T clamp(const Vector<T, C> &x, const T &minVal, const T &maxVal);
 // Linear blend (x * (1 - a) + y * a)
 template <class T>
-T mix(const T &x, const T &y, const T &a);
+inline T mix(const T &x, const T &y, const T &a);
 // Component-wise linear blend (x * (1 - a) + y * a)
 template <class T, unsigned int C>
-Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const T &a);
+inline Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const T &a);
 // Return x if a is false, y if true
 template <class T>
-T mix(const T &x, const T &y, bool a);
+inline T mix(const T &x, const T &y, bool a);
 // Return x for each component of a that is false, y if true
 template <class T, unsigned int C>
-Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const Vector<bool, C> &a);
+inline Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const Vector<bool, C> &a);
 // Step transition (0 if x < edge, 1 otherwise)
 template <class T>
-T step(const T &edge, const T &x);
+inline T step(const T &edge, const T &x);
 // Component-wise step transition
 template <class T, unsigned int C>
-Vector<T, C> step(const Vector<T, C> &edge, const Vector<T, C> &x);
+inline Vector<T, C> step(const Vector<T, C> &edge, const Vector<T, C> &x);
 // Component-wise step transition with common edge argument
 template <class T, unsigned int C>
-Vector<T, C> step(const T &edge, const Vector<T, C> &x);
+inline Vector<T, C> step(const T &edge, const Vector<T, C> &x);
 // Smooth step transition (0 if x <= edge0, 1 if x >= edge1, interpolated with a Hermite term in between)
 template <class T>
-T smoothstep(const T &edge0, const T &edge1, const T &x);
+inline T smoothstep(const T &edge0, const T &edge1, const T &x);
 // Component-wise smooth step transition
 template <class T, unsigned int C>
-Vector<T, C> smoothstep(const Vector<T, C> &edge0, const Vector<T, C> &edge1, const Vector<T, C> &x);
+inline Vector<T, C> smoothstep(const Vector<T, C> &edge0, const Vector<T, C> &edge1, const Vector<T, C> &x);
 // Component-wise smooth step transition with common edge arguments
 template <class T, unsigned int C>
-Vector<T, C> smoothstep(const T &edge0, const T &edge1, const Vector<T, C> &x);
+inline Vector<T, C> smoothstep(const T &edge0, const T &edge1, const Vector<T, C> &x);
 // Return true if x is a NaN
 template <class T>
-bool isnan(const T &x);
+inline bool isnan(const T &x);
 // Component-wise test for NaN
 template <class T, unsigned int C>
-Vector<bool, C> isnan(const Vector<T, C> &v);
+inline Vector<bool, C> isnan(const Vector<T, C> &v);
 // Return true if x is positive or negative infinity
 template <class T>
-bool isinf(const T &x);
+inline bool isinf(const T &x);
 // Component-wise test for infinity
 template <class T, unsigned int C>
-Vector<bool, C> isinf(const Vector<T, C> &v);
+inline Vector<bool, C> isinf(const Vector<T, C> &v);
 
 // Vector length (sqrt(dot(a, a)))
 template <class T, unsigned int C>
-T length(const Vector<T, C> &x);
+inline T length(const Vector<T, C> &x);
 // Distance between two vectors (length(b - a))
 template <class T, unsigned int C>
-T distance(const Vector<T, C> &p0, const Vector<T, C> &p1);
+inline T distance(const Vector<T, C> &p0, const Vector<T, C> &p1);
 // Dot product of two vectors (a[0] * b[0] + a[1] * b[1] + ...)
 template <class T, unsigned int C>
-T dot(const Vector<T, C> &x, const Vector<T, C> &y);
+inline T dot(const Vector<T, C> &x, const Vector<T, C> &y);
 // Cross product of two 3-component vectors
 template <class T>
-Vector<T, 3> cross(const Vector<T, 3> &x, const Vector<T, 3> &y);
+inline Vector<T, 3> cross(const Vector<T, 3> &x, const Vector<T, 3> &y);
 // Unit length vector (a / length(a))
 // always_inline encouraged to keep gcc from generating crap code
 template <class T, unsigned int C>
-Vector<T, C> normalize(const Vector<T, C> &x) __attribute__((always_inline));
+inline Vector<T, C> normalize(const Vector<T, C> &x) __attribute__((always_inline));
 // Check if I and Nref are facing in opposite directions and return N if yes, -N otherwise (dot(Nref, I) < 0 ? N : -N)
 template <class T>
-T faceforward(const T &N, const T &I, const T &Nref);
+inline T faceforward(const T &N, const T &I, const T &Nref);
 // Reflect I in respect to surface normal N
 template <class T, unsigned int C>
-Vector<T, C> reflect(const Vector<T, C> &I, const Vector<T, C> &N);
+inline Vector<T, C> reflect(const Vector<T, C> &I, const Vector<T, C> &N);
 // Refract I on the surface defined by normal N using index of refraction ration eta
 template <class T, unsigned int C>
-Vector<T, C> refract(const Vector<T, C> &I, const Vector<T, C> &N, const T &eta);
+inline Vector<T, C> refract(const Vector<T, C> &I, const Vector<T, C> &N, const T &eta);
 
 // True if any component of x is true (or evaluates to true)
 template <unsigned int C>
-bool any(const Vector<bool, C> &v);
+inline bool any(const Vector<bool, C> &v);
 // True if all components of x are true (or evaluates to true)
 template <unsigned int C>
-bool all(const Vector<bool, C> &v);
+inline bool all(const Vector<bool, C> &v);
 // Component-wise negation of a boolean vector, this is an overloaded ! operator because
-// not is a reserved word in C++ with the same semantics as !
+// 'not' is a reserved word in C++ with the same semantics as !
 template <unsigned int C>
-Vector<bool, C> operator !(const Vector<bool, C> &v);
+inline Vector<bool, C> operator !(const Vector<bool, C> &v);
 
 // Formatted output operator (vectors will be presented in the form "(0.1,1.50)")
 template <class T, unsigned int C>
-std::ostream &operator <<(std::ostream &stream, const Vector<T, C> &v);
+inline std::ostream &operator <<(std::ostream &stream, const Vector<T, C> &v);
 // Read vector components from stream, in text form, separated by whitespace
 template <class T, unsigned int C>
-std::istream &operator >>(std::istream &stream, const Vector<T, C> &v);
+inline std::istream &operator >>(std::istream &stream, const Vector<T, C> &v);
 
 
 // GLSL types
@@ -1073,12 +1080,12 @@ inline Vector<bool, C> isinf(const Vector<T, C> &v) {
 
 template <class T>
 inline T radians(const T &degrees) {
-	return T(M_PI / 180.0) * degrees;
+	return T(CONSTANTS<T>::PI / 180.0) * degrees;
 }
 
 template <class T>
 inline T degrees(const T &radians) {
-	return T(180.0 / M_PI) * radians;
+	return T(180.0 / CONSTANTS<T>::PI) * radians;
 }
 
 template <class T>
@@ -1156,7 +1163,7 @@ inline T trunc(const T &x) {
 }
 
 template <class T, unsigned int C>
-Vector<T, C> trunc(const Vector<T, C> &v) {
+inline Vector<T, C> trunc(const Vector<T, C> &v) {
 	Vector<T, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = trunc(v[c]);
@@ -1170,7 +1177,7 @@ inline T round(const T &x) {
 }
 
 template <class T, unsigned int C>
-Vector<T, C> round(const Vector<T, C> &v) {
+inline Vector<T, C> round(const Vector<T, C> &v) {
 	Vector<T, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = round(v[c]);
@@ -1184,7 +1191,7 @@ inline T roundEven(const T &x) {
 }
 
 template <class T, unsigned int C>
-Vector<T, C> roundEven(const Vector<T, C> &v) {
+inline Vector<T, C> roundEven(const Vector<T, C> &v) {
 	Vector<T, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = roundEven(v[c]);
@@ -1198,7 +1205,7 @@ inline T fract(const T &x) {
 }
 
 template <class T, unsigned int C>
-Vector<T, C> fract(const Vector<T, C> &v) {
+inline Vector<T, C> fract(const Vector<T, C> &v) {
 	Vector<T, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = fract(v[c]);
@@ -1217,7 +1224,7 @@ inline T modf(const T &x, T &i) {
 }
 
 template <class T, unsigned int C>
-Vector<T, C> modf(const Vector<T, C> &v, Vector<T, C> &i) {
+inline Vector<T, C> modf(const Vector<T, C> &v, Vector<T, C> &i) {
 	Vector<T, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = modf(v[c], i[c]);
@@ -1355,17 +1362,17 @@ inline T mix(const T &x, const T &y, const T &a) {
 }
 
 template <class T, unsigned int C>
-Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const T &a) {
+inline Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const T &a) {
 	return x * Vector<T, C>(T(1) - a) + y * Vector<T, C>(a);
 }
 
 template <class T>
-T mix(const T &x, const T &y, bool a) {
+inline T mix(const T &x, const T &y, bool a) {
 	return a ? y : x;
 }
 
 template <class T, unsigned int C>
-Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const Vector<bool, C> &a) {
+inline Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const Vector<bool, C> &a) {
 	Vector<T, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = mix(x[c], y[c], a[c]);
@@ -1374,7 +1381,7 @@ Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const Vector<bool
 }
 
 template <class T>
-T step(const T &edge, const T &x) {
+inline T step(const T &edge, const T &x) {
 	return x < edge ? T(0) : T(1);
 }
 
@@ -1388,7 +1395,7 @@ inline Vector<T, C> step(const Vector<T, C> &edge, const Vector<T, C> &x) {
 }
 
 template <class T, unsigned int C>
-Vector<T, C> step(const T &edge, const Vector<T, C> &x) {
+inline Vector<T, C> step(const T &edge, const Vector<T, C> &x) {
 	Vector<T, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = step(edge, x[c]);
@@ -1397,7 +1404,7 @@ Vector<T, C> step(const T &edge, const Vector<T, C> &x) {
 }
 
 template <class T>
-T smoothstep(const T &edge0, const T &edge1, const T &x) {
+inline T smoothstep(const T &edge0, const T &edge1, const T &x) {
 	if (x <= edge0) {
 		return T(0);
 	} else if (x >= edge1) {
@@ -1418,7 +1425,7 @@ inline Vector<T, C> smoothstep(const Vector<T, C> &edge0, const Vector<T, C> &ed
 }
 
 template <class T, unsigned int C>
-Vector<T, C> smoothstep(const T &edge0, const T &edge1, const Vector<T, C> &x) {
+inline Vector<T, C> smoothstep(const T &edge0, const T &edge1, const Vector<T, C> &x) {
 	Vector<T, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = smoothstep(edge0, edge1, x[c]);
@@ -1490,7 +1497,7 @@ inline Vector<T, C> refract(const Vector<T, C> &I, const Vector<T, C> &N, const 
 }
 
 template <unsigned int C>
-bool any(const Vector<bool, C> &v) {
+inline bool any(const Vector<bool, C> &v) {
 	bool ret = false;
 	for (unsigned int c = 0; c < C; c++) {
 		ret = ret || v[c];
@@ -1499,7 +1506,7 @@ bool any(const Vector<bool, C> &v) {
 }
 
 template <unsigned int C>
-bool all(const Vector<bool, C> &v) {
+inline bool all(const Vector<bool, C> &v) {
 	bool ret = true;
 	for (unsigned int c = 0; c < C; c++) {
 		ret = ret && v[c];
@@ -1508,7 +1515,7 @@ bool all(const Vector<bool, C> &v) {
 }
 
 template <unsigned int C>
-Vector<bool, C> operator !(const Vector<bool, C> &v) {
+inline Vector<bool, C> operator !(const Vector<bool, C> &v) {
 	Vector <bool, C> ret;
 	for (unsigned int c = 0; c < C; c++) {
 		ret[c] = !v[c];
@@ -1602,9 +1609,27 @@ inline bool operator !=(const Vector<T, C> &u, const Vector<T, C> &v) {
 }
 
 template <class T, unsigned int C>
-const T *Vector<T, C>::internal() const {
+inline const T *Vector<T, C>::internal() const {
 	return _v;
 }
+
+template <>
+struct CONSTANTS<float> {
+	static constexpr float PI = 3.14159265358979323846f;
+	// static const T E = 2.71...
+};
+
+template <>
+struct CONSTANTS<double> {
+	static constexpr double PI = 3.14159265358979323846;
+	// static const T E = 2.71...
+};
+
+template <>
+struct CONSTANTS<long double> {
+	static constexpr long double PI = 3.141592653589793238462643383279502884L;
+	// static const T E = 2.71...
+};
 
 }
 
