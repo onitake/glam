@@ -28,7 +28,6 @@
 
 #include <cmath>
 #include <glam/config.h>
-#include <glam/exception.h>
 
 namespace glam {
 
@@ -394,7 +393,7 @@ inline T smoothstep(const T &edge0, const T &edge1, const T &x) {
 		return T(1);
 	} else {
 		T t = clamp((x - edge0) / (edge1 - edge0), T(0), T(1));
-		return t * t * (3 - 2 * t);
+		return t * t * (T(3) - T(2) * t);
 	}
 }
 

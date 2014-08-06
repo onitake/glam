@@ -21,12 +21,12 @@ endif()
 
 if(GLAM_DEBUG)
 	set(CMAKE_BUILD_TYPE Debug)
-	check_cxx_compiler_flag("-O0 -g" HAS_CXX_OPTION_DEBUG_GCC)
-	if(HAS_CXX_OPTION_DEBUG_GCC)
-		set(GLAM_DEBUG_FLAGS "-O0 -g")
+	check_cxx_compiler_flag("-Og -g" GLAM_HAS_CXX_OPTION_DEBUG_GCC)
+	if(GLAM_HAS_CXX_OPTION_DEBUG_GCC)
+		set(GLAM_DEBUG_FLAGS "-Og -g")
 	else()
-		check_cxx_compiler_flag("/Od /Zi /DEBUG" HAS_CXX_OPTION_DEBUG_VC)
-		if(HAS_CXX_OPTION_DEBUG_VC)
+		check_cxx_compiler_flag("/Od /Zi /DEBUG" GLAM_HAS_CXX_OPTION_DEBUG_VC)
+		if(GLAM_HAS_CXX_OPTION_DEBUG_VC)
 			set(GLAM_DEBUG_FLAGS "/Od /Zi /DEBUG")
 		endif()
 	endif()
@@ -37,12 +37,12 @@ if(GLAM_DEBUG)
 	endif()
 else()
 	set(CMAKE_BUILD_TYPE Release)
-	check_cxx_compiler_flag("-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g" HAS_CXX_OPTION_OPTIMIZE_GCC)
-	if(HAS_CXX_OPTION_OPTIMIZE_GCC)
+	check_cxx_compiler_flag("-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g" GLAM_HAS_CXX_OPTION_OPTIMIZE_GCC)
+	if(GLAM_HAS_CXX_OPTION_OPTIMIZE_GCC)
 		set(GLAM_OPTIMIZE_FLAGS "-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g")
 	else()
-		check_cxx_compiler_flag("/O2 /Qpar /Zi /DEBUG" HAS_CXX_OPTION_OPTIMIZE_VC)
-		if(HAS_CXX_OPTION_OPTIMIZE_VC)
+		check_cxx_compiler_flag("/O2 /Qpar /Zi /DEBUG" GLAM_HAS_CXX_OPTION_OPTIMIZE_VC)
+		if(GLAM_HAS_CXX_OPTION_OPTIMIZE_VC)
 			set(GLAM_OPTIMIZE_FLAGS "/O2 /Qpar /Zi /DEBUG")
 		endif()
 	endif()
@@ -53,12 +53,12 @@ else()
 	endif()
 endif()
 
-check_cxx_compiler_flag("-std=c++11" HAS_CXX_OPTION_CXX11_GCC47)
-if(HAS_CXX_OPTION_CXX11_GCC47)
+check_cxx_compiler_flag("-std=c++11" GLAM_HAS_CXX_OPTION_CXX11_GCC47)
+if(GLAM_HAS_CXX_OPTION_CXX11_GCC47)
 	set(GLAM_CXX11_FLAGS "-std=c++11")
 else()
-	check_cxx_compiler_flag("-std=c++0x" HAS_CXX_OPTION_CXX11_GCC43)
-	if(HAS_CXX_OPTION_CXX11_GCC43)
+	check_cxx_compiler_flag("-std=c++0x" GLAM_HAS_CXX_OPTION_CXX11_GCC43)
+	if(GLAM_HAS_CXX_OPTION_CXX11_GCC43)
 		set(GLAM_CXX11_FLAGS "-std=c++0x")
 	endif()
 endif()
@@ -66,7 +66,7 @@ if(DEFINED GLAM_CXX11_FLAGS)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLAM_CXX11_FLAGS}")
 endif()
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 int f(int &&x) { return x; }
 int main() {
 	f(10);
@@ -78,7 +78,7 @@ else()
 	message(WARNING "Your compiler doesn't support C++11 xvalues.")
 endif()
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 #include <tuple>
 struct Test { };
 int main() {
@@ -91,7 +91,7 @@ else()
 	message(WARNING "Your compiler doesn't support C++11 tuples.")
 endif()
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 int main() {
 	static_assert(true, \"true is true\");
 	return 0;
@@ -102,7 +102,7 @@ else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 static assert.")
 endif()
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 #include <cmath>
 int main() {
 	std::round(0.5);
@@ -114,7 +114,7 @@ else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 <cmath>.")
 endif()
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 void test(int i) { }
 template <typename... Args>
 void test(int i, Args... args) {
@@ -128,6 +128,19 @@ int main() {
 if(GLAM_HAS_VARIADIC_TEMPLATES)
 else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 variadic templates.")
+endif()
+
+check_cxx_source_compiles("
+struct TEST {
+	static constexpr int CON = 1;
+};
+int main() {
+	return TEST::CON - 1;
+}
+" GLAM_HAS_CONSTEXPR)
+if(GLAM_HAS_CONSTEXPR)
+else()
+	message(WARNING "Your compiler doesn't support C++11 constexpr.")
 endif()
 
 configure_file(

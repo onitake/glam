@@ -8,3 +8,4 @@
 #cmakedefine GLAM_HAS_STATIC_ASSERT
 #cmakedefine GLAM_HAS_TUPLE
 #cmakedefine GLAM_HAS_CXXTEST
+#cmakedefine GLAM_HAS_CONSTEXPR
