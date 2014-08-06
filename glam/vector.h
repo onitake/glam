@@ -26,12 +26,12 @@
 #ifndef GLAM_VECTOR_H
 #define GLAM_VECTOR_H
 
-#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <list>
 #include <sstream>
+#include <glam/math.h>
 #include <glam/config.h>
 #include <glam/exception.h>
 
@@ -136,13 +136,6 @@ public:
 	#undef GLAM_PERM_MAKE4_2
 	#undef GLAM_PERM_MAKE4_1
 	#undef GLAM_PERM_MAKE4_0
-};
-
-// Various mathematical constants overloaded for float, double and long double
-template <class T>
-struct CONSTANTS {
-	// static const T PI = 3.14...
-	// static const T E = 2.71...
 };
 
 // Component-wise pre-increment operator
@@ -258,237 +251,110 @@ inline bool operator ==(const Vector<T, C> &u, const Vector<T, C> &v);
 template <class T, unsigned int C>
 inline bool operator !=(const Vector<T, C> &u, const Vector<T, C> &v);
 
-// Convert degrees to radians (works for scalars and vectors, component-wise)
-template <class T>
-inline T radians(const T &degrees);
-// Convert radians to degrees (works for scalars and vectors, component-wise)
-template <class T>
-inline T degrees(const T &radians);
-// Sclar sine
-template <class T>
-inline T sin(const T &x);
 // Component-wise sine
 template <class T, unsigned int C>
 inline Vector<T, C> sin(const Vector<T, C> &v);
-// Scalar cosine
-template <class T>
-inline T cos(const T &x);
 // Component-wise cosine
 template <class T, unsigned int C>
 inline Vector<T, C> cos(const Vector<T, C> &v);
-// Scalar tangent
-template <class T>
-inline T tan(const T &x);
 // Component-wise tangent
 template <class T, unsigned int C>
 inline Vector<T, C> tan(const Vector<T, C> &v);
-// Scalar arc sine
-template <class T>
-inline T asin(const T &x);
 // Component-wise arc sine
 template <class T, unsigned int C>
 inline Vector<T, C> asin(const Vector<T, C> &v);
-// Scalar arc cosine
-template <class T>
-inline T acos(const T &x);
 // Component-wise arc cosine
 template <class T, unsigned int C>
 inline Vector<T, C> acos(const Vector<T, C> &v);
-// Scalar arc tangent
-template <class T>
-inline T atan(const T &x);
 // Component-wise arc tangent
 template <class T, unsigned int C>
 inline Vector<T, C> atan(const Vector<T, C> &v);
-// Scalar arc tangent of y/xs (works for scalars and vectors, component-wise)
-template <class T>
-inline T atan(const T &y, const T &x);
-// Scalar sinus hyperbolicus
-template <class T>
-inline T sinh(const T &x);
 // Component-wise sinus hyperbolicus
 template <class T, unsigned int C>
 inline Vector<T, C> sinh(const Vector<T, C> &v);
-// Scalar cosinus hyperbolicus
-template <class T>
-inline T cosh(const T &x);
 // Component-wise cosinus hyperbolicus
 template <class T, unsigned int C>
 inline Vector<T, C> cosh(const Vector<T, C> &v);
-// Scalar tangens hyperbolicus
-template <class T>
-inline T tanh(const T &x);
 // Component-wise tangens hyperbolicus
 template <class T, unsigned int C>
 inline Vector<T, C> tanh(const Vector<T, C> &v);
-// Inverse of sinus hyperbolicus (works for scalars and vectors, component-wise)
-template <class T>
-inline T asinh(const T &x);
-// Inverse of cosinus hyperbolicus (works for scalars and vectors, component-wise)
-template <class T>
-inline T acosh(const T &x);
-// Inverse of tangens hyperbolicus (works for scalars and vectors, component-wise)
-template <class T>
-inline T atanh(const T &x);
 
-// x raised to the power of y
-template <class T>
-inline T pow(const T &x, const T &y);
 // Component-wise power
 template <class T, unsigned int C>
 inline Vector<T, C> pow(const Vector<T, C> &x, const Vector<T, C> &y);
-// e raised to the power of x
-template <class T>
-inline T exp(const T &x);
 // Component-wise exponential (e^v)
 template <class T, unsigned int C>
 inline Vector<T, C> exp(const Vector<T, C> &v);
-// Natual logarithm (base e)
-template <class T>
-inline T log(const T &x);
 // Component-wise natural logarithm
 template <class T, unsigned int C>
 inline Vector<T, C> log(const Vector<T, C> &v);
-// 2 raised to the power of x
-template <class T>
-inline T exp2(const T &x);
 // Component-wise power of 2
 template <class T, unsigned int C>
 inline Vector<T, C> exp2(const Vector<T, C> &v);
-// Base 2 logarithm
-template <class T>
-inline T log2(const T &x);
 // Component-wise base 2 logarithm
 template <class T, unsigned int C>
 inline Vector<T, C> log2(const Vector<T, C> &v);
-// Square root
-template <class T>
-inline T sqrt(const T &x);
 // Component-wise square root
 template <class T, unsigned int C>
 inline Vector<T, C> sqrt(const Vector<T, C> &v);
-// Inverse squareroot
-template <class T>
-inline T inversesqrt(const T &x);
 
-// Absolute value |x|
-template <class T>
-inline T abs(const T &x);
 // Component-wise absolute value
 template <class T, unsigned int C>
 inline Vector<T, C> abs(const Vector<T, C> &v);
-// Sign (1 if positive, -1 if negative, 0 if 0)
-template <class T>
-inline T sign(const T &x);
 // Component-wise sign
 template <class T, unsigned int C>
 inline Vector<T, C> sign(const Vector<T, C> &v);
-// Round towards negative infinity
-template <class T>
-inline T floor(const T &x);
 // Component-wise round towards negative infinity
 template <class T, unsigned int C>
 inline Vector<T, C> floor(const Vector<T, C> &v);
-// Truncate (round towards 0)
-template <class T>
-inline T trunc(const T &x);
 // Component-wise truncate
 template <class T, unsigned int C>
 inline Vector<T, C> trunc(const Vector<T, C> &v);
-// Round to the nearest integer
-template <class T>
-inline T round(const T &x);
 // Component-wise round to the nearest integer
 template <class T, unsigned int C>
 inline Vector<T, C> round(const Vector<T, C> &v);
-// Round to the nearest even integer
-template <class T>
-inline T roundEven(const T &x);
 // Component-wise round to the nearest even integer
 template <class T, unsigned int C>
 inline Vector<T, C> roundEven(const Vector<T, C> &v);
-// Round towards positive infinity
-template <class T>
-inline T ceil(const T &x);
 // Component-wise round towards positive infinity
 template <class T, unsigned int C>
 inline Vector<T, C> ceil(const Vector<T, C> &v);
-// Fractional part (x - trunc(x))
-template <class T>
-inline T fract(const T &x);
 // Component-wise fractional part
 template <class T, unsigned int C>
 inline Vector<T, C> fract(const Vector<T, C> &v);
-// Modulus (x - y * floor (x/y)), works for both scalar and vector arguments
-template <class T>
-inline T mod(const T &x, const T &y);
-// Separate x into its fractional and integer parts. The fraction is returned, the integral assigned to i.
-template <class T>
-inline T modf(const T &x, T &i);
 // Component-wise fractional part separation
 template <class T, unsigned int C>
 inline Vector<T, C> modf(const Vector<T, C> &v, Vector<T, C> &i);
-// Return the smaller value of x and y
-template <class T>
-inline T &min(T &x, T &y);
-template <class T>
-inline const T &min(const T &x, const T &y);
 // Component-wise minimum
 template <class T, unsigned int C>
 inline Vector<T, C> min(const Vector<T, C> &x, const Vector<T, C> &y);
-// Return the larger value of x and y
-template <class T>
-inline T &max(T &x, T &y);
-template <class T>
-inline const T &max(const T &x, const T &y);
 // Component-wise maximum
 template <class T, unsigned int C>
 inline Vector<T, C> max(const Vector<T, C> &x, const Vector<T, C> &y);
-// Saturation (min(max(x, minVal), maxVal)), works for both scalar and vector arguments
-template <class T>
-inline T clamp(const T &x, const T &minVal, const T &maxVal);
 // Saturation with single min/max values (applied to all vector components)
 template <class T, unsigned int C>
-inline T clamp(const Vector<T, C> &x, const T &minVal, const T &maxVal);
-// Linear blend (x * (1 - a) + y * a)
-template <class T>
-inline T mix(const T &x, const T &y, const T &a);
+inline Vector<T, C> clamp(const Vector<T, C> &x, const T &minVal, const T &maxVal);
 // Component-wise linear blend (x * (1 - a) + y * a)
 template <class T, unsigned int C>
 inline Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const T &a);
-// Return x if a is false, y if true
-template <class T>
-inline T mix(const T &x, const T &y, bool a);
 // Return x for each component of a that is false, y if true
 template <class T, unsigned int C>
 inline Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const Vector<bool, C> &a);
-// Step transition (0 if x < edge, 1 otherwise)
-template <class T>
-inline T step(const T &edge, const T &x);
 // Component-wise step transition
 template <class T, unsigned int C>
 inline Vector<T, C> step(const Vector<T, C> &edge, const Vector<T, C> &x);
 // Component-wise step transition with common edge argument
 template <class T, unsigned int C>
 inline Vector<T, C> step(const T &edge, const Vector<T, C> &x);
-// Smooth step transition (0 if x <= edge0, 1 if x >= edge1, interpolated with a Hermite term in between)
-template <class T>
-inline T smoothstep(const T &edge0, const T &edge1, const T &x);
 // Component-wise smooth step transition
 template <class T, unsigned int C>
 inline Vector<T, C> smoothstep(const Vector<T, C> &edge0, const Vector<T, C> &edge1, const Vector<T, C> &x);
 // Component-wise smooth step transition with common edge arguments
 template <class T, unsigned int C>
 inline Vector<T, C> smoothstep(const T &edge0, const T &edge1, const Vector<T, C> &x);
-// Return true if x is a NaN
-template <class T>
-inline bool isnan(const T &x);
 // Component-wise test for NaN
 template <class T, unsigned int C>
 inline Vector<bool, C> isnan(const Vector<T, C> &v);
-// Return true if x is positive or negative infinity
-template <class T>
-inline bool isinf(const T &x);
 // Component-wise test for infinity
 template <class T, unsigned int C>
 inline Vector<bool, C> isinf(const Vector<T, C> &v);
@@ -956,11 +822,6 @@ inline Vector<T, C> atan(const Vector<T, C> &v) {
 	return ret;
 }
 
-template <class T>
-T atan(const T &y, const T &x) {
-	return atan(y / x);
-}
-
 template <class T, unsigned int C>
 inline Vector<T, C> sinh(const Vector<T, C> &v) {
 	Vector<T, C> ret;
@@ -1078,36 +939,6 @@ inline Vector<bool, C> isinf(const Vector<T, C> &v) {
 	return ret;
 }
 
-template <class T>
-inline T radians(const T &degrees) {
-	return T(CONSTANTS<T>::PI / 180.0) * degrees;
-}
-
-template <class T>
-inline T degrees(const T &radians) {
-	return T(180.0 / CONSTANTS<T>::PI) * radians;
-}
-
-template <class T>
-inline T asinh(const T &x) {
-	return log(x + sqrt(x * x + T(1)));
-}
-
-template <class T>
-inline T acosh(const T &x) {
-	return log(x + sqrt(x * x - T(1)));
-}
-
-template <class T>
-inline T atanh(const T &x) {
-	return T(0.5) * log((T(1) + x) / (T(1) - x));
-}
-
-template <class T>
-inline T exp2(const T &x) {
-	return std::exp2(x);
-}
-
 template <class T, unsigned int C>
 Vector<T, C> exp2(const Vector<T, C> &v) {
 	Vector<T, C> ret;
@@ -1115,11 +946,6 @@ Vector<T, C> exp2(const Vector<T, C> &v) {
 		ret[c] = exp2(v[c]);
 	}
 	return ret;
-}
-
-template <class T>
-inline T log2(const T &x) {
-	return std::log2(x);
 }
 
 template <class T, unsigned int C>
@@ -1131,23 +957,6 @@ Vector<T, C> log2(const Vector<T, C> &v) {
 	return ret;
 }
 
-template <class T>
-inline T inversesqrt(const T &x) {
-	return T(1) / sqrt(x);
-}
-
-template <class T>
-inline T sign(const T &x) {
-#if 0
-	if (x == T(0)) return T(0);
-	return std::copysign(T(1), x);
-#else
-	if (x < T(0)) return T(-1);
-	if (x > T(0)) return T(1);
-	return T(0);
-#endif
-}
-
 template <class T, unsigned int C>
 inline Vector<T, C> sign(const Vector<T, C> &v) {
 	Vector<T, C> ret;
@@ -1155,11 +964,6 @@ inline Vector<T, C> sign(const Vector<T, C> &v) {
 		ret[c] = sign(v[c]);
 	}
 	return ret;
-}
-
-template <class T>
-inline T trunc(const T &x) {
-	return std::trunc(x);
 }
 
 template <class T, unsigned int C>
@@ -1171,11 +975,6 @@ inline Vector<T, C> trunc(const Vector<T, C> &v) {
 	return ret;
 }
 
-template <class T>
-inline T round(const T &x) {
-	return std::round(x);
-}
-
 template <class T, unsigned int C>
 inline Vector<T, C> round(const Vector<T, C> &v) {
 	Vector<T, C> ret;
@@ -1183,11 +982,6 @@ inline Vector<T, C> round(const Vector<T, C> &v) {
 		ret[c] = round(v[c]);
 	}
 	return ret;
-}
-
-template <class T>
-inline T roundEven(const T &x) {
-	return std::rint(x);
 }
 
 template <class T, unsigned int C>
@@ -1199,11 +993,6 @@ inline Vector<T, C> roundEven(const Vector<T, C> &v) {
 	return ret;
 }
 
-template <class T>
-inline T fract(const T &x) {
-	return x - trunc(x);
-}
-
 template <class T, unsigned int C>
 inline Vector<T, C> fract(const Vector<T, C> &v) {
 	Vector<T, C> ret;
@@ -1211,16 +1000,6 @@ inline Vector<T, C> fract(const Vector<T, C> &v) {
 		ret[c] = fract(v[c]);
 	}
 	return ret;
-}
-
-template <class T>
-inline T mod(const T &x, const T &y) {
-	return x - y * floor (x / y);
-}
-
-template <class T>
-inline T modf(const T &x, T &i) {
-	return std::modf(x, &i);
 }
 
 template <class T, unsigned int C>
@@ -1232,143 +1011,14 @@ inline Vector<T, C> modf(const Vector<T, C> &v, Vector<T, C> &i) {
 	return ret;
 }
 
-template <class T>
-inline T sqrt(const T &x) {
-	return std::sqrt(x);
-}
-
-template <class T>
-inline T sin(const T &x) {
-	return std::sin(x);
-}
-
-template <class T>
-inline T cos(const T &x) {
-	return std::cos(x);
-}
-
-template <class T>
-inline T tan(const T &x) {
-	return std::tan(x);
-}
-
-template <class T>
-inline T asin(const T &x) {
-	return std::asin(x);
-}
-
-template <class T>
-inline T acos(const T &x) {
-	return std::acos(x);
-}
-
-template <class T>
-inline T atan(const T &x) {
-	return std::atan(x);
-}
-
-template <class T>
-inline T sinh(const T &x) {
-	return std::sinh(x);
-}
-
-template <class T>
-inline T cosh(const T &x) {
-	return std::cosh(x);
-}
-
-template <class T>
-inline T tanh(const T &x) {
-	return std::tanh(x);
-}
-
-template <class T>
-inline T pow(const T &x, const T &y) {
-	return std::pow(x, y);
-}
-
-template <class T>
-inline T exp(const T &x) {
-	return std::exp(x);
-}
-
-template <class T>
-inline T log(const T &x) {
-	return std::log(x);
-}
-
-template <class T>
-inline T abs(const T &x) {
-	return std::abs(x);
-}
-
-template <class T>
-inline T floor(const T &x) {
-	return std::floor(x);
-}
-
-template <class T>
-inline T ceil(const T &x) {
-	return std::ceil(x);
-}
-
-template <class T>
-inline T &min(T &x, T &y) {
-	if (x < y) return x;
-	return y;
-}
-
-template <class T>
-inline const T &min(const T &x, const T &y) {
-	if (x < y) return x;
-	return y;
-}
-
-template <class T>
-inline T &max(T &x, T &y) {
-	if (x > y) return x;
-	return y;
-}
-
-template <class T>
-inline const T &max(const T &x, const T &y) {
-	if (x > y) return x;
-	return y;
-}
-
-template <class T>
-inline bool isnan(const T &x) {
-	return std::isnan(x);
-}
-
-template <class T>
-inline bool isinf(const T &x) {
-	return std::isinf(x);
-}
-
-template <class T>
-inline T clamp(const T &x, const T &minVal, const T &maxVal) {
-	return min(max(x, minVal), maxVal);
-}
-
 template <class T, unsigned int C>
-T clamp(const Vector<T, C> &x, const T &minVal, const T &maxVal) {
+inline Vector<T, C> clamp(const Vector<T, C> &x, const T &minVal, const T &maxVal) {
 	return min(max(x, Vector<T, C>(minVal)), Vector<T, C>(maxVal));
-}
-
-template <class T>
-inline T mix(const T &x, const T &y, const T &a) {
-	return x * (T(1) - a) + y * a;
 }
 
 template <class T, unsigned int C>
 inline Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const T &a) {
 	return x * Vector<T, C>(T(1) - a) + y * Vector<T, C>(a);
-}
-
-template <class T>
-inline T mix(const T &x, const T &y, bool a) {
-	return a ? y : x;
 }
 
 template <class T, unsigned int C>
@@ -1378,11 +1028,6 @@ inline Vector<T, C> mix(const Vector<T, C> &x, const Vector<T, C> &y, const Vect
 		ret[c] = mix(x[c], y[c], a[c]);
 	}
 	return ret;
-}
-
-template <class T>
-inline T step(const T &edge, const T &x) {
-	return x < edge ? T(0) : T(1);
 }
 
 template <class T, unsigned int C>
@@ -1401,18 +1046,6 @@ inline Vector<T, C> step(const T &edge, const Vector<T, C> &x) {
 		ret[c] = step(edge, x[c]);
 	}
 	return ret;
-}
-
-template <class T>
-inline T smoothstep(const T &edge0, const T &edge1, const T &x) {
-	if (x <= edge0) {
-		return T(0);
-	} else if (x >= edge1) {
-		return T(1);
-	} else {
-		T t = clamp((x - edge0) / (edge1 - edge0), T(0), T(1));
-		return t * t * (3 - 2 * t);
-	}
 }
 
 template <class T, unsigned int C>
@@ -1612,24 +1245,6 @@ template <class T, unsigned int C>
 inline const T *Vector<T, C>::internal() const {
 	return _v;
 }
-
-template <>
-struct CONSTANTS<float> {
-	static constexpr float PI = 3.14159265358979323846f;
-	// static const T E = 2.71...
-};
-
-template <>
-struct CONSTANTS<double> {
-	static constexpr double PI = 3.14159265358979323846;
-	// static const T E = 2.71...
-};
-
-template <>
-struct CONSTANTS<long double> {
-	static constexpr long double PI = 3.141592653589793238462643383279502884L;
-	// static const T E = 2.71...
-};
 
 }
 
