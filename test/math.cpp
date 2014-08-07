@@ -41,16 +41,20 @@ public:
 #ifdef GLAM_HAS_LONG_DOUBLE
 		TS_ASSERT_DELTA(glam::CONSTANTS<long double>::PI, 3.141592653589793238462643383279502884L, 1e-24);
 #endif
+#ifndef GLAM_DEBUG
 		TS_ASSERT_DELTA(glam::CONSTANTS<std::complex<double> >::PI.real(), 3.141592653589793, 1e-12);
 		TS_ASSERT_DELTA(glam::CONSTANTS<std::complex<double> >::PI.imag(), 0.0, 1e-12);
+#endif
 		TS_ASSERT_EQUALS(glam::CONSTANTS<int>::E, 2);
 		TS_ASSERT_DELTA(glam::CONSTANTS<float>::E, 2.7182818284590452354f, 1e-6);
 		TS_ASSERT_DELTA(glam::CONSTANTS<double>::E, 2.7182818284590452354, 1e-12);
 #ifdef GLAM_HAS_LONG_DOUBLE
 		TS_ASSERT_DELTA(glam::CONSTANTS<long double>::E, 2.718281828459045235360287471352662498L, 1e-24);
 #endif
+#ifndef GLAM_DEBUG
 		TS_ASSERT_DELTA(glam::CONSTANTS<std::complex<double> >::E.real(), 2.7182818284590452354, 1e-12);
 		TS_ASSERT_DELTA(glam::CONSTANTS<std::complex<double> >::E.imag(), 0.0, 1e-12);
+#endif
 	}
 	void testRadians() {
 		int d0 = 180.0f;
@@ -67,9 +71,21 @@ public:
 		long double r3 = glam::radians(d3);
 		TS_ASSERT_DELTA(r3, 3.141592653589793238462643383279502884L, 1e-24);
 #endif
+#ifndef GLAM_DEBUG
 		std::complex<double> d4 = 180.0;
 		std::complex<double> r4 = glam::radians(d4);
 		TS_ASSERT_DELTA(r4.real(), 3.141592653589793, 1e-12);
 		TS_ASSERT_DELTA(r4.imag(), 0.0, 1e-12);
+#endif
+	}
+	void testBits() {
+		int i = glam::floatBitsToInt(1.0f);
+		TS_ASSERT_EQUALS(i, 0x3f800000);
+		unsigned int u = glam::floatBitsToUInt(1.0f);
+		TS_ASSERT_EQUALS(u, 0x3f800000);
+		float f1 = glam::intBitsToFloat(0x3f800000);
+		TS_ASSERT_EQUALS(f1, 1.0f);
+		float f2 = glam::uintBitsToFloat(0x3f800000);
+		TS_ASSERT_EQUALS(f2, 1.0f);
 	}
 };

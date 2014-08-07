@@ -173,6 +173,13 @@ inline bool isnan(const T &x);
 template <class T>
 inline bool isinf(const T &x);
 
+// Convert a floating point number into an integer of equal size and exactly the same bit pattern
+inline int floatBitsToInt(float v);
+inline unsigned int floatBitsToUInt(float v);
+// Convert an integer into a floating point number of equal size and exactly the same bit pattern
+inline float intBitsToFloat(int v);
+inline float uintBitsToFloat(unsigned int v);
+
 
 // Implementation
 
@@ -415,6 +422,42 @@ inline T smoothstep(const T &edge0, const T &edge1, const T &x) {
 		T t = clamp((x - edge0) / (edge1 - edge0), T(0), T(1));
 		return t * t * (T(3) - T(2) * t);
 	}
+}
+
+inline int floatBitsToInt(float v) {
+	union {
+		float f;
+		int i;
+	} c;
+	c.f = v;
+	return c.i;
+}
+
+inline unsigned int floatBitsToUInt(float v) {
+	union {
+		float f;
+		unsigned int i;
+	} c;
+	c.f = v;
+	return c.i;
+}
+
+inline float intBitsToFloat(int v) {
+	union {
+		float f;
+		int i;
+	} c;
+	c.i = v;
+	return c.f;
+}
+
+inline float uintBitsToFloat(unsigned int v) {
+	union {
+		float f;
+		unsigned int i;
+	} c;
+	c.i = v;
+	return c.f;
 }
 
 }

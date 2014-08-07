@@ -282,6 +282,35 @@ public:
 		TS_ASSERT_EQUALS(w2[1], 10.0f);
 #endif
 	}
+	void testVec3Bits() {
+		glam::vec3 vf1(1.0f, -1.0f, 0.5f);
+		glam::ivec3 vi1 = glam::floatBitsToInt(vf1);
+		TS_ASSERT_EQUALS(vi1[0], 0x3f800000);
+		TS_ASSERT_EQUALS(vi1[1], 0xbf800000);
+		TS_ASSERT_EQUALS(vi1[2], 0x3f000000);
+		glam::ivec3 vi2(0x3f800000, 0xbf800000, 0x3f000000);
+		glam::vec3 vf2 = glam::intBitsToFloat(vi2);
+		TS_ASSERT_EQUALS(vf2[0], 1.0f);
+		TS_ASSERT_EQUALS(vf2[1], -1.0f);
+		TS_ASSERT_EQUALS(vf2[2], 0.5f);
+	}
+	void testPackNorm() {
+		glam::vec2 vsf1(-1.0f, 1.0f);
+		unsigned int up1 = glam::packSnorm2x16(vsf1);
+		// Should be 8000, precision?
+		TS_ASSERT_EQUALS(up1, 0x7fff8001);
+		unsigned int up2 = 0x7fff8000;
+		glam::vec2 vsf2 = glam::unpackSnorm2x16(up2);
+		TS_ASSERT_DELTA(vsf2[0], -1.0f, 1e-6);
+		TS_ASSERT_DELTA(vsf2[1], 1.0f, 1e-6);
+		glam::vec2 vuf1(0.0f, 1.0f);
+		unsigned int up3 = glam::packUnorm2x16(vuf1);
+		TS_ASSERT_EQUALS(up3, 0xffff0000);
+		unsigned int up4 = 0xffff0000;
+		glam::vec2 vuf2 = glam::unpackUnorm2x16(up4);
+		TS_ASSERT_DELTA(vuf2[0], 0.0f, 1e-6);
+		TS_ASSERT_DELTA(vuf2[1], 1.0f, 1e-6);
+	}
 };
 
 #ifndef GLAM_HAS_CXXTEST

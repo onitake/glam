@@ -406,6 +406,34 @@ inline std::ostream &operator <<(std::ostream &stream, const Vector<T, C> &v);
 template <class T, unsigned int C>
 inline std::istream &operator >>(std::istream &stream, const Vector<T, C> &v);
 
+// Convert a floating point vector into an integer vector of equal size and exactly the same bit pattern
+template <unsigned int C>
+inline Vector<int, C> floatBitsToInt(const Vector<float, C> &v);
+template <unsigned int C>
+inline Vector<unsigned int, C> floatBitsToUInt(const Vector<float, C> &v);
+// Convert an integer vector into a floating point vector of equal size and exactly the same bit pattern
+template <unsigned int C>
+inline Vector<float, C> intBitsToFloat(const Vector<int, C> &v);
+template <unsigned int C>
+inline Vector<float, C> uintBitsToFloat(const Vector<unsigned int, C> &v);
+
+// Convert two normalized floats into 16bit fixed point values, then pack them into a 32bit integer
+// The first vector component will be at the lower 16 bits of the result, the second at the upper part.
+// Conversion from float to fixed is equivalent to: round(clamp(c, -1, +1) * 32767.0)
+inline unsigned int packSnorm2x16(const Vector<float, 2> &v);
+// Convert two packed 16bit fixed point values into a vector of normalized floats
+// The first vector component is taken from the lower 16 bits, the second from the upper part.
+// Conversion from fixed to float is equivalent to: clamp(f / 32767.0, -1, +1)
+inline Vector<float, 2> unpackSnorm2x16(unsigned int p);
+// Convert two normalized floats into 16bit fixed point values, then pack them into a 32bit integer
+// The first vector component will be at the lower 16 bits of the result, the second at the upper part.
+// Conversion from float to fixed is equivalent to: round(clamp(c, 0, +1) * 65535.0)
+inline unsigned int packUnorm2x16(const Vector<float, 2> &v);
+// Convert two packed 16bit fixed point values into a vector of normalized floats
+// The first vector component is taken from the lower 16 bits, the second from the upper part.
+// Conversion from fixed to float is equivalent to: f / 65535.0
+inline Vector<float, 2> unpackUnorm2x16(unsigned int p);
+
 
 // GLSL types
 
@@ -1255,6 +1283,66 @@ inline bool operator !=(const Vector<T, C> &u, const Vector<T, C> &v) {
 template <class T, unsigned int C>
 inline const T *Vector<T, C>::internal() const {
 	return _v;
+}
+
+template <unsigned int C>
+inline Vector<int, C> floatBitsToInt(const Vector<float, C> &v) {
+	Vector<int, C> ret;
+	for (unsigned int c = 0; c < C; c++) {
+		ret[c] = floatBitsToInt(v[c]);
+	}
+	return ret;
+}
+
+template <unsigned int C>
+inline Vector<unsigned int, C> floatBitsToUInt(const Vector<float, C> &v) {
+	Vector<unsigned int, C> ret;
+	for (unsigned int c = 0; c < C; c++) {
+		ret[c] = floatBitsToUInt(v[c]);
+	}
+	return ret;
+}
+
+template <unsigned int C>
+inline Vector<float, C> intBitsToFloat(const Vector<int, C> &v) {
+	Vector<float, C> ret;
+	for (unsigned int c = 0; c < C; c++) {
+		ret[c] = intBitsToFloat(v[c]);
+	}
+	return ret;
+}
+
+template <unsigned int C>
+inline Vector<float, C> uintBitsToFloat(const Vector<unsigned int, C> &v) {
+	Vector<float, C> ret;
+	for (unsigned int c = 0; c < C; c++) {
+		ret[c] = uintBitsToFloat(v[c]);
+	}
+	return ret;
+}
+
+inline unsigned int packSnorm2x16(const Vector<float, 2> &v) {
+	unsigned short v0 = static_cast<unsigned short>(int(round(clamp(v[0], -1.0f, +1.0f) * 32767.0f)));
+	unsigned short v1 = static_cast<unsigned short>(int(round(clamp(v[1], -1.0f, +1.0f) * 32767.0f)));
+	return v0 | (v1 << 16);
+}
+
+inline Vector<float, 2> unpackSnorm2x16(unsigned int p) {
+	short v0 = static_cast<short>(p);
+	short v1 = static_cast<short>(p >> 16);
+	return Vector<float, 2>(clamp(v0 / 32767.0f, -1.0f, +1.0f), clamp(v1 / 32767.0f, -1.0f, +1.0f));
+}
+
+inline unsigned int packUnorm2x16(const Vector<float, 2> &v) {
+	unsigned short v0 = static_cast<unsigned short>(round(clamp(v[0], 0.0f, +1.0f) * 65535.0f));
+	unsigned short v1 = static_cast<unsigned short>(round(clamp(v[1], 0.0f, +1.0f) * 65535.0f));
+	return v0 | (v1 << 16);
+}
+
+inline Vector<float, 2> unpackUnorm2x16(unsigned int p) {
+	unsigned short v0 = static_cast<unsigned short>(p);
+	unsigned short v1 = static_cast<unsigned short>(p >> 16);
+	return Vector<float, 2>(v0 / 65535.0f, v1 / 65535.0f);
 }
 
 }
