@@ -34,6 +34,24 @@
 
 class MathTest : public CxxTest::TestSuite {
 public:
+	void testConstants() {
+		TS_ASSERT_EQUALS(glam::CONSTANTS<int>::PI, 3);
+		TS_ASSERT_DELTA(glam::CONSTANTS<float>::PI, 3.141592653589793f, 1e-6);
+		TS_ASSERT_DELTA(glam::CONSTANTS<double>::PI, 3.141592653589793, 1e-12);
+#ifdef GLAM_HAS_LONG_DOUBLE
+		TS_ASSERT_DELTA(glam::CONSTANTS<long double>::PI, 3.141592653589793238462643383279502884L, 1e-24);
+#endif
+		TS_ASSERT_DELTA(glam::CONSTANTS<std::complex<double> >::PI.real(), 3.141592653589793, 1e-12);
+		TS_ASSERT_DELTA(glam::CONSTANTS<std::complex<double> >::PI.imag(), 0.0, 1e-12);
+		TS_ASSERT_EQUALS(glam::CONSTANTS<int>::E, 2);
+		TS_ASSERT_DELTA(glam::CONSTANTS<float>::E, 2.7182818284590452354f, 1e-6);
+		TS_ASSERT_DELTA(glam::CONSTANTS<double>::E, 2.7182818284590452354, 1e-12);
+#ifdef GLAM_HAS_LONG_DOUBLE
+		TS_ASSERT_DELTA(glam::CONSTANTS<long double>::E, 2.718281828459045235360287471352662498L, 1e-24);
+#endif
+		TS_ASSERT_DELTA(glam::CONSTANTS<std::complex<double> >::E.real(), 2.7182818284590452354, 1e-12);
+		TS_ASSERT_DELTA(glam::CONSTANTS<std::complex<double> >::E.imag(), 0.0, 1e-12);
+	}
 	void testRadians() {
 		int d0 = 180.0f;
 		int r0 = glam::radians(d0);
@@ -44,9 +62,11 @@ public:
 		double d2 = 180.0;
 		double r2 = glam::radians(d2);
 		TS_ASSERT_DELTA(r2, 3.141592653589793, 1e-12);
+#ifdef GLAM_HAS_LONG_DOUBLE
 		long double d3 = 180.0L;
 		long double r3 = glam::radians(d3);
 		TS_ASSERT_DELTA(r3, 3.141592653589793238462643383279502884L, 1e-24);
+#endif
 		std::complex<double> d4 = 180.0;
 		std::complex<double> r4 = glam::radians(d4);
 		TS_ASSERT_DELTA(r4.real(), 3.141592653589793, 1e-12);

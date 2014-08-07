@@ -69,6 +69,17 @@ if(DEFINED GLAM_CXX11_FLAGS)
 endif()
 
 check_cxx_source_compiles("
+int main() {
+	long double d = 1.0L;
+	return 0;
+}
+" GLAM_HAS_LONG_DOUBLE)
+if(GLAM_HAS_LONG_DOUBLE)
+else()
+	message(WARNING "Your compiler doesn't support long double.")
+endif()
+
+check_cxx_source_compiles("
 int f(int &&x) { return x; }
 int main() {
 	f(10);

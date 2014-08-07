@@ -10,3 +10,4 @@
 #cmakedefine GLAM_HAS_CXXTEST
 #cmakedefine GLAM_HAS_CONSTEXPR
 #cmakedefine GLAM_RANGE_CHECKS
+#cmakedefine GLAM_HAS_LONG_DOUBLE

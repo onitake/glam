@@ -176,11 +176,13 @@ inline bool isinf(const T &x);
 
 // Implementation
 
+#ifdef GLAM_HAS_LONG_DOUBLE
 template <>
 struct CONSTANTS<long double> {
 	static constexpr long double PI = 3.141592653589793238462643383279502884L;
 	static constexpr long double E = 2.718281828459045235360287471352662498L;
 };
+#endif
 
 template <class T>
 T atan(const T &y, const T &x) {
