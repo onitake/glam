@@ -1,4 +1,7 @@
-/* Copyright (c) 2013-2014, Gregor Riepl <onitake@gmail.com>
+/*
+ * GLAM - GLSL Linear Algebra Math Library
+ * 
+ * Copyright (c) 2013-2014, Gregor Riepl <onitake@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -526,18 +529,26 @@ inline Vector<T, C>::Vector(Args... args) {
 
 template <class T, unsigned int C>
 inline T &Vector<T, C>::operator [](unsigned int index) {
+#ifdef GLAM_RANGE_CHECKS
 	if (index < C) {
 		return _v[index];
 	}
 	throw DimensionOutOfRangeException("Invalid vector element index", C - 1, index);
+#else
+	return _v[index];
+#endif
 }
 
 template <class T, unsigned int C>
 inline const T &Vector<T, C>::operator [](unsigned int index) const {
+#ifdef GLAM_RANGE_CHECKS
 	if (index < C) {
 		return _v[index];
 	}
 	throw DimensionOutOfRangeException("Invalid vector element index", C - 1, index);
+#else
+	return _v[index];
+#endif
 }
 
 template <class T, unsigned int C>

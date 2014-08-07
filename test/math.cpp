@@ -1,7 +1,7 @@
 /*
  * GLAM - GLSL Linear Algebra Math Library
  * 
- * Copyright (c) 2012, Gregor Riepl <onitake@gmail.com>
+ * Copyright (c) 2014, Gregor Riepl <onitake@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,33 +26,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <iostream>
-#include <glam/vector.h>
-#include <glam/matrix.h>
+#include <complex>
+#include <glam/math.h>
+#include <glam/config.h>
 
-int main(int argc, char **argv) {
-	glam::ivec4 v(1, 12.345, 0.5, 30);
-	std::cout << v << std::endl;
-	glam::vec4 w(1, 12.345, 0.5, 30);
-	std::cout << (w * glam::vec4(v)) << std::endl;
-	glam::mat4 r = glam::orthoMatrix(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
-	std::cout << r << std::endl;
-	std::cout << (r * w) << std::endl;
-	glam::vec2 v1(3.0f, 10.0f);
-	glam::vec2 v2(1.0f, 1.0f);
-	float v3 = glam::dot(v1, v2);
-	glam::vec2 v4 = v1 * glam::vec2(0.5f);
-	glam::vec2 v5 = v1 + glam::vec2(1.0f, 2.0f);
-	float x1 = v4[0];
-	glam::vec4 v6;
-	double values[] = { 10, 100.1, 42, 9.856, 19, 37, 37.3, 90, 101.85, 0 };
-	glam::Vector<double, 10> v7(values);
-	glam::Vector<double, 10> v8 = v7 * glam::Vector<double, 10>(73.123);
-	std::cout << length(normalize(v8)) << std::endl;
-	std::cout << v8 << std::endl;
-	glam::Vector<double, 10> v9;
-	double s1 = glam::dot(v8, v9);
-	std::cout << s1 << std::endl;
-	return 0;
-}
+#include <cxxtest/TestSuite.h>
+
+class MathTest : public CxxTest::TestSuite {
+public:
+	void testRadians() {
+		int d0 = 180.0f;
+		int r0 = glam::radians(d0);
+		TS_ASSERT_EQUALS(r0, 3);
+		float d1 = 180.0f;
+		float r1 = glam::radians(d1);
+		TS_ASSERT_DELTA(r1, 3.141592653589793f, 1e-6);
+		double d2 = 180.0;
+		double r2 = glam::radians(d2);
+		TS_ASSERT_DELTA(r2, 3.141592653589793, 1e-12);
+		long double d3 = 180.0L;
+		long double r3 = glam::radians(d3);
+		TS_ASSERT_DELTA(r3, 3.141592653589793238462643383279502884L, 1e-24);
+		std::complex<double> d4 = 180.0;
+		std::complex<double> r4 = glam::radians(d4);
+		TS_ASSERT_DELTA(r4.real(), 3.141592653589793, 1e-12);
+		TS_ASSERT_DELTA(r4.imag(), 0.0, 1e-12);
+	}
+};

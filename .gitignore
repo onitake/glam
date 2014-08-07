@@ -16,5 +16,6 @@ example/dft
 example/glslvec
 example/linalgperf
 example/vecmath
+test/math
 test/vector
 test/matrix

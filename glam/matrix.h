@@ -1,4 +1,7 @@
-/* Copyright (c) 2012-2014, Gregor Riepl <onitake@gmail.com>
+/*
+ * GLAM - GLSL Linear Algebra Math Library
+ * 
+ * Copyright (c) 2012-2014, Gregor Riepl <onitake@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,10 +38,6 @@
 #include <glam/config.h>
 
 namespace glam {
-
-// Forward declarations
-template <class T, unsigned int M, unsigned int N>
-class Matrix;
 
 // M=height N=width i=row j=column
 template <class T, unsigned int M, unsigned int N = M>
@@ -486,18 +485,26 @@ inline const T *Matrix<T, M, N>::internal() const {
 
 template <class T, unsigned int M, unsigned int N>
 inline Vector<T, M> &Matrix<T, M, N>::operator [](unsigned int j) {
+#ifdef GLAM_RANGE_CHECKS
 	if (j < N) {
 		return _a[j];
 	}
 	throw DimensionOutOfRangeException("Matrix column index out of range", N, j);
+#else
+	return _a[j];
+#endif
 }
 
 template <class T, unsigned int M, unsigned int N>
 inline const Vector<T, M> &Matrix<T, M, N>::operator [](unsigned int j) const {
+#ifdef GLAM_RANGE_CHECKS
 	if (j < N) {
 		return _a[j];
 	}
 	throw DimensionOutOfRangeException("Matrix column index out of range", N, j);
+#else
+	return _a[j];
+#endif
 }
 
 template <class T, unsigned int M, unsigned int N>

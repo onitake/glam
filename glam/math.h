@@ -1,4 +1,7 @@
-/* Copyright (c) 2014, Gregor Riepl <onitake@gmail.com>
+/*
+ * GLAM - GLSL Linear Algebra Math Library
+ * 
+ * Copyright (c) 2014, Gregor Riepl <onitake@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -30,6 +33,15 @@
 #include <glam/config.h>
 
 namespace glam {
+
+// Mathematical constants
+// The generic implementation derives its values from double precision rational numbers.
+// If your type needs more precision or different values, provide a template specialization.
+template <class T>
+struct CONSTANTS {
+	static constexpr T PI = 3.14159265358979323846;
+	static constexpr T E = 2.7182818284590452354;
+};
 
 // Convert degrees to radians (works for scalars and vectors, component-wise)
 template <class T>
@@ -164,6 +176,12 @@ inline bool isinf(const T &x);
 
 // Implementation
 
+template <>
+struct CONSTANTS<long double> {
+	static constexpr long double PI = 3.141592653589793238462643383279502884L;
+	static constexpr long double E = 2.718281828459045235360287471352662498L;
+};
+
 template <class T>
 T atan(const T &y, const T &x) {
 	return atan(y / x);
@@ -171,12 +189,12 @@ T atan(const T &y, const T &x) {
 
 template <class T>
 inline T radians(const T &degrees) {
-	return T(3.14159265358979323846 / 180.0) * degrees;
+	return CONSTANTS<T>::PI * degrees / T(180);
 }
 
 template <class T>
 inline T degrees(const T &radians) {
-	return T(180.0 / 3.14159265358979323846) * radians;
+	return T(180) * radians / CONSTANTS<T>::PI;
 }
 
 template <class T>

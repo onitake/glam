@@ -6,6 +6,7 @@ set(GLAM_VERSION_MAJOR 0)
 set(GLAM_VERSION_MINOR 3)
 set(GLAM_VERSION_MICRO 0)
 # Set GLAM_DEBUG to 1 to enable debugging symbols
+# Setting GLAM_DEBUG to 0 also disables range checks
 set(GLAM_DEBUG 0)
 
 include(CheckCXXCompilerFlag)
@@ -37,6 +38,7 @@ if(GLAM_DEBUG)
 	endif()
 else()
 	set(CMAKE_BUILD_TYPE Release)
+	set(GLAM_RANGE_CHECKS)
 	check_cxx_compiler_flag("-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g" GLAM_HAS_CXX_OPTION_OPTIMIZE_GCC)
 	if(GLAM_HAS_CXX_OPTION_OPTIMIZE_GCC)
 		set(GLAM_OPTIMIZE_FLAGS "-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g")
@@ -140,7 +142,7 @@ int main() {
 " GLAM_HAS_CONSTEXPR)
 if(GLAM_HAS_CONSTEXPR)
 else()
-	message(WARNING "Your compiler doesn't support C++11 constexpr.")
+	message(FATAL_ERROR "Your compiler doesn't support C++11 constexpr.")
 endif()
 
 configure_file(

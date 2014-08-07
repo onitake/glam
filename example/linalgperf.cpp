@@ -1,4 +1,7 @@
-/* Copyright (c) 2012-2014, Gregor Riepl <onitake@gmail.com>
+/*
+ * GLAM - GLSL Linear Algebra Math Library
+ * 
+ * Copyright (c) 2012-2014, Gregor Riepl <onitake@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -71,12 +74,6 @@ const double M4[10*10] = {
 	74, 46, 184, 164, 253, 254, 42, 225, 229, 183, 
 	214, 41, 224, 111, 125, 214, 22, 2, 92, 24, 
 };
-
-template Matrix2f glam::inverse(const Matrix2f &);
-template Matrix5f glam::inverse(const Matrix5f &);
-template Matrix6f glam::inverse(const Matrix6f &);
-template Matrix10f glam::inverse(const Matrix10f &);
-template Matrix10d glam::inverse(const Matrix10d &);
 
 // Fuzzy comparison
 // Adapted from http://randomascii.wordpress.com/2012/01/11/tricks-with-the-floating-point-format/
