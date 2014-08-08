@@ -181,6 +181,11 @@ inline float intBitsToFloat(int v);
 inline float uintBitsToFloat(unsigned int v);
 
 
+// GLSL types
+
+typedef unsigned int uint;
+
+
 // Implementation
 
 #ifdef GLAM_HAS_LONG_DOUBLE

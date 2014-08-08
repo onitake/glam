@@ -433,6 +433,12 @@ inline unsigned int packUnorm2x16(const Vector<float, 2> &v);
 // The first vector component is taken from the lower 16 bits, the second from the upper part.
 // Conversion from fixed to float is equivalent to: f / 65535.0
 inline Vector<float, 2> unpackUnorm2x16(unsigned int p);
+// Convert two 32bit floats into half (16bit) floats and pack them into a 32bit integer
+// The first vector component will be at the lower 16 bits of the result, the second at the upper part.
+inline unsigned int packHalf2x16(const Vector<float, 2> &v);
+// Convert two half (16bit) floats packed into a 32bit integer into a vector of 32bit floats
+// The first vector component is taken from the lower 16 bits, the second from the upper part.
+inline Vector<float, 2> unpackHalf2x16(unsigned int v);
 
 
 // GLSL types
@@ -453,6 +459,10 @@ typedef Vector<double, 4> dvec4;
 typedef Vector<bool, 2> bvec2;
 typedef Vector<bool, 3> bvec3;
 typedef Vector<bool, 4> bvec4;
+// Unsigned Int vectors
+typedef Vector<unsigned int, 2> uvec2;
+typedef Vector<unsigned int, 3> uvec3;
+typedef Vector<unsigned int, 4> uvec4;
 
 
 // Implementation
@@ -1322,27 +1332,47 @@ inline Vector<float, C> uintBitsToFloat(const Vector<unsigned int, C> &v) {
 }
 
 inline unsigned int packSnorm2x16(const Vector<float, 2> &v) {
-	unsigned short v0 = static_cast<unsigned short>(int(round(clamp(v[0], -1.0f, +1.0f) * 32767.0f)));
-	unsigned short v1 = static_cast<unsigned short>(int(round(clamp(v[1], -1.0f, +1.0f) * 32767.0f)));
-	return v0 | (v1 << 16);
+	Vector<unsigned short, 2> u = round(clamp(v, -1.0f, +1.0f) * Vector<float, 2>(32767.0f));
+	return u[0] | (u[1] << 16);
 }
 
 inline Vector<float, 2> unpackSnorm2x16(unsigned int p) {
-	short v0 = static_cast<short>(p);
-	short v1 = static_cast<short>(p >> 16);
-	return Vector<float, 2>(clamp(v0 / 32767.0f, -1.0f, +1.0f), clamp(v1 / 32767.0f, -1.0f, +1.0f));
+	Vector<float, 2> u(short(p), short(p >> 16));
+	return clamp(u / Vector<float, 2>(32767.0f), -1.0f, +1.0f);
 }
 
 inline unsigned int packUnorm2x16(const Vector<float, 2> &v) {
-	unsigned short v0 = static_cast<unsigned short>(round(clamp(v[0], 0.0f, +1.0f) * 65535.0f));
-	unsigned short v1 = static_cast<unsigned short>(round(clamp(v[1], 0.0f, +1.0f) * 65535.0f));
-	return v0 | (v1 << 16);
+	Vector<unsigned short, 2> u = round(clamp(v, 0.0f, +1.0f) * Vector<float, 2>(65535.0f));
+	return u[0] | (u[1] << 16);
 }
 
 inline Vector<float, 2> unpackUnorm2x16(unsigned int p) {
-	unsigned short v0 = static_cast<unsigned short>(p);
-	unsigned short v1 = static_cast<unsigned short>(p >> 16);
-	return Vector<float, 2>(v0 / 65535.0f, v1 / 65535.0f);
+	Vector<float, 2> u(p & 0xffff, p >> 16);
+	return u / Vector<float, 2>(65535.0f);
+}
+
+inline unsigned int packHalf2x16(const Vector<float, 2> &v) {
+	Vector<unsigned int, 2> bits = floatBitsToUInt(v);
+	//                | 31   | 30   | 29   | 28   | 27   | 26   | 25   | 24   | 23   | 22   | ..   | 00   |
+	// IEEE 754 32bit | sign | exps | exponent                                       | value              |
+	// 1 bit sign, 1 bit exponent sign, 7 bits exponent, 23 bits value
+	//                | 15   | 14   | 13   | 12   | 11   | 10   | 09   | 08   | ..   | 00   |
+	// IEEE 754 16bit | sign | exps | exponent                         | value              |
+	// 1 bit sign, 1 bit exponent sign, 5 bits exponent, 9 bits value
+	Vector<unsigned int, 2> sign = (bits >> 16) & Vector<unsigned int, 2>(0xc000);
+	Vector<unsigned int, 2> expvalue = (bits >> 14) & Vector<unsigned int, 2>(0x3fff);
+	bits = sign | expvalue;
+	return bits[0] | (bits[1] << 16);
+}
+
+inline Vector<float, 2> unpackHalf2x16(unsigned int v) {
+	Vector<unsigned int, 2> bits(v & 0xffff, v >> 16);
+	Vector<unsigned int, 2> sign = (bits & Vector<unsigned int, 2>(0xc000)) << 16;
+	Vector<unsigned int, 2> expvalue = (bits & Vector<unsigned int, 2>(0x3fff)) << 14;
+	Vector<unsigned int, 2> ext = expvalue & Vector<unsigned int, 2>(0x08000000);
+	ext |= (ext << 1) | (ext << 2);
+	bits = sign | expvalue | ext;
+	return uintBitsToFloat(bits);
 }
 
 }

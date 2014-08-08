@@ -311,6 +311,15 @@ public:
 		TS_ASSERT_DELTA(vuf2[0], 0.0f, 1e-6);
 		TS_ASSERT_DELTA(vuf2[1], 1.0f, 1e-6);
 	}
+	void testPackHalf() {
+		glam::vec2 vf1(10.0f, -0.125f);
+		unsigned int p1 = glam::packHalf2x16(vf1);
+		TS_ASSERT_EQUALS(p1, 0xb8004480);
+		unsigned int p2 = 0xb8004480;
+		glam::vec2 vf2 = glam::unpackHalf2x16(p2);
+		TS_ASSERT_DELTA(vf2[0], 10.0f, 1e-4);
+		TS_ASSERT_DELTA(vf2[1], -0.125f, 1e-4);
+	}
 };
 
 #ifndef GLAM_HAS_CXXTEST
