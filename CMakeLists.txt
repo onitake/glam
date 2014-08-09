@@ -6,9 +6,14 @@ set(GLAM_VERSION_MAJOR 0)
 set(GLAM_VERSION_MINOR 3)
 set(GLAM_VERSION_MICRO 0)
 
-# Debug builds have range checks enabled by default
-set(CMAKE_BUILD_TYPE Debug)
-#set(CMAKE_BUILD_TYPE Release)
+# Run cmake -D CMAKE_BUILD_TYPE=Debug .
+# or  cmake -D CMAKE_BUILD_TYPE=Release .
+# to enable debugging or optimizations from the command line.
+# Debug builds have range checks enabled by default.
+if(NOT DEFINED CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Debug)
+	#set(CMAKE_BUILD_TYPE Release)
+endif()
 
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
