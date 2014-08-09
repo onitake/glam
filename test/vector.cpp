@@ -26,46 +26,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cxxtest/TestSuite.h>
 #include <string>
 #include <type_traits>
 #include <glam/vector.h>
 #include <glam/matrix.h>
 #include <glam/config.h>
 
-#ifdef GLAM_HAS_CXXTEST
-#include <cxxtest/TestSuite.h>
-#else
-#include <iostream>
-struct AssertException {
-	unsigned long line;
-	AssertException(unsigned long l) : line(l) { }
-};
-#define TS_ASSERT(a) do { if (!a) throw AssertException(__LINE__); } while (0)
-#define TS_ASSERT_EQUALS(a, b) do { if (a != b) throw AssertException(__LINE__); } while (0)
-#define TS_ASSERT_DELTA(a, b, d) do { if (a - b > d && b - a > d) throw AssertException(__LINE__); } while (0)
-#define TS_TRACE(a) do { } while (0)
-#define TS_ASSERT_LESS_THAN_EQUALS(a, b) do { if (a > b) throw AssertException(__LINE__); } while (0)
-#endif
-
-#ifdef GLAM_HAS_CXXTEST
 class VectorTest : public CxxTest::TestSuite {
-#else
-class VectorTest {
-	VectorTest() {
-		testSize();
-		testFeatures();
-		testVec4ConstructorAndAccessor();
-		testVec5Equal();
-		testVec4Multiply();
-		testVec4Add();
-		testIVec4ConstructorAndAccessor();
-		testIVec4Cast();
-		testVecDot();
-		testDVec10IteratorConstructor();
-		testDVec10Length();
-		testDVec10Normalize();
-	}
-#endif
 public:
 	void testSize() {
 		TS_TRACE(std::string("sizeof(float) is ") + std::to_string(sizeof(float)));
@@ -297,7 +265,7 @@ public:
 	void testPackNorm() {
 		glam::vec2 vsf1(-1.0f, 1.0f);
 		unsigned int up1 = glam::packSnorm2x16(vsf1);
-		// Should be 8000, precision?
+		// Should be 8000, precision? Rounding error?
 		TS_ASSERT_EQUALS(up1, 0x7fff8001);
 		unsigned int up2 = 0x7fff8000;
 		glam::vec2 vsf2 = glam::unpackSnorm2x16(up2);
@@ -321,17 +289,3 @@ public:
 		TS_ASSERT_DELTA(vf2[1], -0.125f, 1e-4);
 	}
 };
-
-#ifndef GLAM_HAS_CXXTEST
-int main(int argc, char **argv) {
-	try {
-		VectorTest();
-	} catch (AssertException &e) {
-		std::cerr << "Assertion failed on line " << e.line << std::endl;
-		return 1;
-	} catch () {
-		return 2;
-	}
-	return 0;
-}
-#endif
