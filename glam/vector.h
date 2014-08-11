@@ -157,28 +157,52 @@ inline Vector<T, C> operator --(Vector<T, C> &self, int);
 // Component-wise self-addition operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator +=(Vector<T, C> &self, const Vector<T, C> &v);
+// Vector-scalar addition, the same value is added to all components
+template <class T, unsigned int C>
+inline Vector<T, C> &operator +=(Vector<T, C> &self, const T &v);
 // Component-wise self-subtraction operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator -=(Vector<T, C> &self, const Vector<T, C> &v);
+// Vector-scalar subtraction, the same value is taken from all components
+template <class T, unsigned int C>
+inline Vector<T, C> &operator -=(Vector<T, C> &self, const T &v);
 // Component-wise self-multiplication operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator *=(Vector<T, C> &self, const Vector<T, C> &v);
+// Vector-scalar product, all components are multiplied by the same value
+template <class T, unsigned int C>
+inline Vector<T, C> &operator *=(Vector<T, C> &self, const T &v);
 // Component-wise self-division operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator /=(Vector<T, C> &self, const Vector<T, C> &v);
+// Vector-scalar division, all components are divided by the same value
+template <class T, unsigned int C>
+inline Vector<T, C> &operator /=(Vector<T, C> &self, const T &v);
 // Component-wise self-modulus operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator %=(Vector<T, C> &self, const Vector<T, C> &v);
+// Vector-scalar modulo division, all components are replaced by the remainder of their division by the same value
+template <class T, unsigned int C>
+inline Vector<T, C> &operator %=(Vector<T, C> &self, const T &v);
 
 // Component-wise bitwise and operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator &=(Vector<T, C> &self, const Vector<T, C> &v);
+// Vector-scalar bitwise and, all components are masked by the same bit pattern
+template <class T, unsigned int C>
+inline Vector<T, C> &operator &=(Vector<T, C> &self, const T &v);
 // Component-wise bitwise or operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator |=(Vector<T, C> &self, const Vector<T, C> &v);
+// Vector-scalar bitwise or, all components are combined with the same bit pattern
+template <class T, unsigned int C>
+inline Vector<T, C> &operator |=(Vector<T, C> &self, const T &v);
 // Component-wise bitwise xor operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator ^=(Vector<T, C> &self, const Vector<T, C> &v);
+// Vector-scalar bitwise xor, all components are flipped or kept depending on the same bit pattern
+template <class T, unsigned int C>
+inline Vector<T, C> &operator ^=(Vector<T, C> &self, const T &v);
 // Component-wise bit shift left operator
 template <class T, unsigned int C>
 inline Vector<T, C> &operator <<=(Vector<T, C> &self, unsigned int s);
@@ -199,28 +223,76 @@ inline Vector<T, C> operator ~(const Vector<T, C> &u);
 // Component-wise addition operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator +(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise vector-scalar addition operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator +(const Vector<T, C> &u, const T &v);
+// Component-wise scalar-vector addition operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator +(const T &u, const Vector<T, C> &v);
 // Component-wise subtraction operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator -(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise vector-scalar subtraction operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator -(const Vector<T, C> &u, const T &v);
+// Component-wise scalar-vector subtraction operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator -(const T &u, const Vector<T, C> &v);
 // Component-wise multiplication operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator *(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise vector-scalar multiplication operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator *(const Vector<T, C> &u, const T &v);
+// Component-wise scalar-vector multiplication operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator *(const T &u, const Vector<T, C> &v);
 // Component-wise division operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator /(const Vector<T, C> &u, const Vector<T, C> &v);
-// Component-wise modulus operator
+// Component-wise vector-scalar division operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator /(const Vector<T, C> &u, const T &v);
+// Component-wise scalar-vector division operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator /(const T &u, const Vector<T, C> &v);
+// Component-wise modulo operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator %(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise vector-scalar modulo operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator %(const Vector<T, C> &u, const T &v);
+// Component-wise scalar-vector modulo operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator %(const T &u, const Vector<T, C> &v);
 
 // Component-wise bitwise and operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator &(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise vector-scalar bitwise and operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator &(const Vector<T, C> &u, const T &v);
+// Component-wise scalar-vector bitwise and operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator &(const T &u, const Vector<T, C> &v);
 // Component-wise bitwise or operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator |(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise vector-scalar bitwise or operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator |(const Vector<T, C> &u, const T &v);
+// Component-wise scalar-vector bitwise or operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator |(const T &u, const Vector<T, C> &v);
 // Component-wise bitwise xor operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator ^(const Vector<T, C> &u, const Vector<T, C> &v);
+// Component-wise vector-scalar bitwise xor operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator ^(const Vector<T, C> &u, const T &v);
+// Component-wise scalar-vector bitwise xor operator
+template <class T, unsigned int C>
+inline Vector<T, C> operator ^(const T &u, const Vector<T, C> &v);
 // Component-wise bit shift left operator
 template <class T, unsigned int C>
 inline Vector<T, C> operator <<(const Vector<T, C> &u, unsigned int s);
@@ -490,7 +562,7 @@ inline Vector<T, 4> Vector<T, C>::permutation(unsigned int x, unsigned int y, un
 template <class T, unsigned int C>
 template <unsigned int X>
 inline void Vector<T, C>::initialize() {
-	static_assert(X == 0 || X == C, "Not enough initializers");
+	static_assert(X == 0 || X >= C, "Not enough initializers");
 	if (X == 0) {
 		for (unsigned int p = 0; p < C; p++) {
 			(*this)[p] = static_cast<T>(0);
@@ -524,8 +596,9 @@ inline void Vector<T, C>::initialize(const T &s) {
 template <class T, unsigned int C>
 template <unsigned int X, typename... Args, unsigned int P>
 inline void Vector<T, C>::initialize(const Vector<T, P> &v, Args... args) {
-	static_assert(X + P <= C, "Too many initializers");
-	for (unsigned int p = 0; p < P; p++) {
+	// The last argument may have excess components, which are ignored
+	//static_assert(X + P <= C, "Too many initializers");
+	for (unsigned int p = 0; p < min(P, C - X + 1); p++) {
 		(*this)[X + p] = v[p];
 	}
 	initialize<X + P>(args...);
@@ -1332,23 +1405,22 @@ inline Vector<float, C> uintBitsToFloat(const Vector<unsigned int, C> &v) {
 }
 
 inline unsigned int packSnorm2x16(const Vector<float, 2> &v) {
-	Vector<unsigned short, 2> u = round(clamp(v, -1.0f, +1.0f) * Vector<float, 2>(32767.0f));
-	return u[0] | (u[1] << 16);
+	Vector<int, 2> u = round(clamp(v, -1.0f, 1.0f) * 32767.0f);
+	return (u[0] & 0xffff) | (u[1] << 16);
 }
 
 inline Vector<float, 2> unpackSnorm2x16(unsigned int p) {
-	Vector<float, 2> u(short(p), short(p >> 16));
-	return clamp(u / Vector<float, 2>(32767.0f), -1.0f, +1.0f);
+	// Cast to short to sign extend
+	return clamp(Vector<float, 2>(short(p), short(p >> 16)) / 32767.0f, -1.0f, 1.0f);
 }
 
 inline unsigned int packUnorm2x16(const Vector<float, 2> &v) {
-	Vector<unsigned short, 2> u = round(clamp(v, 0.0f, +1.0f) * Vector<float, 2>(65535.0f));
+	Vector<unsigned int, 2> u = round(clamp(v, 0.0f, 1.0f) * 65535.0f);
 	return u[0] | (u[1] << 16);
 }
 
 inline Vector<float, 2> unpackUnorm2x16(unsigned int p) {
-	Vector<float, 2> u(p & 0xffff, p >> 16);
-	return u / Vector<float, 2>(65535.0f);
+	return Vector<float, 2>(p & 0xffff, p >> 16) / 65535.0f;
 }
 
 inline unsigned int packHalf2x16(const Vector<float, 2> &v) {
@@ -1359,21 +1431,142 @@ inline unsigned int packHalf2x16(const Vector<float, 2> &v) {
 	//                | 15   | 14   | 13   | 12   | 11   | 10   | 09   | 08   | ..   | 00   |
 	// IEEE 754 16bit | sign | exps | exponent                         | value              |
 	// 1 bit sign, 1 bit exponent sign, 5 bits exponent, 9 bits value
-	Vector<unsigned int, 2> sign = (bits >> 16) & Vector<unsigned int, 2>(0xc000);
-	Vector<unsigned int, 2> expvalue = (bits >> 14) & Vector<unsigned int, 2>(0x3fff);
+	Vector<unsigned int, 2> sign = (bits >> 16) & 0xc000u;
+	Vector<unsigned int, 2> expvalue = (bits >> 14) & 0x3fffu;
 	bits = sign | expvalue;
 	return bits[0] | (bits[1] << 16);
 }
 
 inline Vector<float, 2> unpackHalf2x16(unsigned int v) {
-	Vector<unsigned int, 2> bits(v & 0xffff, v >> 16);
-	Vector<unsigned int, 2> sign = (bits & Vector<unsigned int, 2>(0xc000)) << 16;
-	Vector<unsigned int, 2> expvalue = (bits & Vector<unsigned int, 2>(0x3fff)) << 14;
-	Vector<unsigned int, 2> ext = expvalue & Vector<unsigned int, 2>(0x08000000);
+	Vector<unsigned int, 2> bits(v & 0xffffu, v >> 16);
+	Vector<unsigned int, 2> sign = (bits & 0xc000u) << 16;
+	Vector<unsigned int, 2> expvalue = (bits & 0x3fffu) << 14;
+	Vector<unsigned int, 2> ext = expvalue & 0x08000000u;
 	ext |= (ext << 1) | (ext << 2);
 	bits = sign | expvalue | ext;
 	return uintBitsToFloat(bits);
 }
+
+template <class T, unsigned int C>
+inline Vector<T, C> &operator +=(Vector<T, C> &self, const T &v) {
+	return self += Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> &operator -=(Vector<T, C> &self, const T &v) {
+	return self -= Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> &operator *=(Vector<T, C> &self, const T &v) {
+	return self *= Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> &operator /=(Vector<T, C> &self, const T &v) {
+	return self /= Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> &operator %=(Vector<T, C> &self, const T &v) {
+	return self %= Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> &operator &=(Vector<T, C> &self, const T &v) {
+	return self &= Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> &operator |=(Vector<T, C> &self, const T &v) {
+	return self |= Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> &operator ^=(Vector<T, C> &self, const T &v) {
+	return self ^= Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator +(const Vector<T, C> &u, const T &v) {
+	return u + Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator +(const T &u, const Vector<T, C> &v) {
+	return Vector<T, C>(u) + v;
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator -(const Vector<T, C> &u, const T &v) {
+	return u - Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator -(const T &u, const Vector<T, C> &v) {
+	return Vector<T, C>(u) - v;
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator *(const Vector<T, C> &u, const T &v) {
+	return u * Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator *(const T &u, const Vector<T, C> &v) {
+	return Vector<T, C>(u) * v;
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator /(const Vector<T, C> &u, const T &v) {
+	return u / Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator /(const T &u, const Vector<T, C> &v) {
+	return Vector<T, C>(u) / v;
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator %(const Vector<T, C> &u, const T &v) {
+	return u % Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator %(const T &u, const Vector<T, C> &v) {
+	return Vector<T, C>(u) % v;
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator &(const Vector<T, C> &u, const T &v) {
+	return u & Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator &(const T &u, const Vector<T, C> &v) {
+	return Vector<T, C>(u) & v;
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator |(const Vector<T, C> &u, const T &v) {
+	return u | Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator |(const T &u, const Vector<T, C> &v) {
+	return Vector<T, C>(u) | v;
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator ^(const Vector<T, C> &u, const T &v) {
+	return u ^ Vector<T, C>(v);
+}
+
+template <class T, unsigned int C>
+inline Vector<T, C> operator ^(const T &u, const Vector<T, C> &v) {
+	return Vector<T, C>(u) ^ v;
+}
+
 
 }
 

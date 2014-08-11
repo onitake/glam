@@ -100,12 +100,18 @@ public:
 	inline Matrix<T, M, N> &operator =(const Matrix<T, M, N> &other);
 	// Component-wise sum
 	inline Matrix<T, M, N> &operator +=(const Matrix<T, M, N> &other);
+	// Matrix-scalar sum
+	inline Matrix<T, M, N> &operator +=(const T &x);
 	// Component-wise difference
 	inline 	Matrix<T, M, N> &operator -=(const Matrix<T, M, N> &other);
-	// Matrix-scalar product
-	inline Matrix<T, M, N> &operator *=(const T &x);
+	// Matrix-scalar difference
+	inline Matrix<T, M, N> &operator -=(const T &x);
+	// Matrix division
+	inline Matrix<T, M, N> &operator /=(const Matrix<T, M, N> &other);
 	// Matrix-scalar division
 	inline Matrix<T, M, N> &operator /=(const T &x);
+	// Matrix-scalar product
+	inline Matrix<T, M, N> &operator *=(const T &x);
 };
 
 // LU(P) decomposition of M
@@ -126,22 +132,46 @@ struct LuDecomposition {
 // Component-wise matrix sum
 template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, M, N> operator +(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b);
+// Component-wise matrix-scalar sum
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator +(const Matrix<T, M, N> &a, const T &b);
+// Component-wise scalar-matrix sum
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator +(const T &a, const Matrix<T, M, N> &b);
 
 // Component-wise matrix difference
 template <class T, unsigned int M, unsigned int N>
 inline Matrix<T, M, N> operator -(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b);
-
-// Multiplication of every matrix element with a scalar
+// Component-wise matrix-scalar difference
 template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator *(const Matrix<T, M, N> &a, const T &x);
+inline Matrix<T, M, N> operator -(const Matrix<T, M, N> &a, const T &b);
+// Component-wise scalar-matrix difference
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator -(const T &a, const Matrix<T, M, N> &b);
 
-// Division of every matrix element by a scalar
+// Component-wise matrix division
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator /(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b);
+// Division of every matrix component by a scalar
 template <class T, unsigned int M, unsigned int N, class U>
 inline Matrix<T, M, N> operator /(const Matrix<T, M, N> &a, const U &x);
+// Division of a scalar with every matrix component
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator /(const T &x, const Matrix<T, M, N> &a);
+
+// Multiplication of every matrix component with a scalar
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator *(const Matrix<T, M, N> &a, const T &x);
+// Multiplication of a scalar with every matrix component
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator *(const T &x, const Matrix<T, M, N> &a);
 
 // Matrix-vector product
 template <class T, unsigned int M, unsigned int N>
 inline Vector<T, M> operator *(const Matrix<T, M, N> &a, const Vector<T, N> &b);
+// Vector-matrix product
+template <class T, unsigned int M, unsigned int N>
+inline Vector<T, M> operator *(const Vector<T, N> &a, const Matrix<T, M, N> &b);
 
 // Matrix product
 template <class T, unsigned int M, unsigned int N, unsigned int P>
@@ -752,6 +782,80 @@ inline Matrix<T, 4, 4> orthoMatrix(const T &l, const T &r, const T &b, const T &
 	};
 	return Matrix<float, 4, 4>(data);
 }
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> &Matrix<T, M, N>::operator +=(const T &x) {
+	Vector<T, M> col(x);
+	for (unsigned int j = 0; j < N; j++) {
+		(*this)[j] += col;
+	}
+	return *this;
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> &Matrix<T, M, N>::operator -=(const T &x) {
+	Vector<T, M> col(x);
+	for (unsigned int j = 0; j < N; j++) {
+		(*this)[j] -= col;
+	}
+	return *this;
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator +(const Matrix<T, M, N> &a, const T &b) {
+	Matrix<T, M, N> ret(a);
+	ret += b;
+	return ret;
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator +(const T &a, const Matrix<T, M, N> &b) {
+	Vector<T, M> col(a);
+	Matrix<T, M, N> ret;
+	for (unsigned int j = 0; j < N; j++) {
+		ret[j] = col + b[j];
+	}
+	return ret;
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator -(const Matrix<T, M, N> &a, const T &b) {
+	Matrix<T, M, N> ret(a);
+	ret -= b;
+	return ret;
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator -(const T &a, const Matrix<T, M, N> &b) {
+	Vector<T, M> col(a);
+	Matrix<T, M, N> ret;
+	for (unsigned int j = 0; j < N; j++) {
+		ret[j] = col - b[j];
+	}
+	return ret;
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator /(const T &x, const Matrix<T, M, N> &a) {
+	Vector<T, M> col(x);
+	Matrix<T, M, N> ret;
+	for (unsigned int j = 0; j < N; j++) {
+		ret[j] = col / a[j];
+	}
+	return ret;
+}
+
+template <class T, unsigned int M, unsigned int N>
+inline Matrix<T, M, N> operator *(const T &x, const Matrix<T, M, N> &a) {
+	Vector<T, M> col(x);
+	Matrix<T, M, N> ret;
+	for (unsigned int j = 0; j < N; j++) {
+		ret[j] = col / a[j];
+	}
+	return ret;
+}
+
+
 
 }
 
