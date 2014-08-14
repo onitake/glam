@@ -46,12 +46,6 @@ template <class T, unsigned int C>
 class Vector {
 private:
 	T _v[C];
-
-	// Overloadable template functions for use by the generator macro
-	inline T permutation(unsigned int x) const;
-	inline Vector<T, 2> permutation(unsigned int x, unsigned int y) const;
-	inline Vector<T, 3> permutation(unsigned int x, unsigned int y, unsigned int z) const;
-	inline Vector<T, 4> permutation(unsigned int x, unsigned int y, unsigned int z, unsigned int w) const;
 	
 	// Supporting initializers to avoid trouble from delegate constructors
 	template <unsigned int X>
@@ -103,10 +97,15 @@ public:
 	// These are in the form of function calls, not member access like in GLSL
 	// Eg.: v.xxyy() instead of v.xxyy
 	// All the 340 1-, 2-, 3- and 4-member permutations are generated on the fly.
-	#define GLAM_PERM_MAKE1_1(type, length, name, member0) inline T name() const { static_assert(member0 < length, "Invalid member index for this vector type"); return permutation(member0); }
-	#define GLAM_PERM_MAKE2_2(type, length, name, member0, member1) inline Vector<type, 2> name() const { static_assert(member0 < length && member1 < length, "Invalid member index for this vector type"); return permutation(member0, member1); }
-	#define GLAM_PERM_MAKE3_3(type, length, name, member0, member1, member2) inline Vector<type, 3> name() const { static_assert(member0 < length && member1 < length && member2 < length, "Invalid member index for this vector type"); return permutation(member0, member1, member2); }
-	#define GLAM_PERM_MAKE4_4(type, length, name, member0, member1, member2, member3) inline Vector<type, 4> name() const { static_assert(member0 < length && member1 < length && member2 < length && member3 < length, "Invalid member index for this vector type"); return permutation(member0, member1, member2, member3); }
+	#define GLAM_PERM_MAKE1_1(type, length, name, member0) \
+		inline T &name() { static_assert(member0 < length, "Invalid member index for this vector type"); return (*this)[member0]; } \
+		inline const T &name() const { static_assert(member0 < length, "Invalid member index for this vector type"); return (*this)[member0]; }
+	#define GLAM_PERM_MAKE2_2(type, length, name, member0, member1) \
+		inline Vector<type, 2> name() const { static_assert(member0 < length && member1 < length, "Invalid member index for this vector type"); return Vector<type, 2>((*this)[member0], (*this)[member1]); }
+	#define GLAM_PERM_MAKE3_3(type, length, name, member0, member1, member2) \
+		inline Vector<type, 3> name() const { static_assert(member0 < length && member1 < length && member2 < length, "Invalid member index for this vector type"); Vector<type, 3>((*this)[member0], (*this)[member1], (*this)[member2]); }
+	#define GLAM_PERM_MAKE4_4(type, length, name, member0, member1, member2, member3) \
+		inline Vector<type, 4> name() const { static_assert(member0 < length && member1 < length && member2 < length && member3 < length, "Invalid member index for this vector type"); return Vector<type, 4>((*this)[member0], (*this)[member1], (*this)[member2], (*this)[member3]); }
 	#define GLAM_PERM_MAKE4_3(type, length, prefix, member0, member1, member2) \
 		GLAM_PERM_MAKE4_4(type, length, prefix##x, member0, member1, member2, 0) \
 		GLAM_PERM_MAKE4_4(type, length, prefix##y, member0, member1, member2, 1) \
@@ -538,26 +537,6 @@ typedef Vector<unsigned int, 4> uvec4;
 
 
 // Implementation
-
-template <class T, unsigned int C>
-inline T Vector<T, C>::permutation(unsigned int x) const {
-	return _v[x];
-}
-
-template <class T, unsigned int C>
-inline Vector<T, 2> Vector<T, C>::permutation(unsigned int x, unsigned int y) const {
-	return Vector<T, 2>(_v[x], _v[y]);
-}
-
-template <class T, unsigned int C>
-inline Vector<T, 3> Vector<T, C>::permutation(unsigned int x, unsigned int y, unsigned int z) const {
-	return Vector<T, 3>(_v[x], _v[y], _v[z]);
-}
-
-template <class T, unsigned int C>
-inline Vector<T, 4> Vector<T, C>::permutation(unsigned int x, unsigned int y, unsigned int z, unsigned int w) const {
-	return Vector<T, 4>(_v[x], _v[y], _v[z], _v[w]);
-}
 
 template <class T, unsigned int C>
 template <unsigned int X>
