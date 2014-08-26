@@ -37,6 +37,7 @@ class VectorTest : public CxxTest::TestSuite {
 public:
 	void testSize() {
 		TS_TRACE(std::string("sizeof(float) is ") + std::to_string(sizeof(float)));
+		TS_TRACE(std::string("sizeof(vec2) is ") + std::to_string(sizeof(glam::vec2)));
 		TS_TRACE(std::string("sizeof(vec4) is ") + std::to_string(sizeof(glam::vec4)));
 		TS_TRACE(std::string("sizeof(bool) is ") + std::to_string(sizeof(bool)));
 		TS_TRACE(std::string("sizeof(bvec4) is ") + std::to_string(sizeof(glam::bvec4)));
@@ -224,31 +225,38 @@ public:
 	}
 	void testVec2Permute() {
 		glam::vec2 v(1, 2);
-		TS_ASSERT_EQUALS(v.x(), 1.0f);
-		TS_ASSERT_EQUALS(v.y(), 2.0f);
-		glam::vec2 u1 = v.xy();
+		TS_ASSERT_EQUALS(v.x, 1.0f);
+		TS_ASSERT_EQUALS(v.y, 2.0f);
+		glam::vec2 u1 = v.xy;
 		TS_ASSERT_EQUALS(u1[0], 1.0f);
 		TS_ASSERT_EQUALS(u1[1], 2.0f);
-		glam::vec2 u2 = v.yx();
+		glam::vec2 u2 = v.yx;
 		TS_ASSERT_EQUALS(u2[0], 2.0f);
 		TS_ASSERT_EQUALS(u2[1], 1.0f);
-		glam::vec2 u3 = v.xx();
+		glam::vec2 u3 = v.xx;
 		TS_ASSERT_EQUALS(u3[0], 1.0f);
 		TS_ASSERT_EQUALS(u3[1], 1.0f);
-		glam::vec2 u4 = v.yy();
+		glam::vec2 u4 = v.yy;
 		TS_ASSERT_EQUALS(u4[0], 2.0f);
 		TS_ASSERT_EQUALS(u4[1], 2.0f);
-#if 0
-#warning Permutation lvalue assignment doesnt work yet
-		glam::vec2 w1 = v;
-		w1.x() = 10;
-		TS_ASSERT_EQUALS(w1[0], 10.0f);
-		TS_ASSERT_EQUALS(w1[1], 2.0f);
-		glam::vec2 w2 = v;
-		w2.yx() = glam::vec2(10, 20);
-		TS_ASSERT_EQUALS(w2[0], 20.0f);
-		TS_ASSERT_EQUALS(w2[1], 10.0f);
-#endif
+		glam::vec2 u5 = v;
+		u5.y = 5.0f;
+		TS_ASSERT_EQUALS(u5[0], 1.0f);
+		TS_ASSERT_EQUALS(u5[1], 5.0f);
+		glam::vec2 u6 = v;
+		u6.yx = glam::vec2(3, 4);
+		TS_ASSERT_EQUALS(u6[0], 4.0f);
+		TS_ASSERT_EQUALS(u6[1], 3.0f);
+		glam::vec2 u7 = v;
+		glam::vec2 u8(10, 20);
+		u7.yx = u8.yx;
+		TS_ASSERT_EQUALS(u7[0], 10.0f);
+		TS_ASSERT_EQUALS(u7[1], 20.0f);
+		glam::vec2 u9 = v;
+		glam::vec2 u10(10, 20);
+		u9.yx += u10;
+		TS_ASSERT_EQUALS(u9[0], 21.0f);
+		TS_ASSERT_EQUALS(u9[1], 12.0f);
 	}
 	void testVec3Bits() {
 		glam::vec3 vf1(1.0f, -1.0f, 0.5f);

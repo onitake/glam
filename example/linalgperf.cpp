@@ -152,10 +152,10 @@ bool compare(double a, double b) {
 }
 
 // Matrix equality, allowing for error
-template <class T, unsigned int M, unsigned int N>
+template <class T, size_t M, size_t N>
 bool compare(const glam::Matrix <T, M, N> &a, const glam::Matrix <T, M, N> &b) {
-	for (unsigned int i = 0; i < M; i++) {
-		for (unsigned int j = 0; j < N; j++) {
+	for (size_t i = 0; i < M; i++) {
+		for (size_t j = 0; j < N; j++) {
 			if (!compare(a[i][j], b[i][j])) {
 				return false;
 			}

@@ -40,40 +40,40 @@
 namespace glam {
 
 // M=height N=width i=row j=column
-template <class T, unsigned int M, unsigned int N = M>
+template <typename Type, size_t Height, size_t Width = Height>
 class Matrix {
 private:
 	// The matrix is sorted in column-major order, as in OpenGL:
-	// | a00 a01 a02 | => [ a00 a10 ] [ a01 a11 ] [ a02 a12 ] (index = M * j + i)
+	// | a00 a01 a02 | => [ a00 a10 ] [ a01 a11 ] [ a02 a12 ] (index = Height * j + i)
 	// | a10 a11 a12 |
-	Vector<T, M> _a[N];
+	Vector<Type, Height> _a[Width];
 
 	// Single element access by array index (inefficient implementation, use sparingly)
-	T &element(unsigned int index);
-	inline const T &element(unsigned int index) const;
+	Type &element(size_t index);
+	inline const Type &element(size_t index) const;
 
 	// Supporting initializers to avoid trouble from delegate constructors
-	template <unsigned int X>
+	template <size_t Index>
 	inline void initialize();
-	template <unsigned int X>
-	inline void initialize(const T &v);
-	template <unsigned int X, typename ForwardIterator>
+	template <size_t Index>
+	inline void initialize(const Type &v);
+	template <size_t Index, typename ForwardIterator>
 	inline void initialize(std::pair<ForwardIterator, ForwardIterator> iterator);
-	template <unsigned int X>
-	inline void initialize(const T *v);
-	template <unsigned int X, class U, unsigned int P, unsigned int R>
-	inline void initialize(const Matrix<U, P, R> &m);
-	template <unsigned int X, typename... Args, unsigned int P>
-	inline void initialize(const Vector<T, P> &v, Args... args);
-	template <unsigned int X, typename... Args>
-	inline void initialize(const T &v, Args... args);
+	template <size_t Index>
+	inline void initialize(const Type *v);
+	template <size_t Index, typename TypeM, size_t HeightM, size_t WidthM>
+	inline void initialize(const Matrix<TypeM, HeightM, WidthM> &m);
+	template <size_t Index, typename... Args, size_t Size, typename Permutation>
+	inline void initialize(const Vector<Type, Size, Permutation> &v, Args... args);
+	template <size_t Index, typename... Args>
+	inline void initialize(const Type &v, Args... args);
 	
 public:
 	// Catch-all variadic constructor
 	// The following constructor calls are supported:
 	// Matrix(): Creates an empty matrix
 	//  All elements are 0.
-	// Matrix(const T &d): Identity or scaling matrix
+	// Matrix(const Type &d): Identity or scaling matrix
 	//  The diagonal elements are all d, everything else is 0.
 	// Matrix<ForwardIterator>(std::pair<ForwardIterator, ForwardIterator> iterator): Populate the matrix from an iterator pair
 	//  Elements are filled up in order of occurrence, column by column, row by row. Transpose if you want the same layout as in a const array.
@@ -82,175 +82,175 @@ public:
 	//  Elements are filled up column by column, padded up with 0s. The diagonal is padded with 1s.
 	// Matrix<AnyScalarOrVector...>(const AnyScalarOrVector &arg0, ...): Populate the matrix from a list of vectors and/or scalars
 	//  Elements are filled up in order of occurrence, column by column, row by row.
-	// Matrix(const T *m): Populate the matrix from a constant array
+	// Matrix(const Type *m): Populate the matrix from a constant array
 	//  Elements are filled up in order of occurrence, column by column, row by row. Transpose if you want the same layout as in a const array.
 	//  Note that this overload does not support range checking. Make sure that the input array has the correct size or use the ForwardIterator overload.
 	template <typename... Args>
 	inline Matrix(Args... args);
 	
 	// Get internal pointer, subject to memory alignment (padding between column vectors)
-	inline const T *internal() const;
+	inline const Type *internal() const;
 	// Column vector access operator
 	// Use double index operators (i.e. [j][i]) to access a single element
-	inline Vector<T, M> &operator [](unsigned int j);
+	inline Vector<Type, Height> &operator [](size_t j);
 	// Const column vector access operator
 	// Use double index operators (i.e. [j][i]) to access a single element
-	inline const Vector<T, M> &operator [](unsigned int j) const;
+	inline const Vector<Type, Height> &operator [](size_t j) const;
 	// Assignment operator
-	inline Matrix<T, M, N> &operator =(const Matrix<T, M, N> &other);
+	inline Matrix<Type, Height, Width> &operator =(const Matrix<Type, Height, Width> &other);
 	// Component-wise sum
-	inline Matrix<T, M, N> &operator +=(const Matrix<T, M, N> &other);
+	inline Matrix<Type, Height, Width> &operator +=(const Matrix<Type, Height, Width> &other);
 	// Matrix-scalar sum
-	inline Matrix<T, M, N> &operator +=(const T &x);
+	inline Matrix<Type, Height, Width> &operator +=(const Type &x);
 	// Component-wise difference
-	inline 	Matrix<T, M, N> &operator -=(const Matrix<T, M, N> &other);
+	inline 	Matrix<Type, Height, Width> &operator -=(const Matrix<Type, Height, Width> &other);
 	// Matrix-scalar difference
-	inline Matrix<T, M, N> &operator -=(const T &x);
+	inline Matrix<Type, Height, Width> &operator -=(const Type &x);
 	// Matrix division
-	inline Matrix<T, M, N> &operator /=(const Matrix<T, M, N> &other);
+	inline Matrix<Type, Height, Width> &operator /=(const Matrix<Type, Height, Width> &other);
 	// Matrix-scalar division
-	inline Matrix<T, M, N> &operator /=(const T &x);
+	inline Matrix<Type, Height, Width> &operator /=(const Type &x);
 	// Matrix-scalar product
-	inline Matrix<T, M, N> &operator *=(const T &x);
+	inline Matrix<Type, Height, Width> &operator *=(const Type &x);
 };
 
-// LU(P) decomposition of M
+// LU(P) decomposition of Height
 // lower is a lower triangular matrix (L)
 // upper is an upper triangular matrix (U)
 // permutation is a permutation matrix (P)
 // swaps is the number of swaps performed to obtain permutation, with respect to identity (S)
 // The following equation must hold: PM = LU
-template <class T, unsigned int M, unsigned int N>
+template <typename Type, size_t Height, size_t Width>
 struct LuDecomposition {
-	Matrix<T, M, N> lower;
-	Matrix<T, M, N> upper;
-	Matrix<T, M, N> permutation;
-	unsigned int swaps;
-	inline LuDecomposition(const Matrix<T, M, N> &m);
+	Matrix<Type, Height, Width> lower;
+	Matrix<Type, Height, Width> upper;
+	Matrix<Type, Height, Width> permutation;
+	size_t swaps;
+	inline LuDecomposition(const Matrix<Type, Height, Width> &m);
 };
 
 // Component-wise matrix sum
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator +(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator +(const Matrix<Type, Height, Width> &a, const Matrix<Type, Height, Width> &b);
 // Component-wise matrix-scalar sum
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator +(const Matrix<T, M, N> &a, const T &b);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator +(const Matrix<Type, Height, Width> &a, const Type &b);
 // Component-wise scalar-matrix sum
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator +(const T &a, const Matrix<T, M, N> &b);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator +(const Type &a, const Matrix<Type, Height, Width> &b);
 
 // Component-wise matrix difference
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator -(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator -(const Matrix<Type, Height, Width> &a, const Matrix<Type, Height, Width> &b);
 // Component-wise matrix-scalar difference
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator -(const Matrix<T, M, N> &a, const T &b);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator -(const Matrix<Type, Height, Width> &a, const Type &b);
 // Component-wise scalar-matrix difference
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator -(const T &a, const Matrix<T, M, N> &b);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator -(const Type &a, const Matrix<Type, Height, Width> &b);
 
 // Component-wise matrix division
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator /(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator /(const Matrix<Type, Height, Width> &a, const Matrix<Type, Height, Width> &b);
 // Division of every matrix component by a scalar
-template <class T, unsigned int M, unsigned int N, class U>
-inline Matrix<T, M, N> operator /(const Matrix<T, M, N> &a, const U &x);
+template <typename Type, size_t Height, size_t Width, class U>
+inline Matrix<Type, Height, Width> operator /(const Matrix<Type, Height, Width> &a, const U &x);
 // Division of a scalar with every matrix component
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator /(const T &x, const Matrix<T, M, N> &a);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator /(const Type &x, const Matrix<Type, Height, Width> &a);
 
 // Multiplication of every matrix component with a scalar
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator *(const Matrix<T, M, N> &a, const T &x);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator *(const Matrix<Type, Height, Width> &a, const Type &x);
 // Multiplication of a scalar with every matrix component
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator *(const T &x, const Matrix<T, M, N> &a);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator *(const Type &x, const Matrix<Type, Height, Width> &a);
 
 // Matrix-vector product
-template <class T, unsigned int M, unsigned int N>
-inline Vector<T, M> operator *(const Matrix<T, M, N> &a, const Vector<T, N> &b);
+template <typename Type, size_t Height, size_t Width>
+inline Vector<Type, Height> operator *(const Matrix<Type, Height, Width> &a, const Vector<Type, Width> &b);
 // Vector-matrix product
-template <class T, unsigned int M, unsigned int N>
-inline Vector<T, M> operator *(const Vector<T, N> &a, const Matrix<T, M, N> &b);
+template <typename Type, size_t Height, size_t Width>
+inline Vector<Type, Height> operator *(const Vector<Type, Width> &a, const Matrix<Type, Height, Width> &b);
 
 // Matrix product
-template <class T, unsigned int M, unsigned int N, unsigned int P>
-inline Matrix<T, M, P> operator *(const Matrix<T, M, N> &a, const Matrix<T, N, P> &b);
+template <typename Type, size_t Height, size_t Width, size_t WidthB>
+inline Matrix<Type, Height, WidthB> operator *(const Matrix<Type, Height, Width> &a, const Matrix<Type, Width, WidthB> &b);
 
 // Matrix comparison operator (exact comparison)
-template <class T, unsigned int M, unsigned int N>
-inline bool operator ==(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b);
+template <typename Type, size_t Height, size_t Width>
+inline bool operator ==(const Matrix<Type, Height, Width> &a, const Matrix<Type, Height, Width> &b);
 
 // Component-wise matrix product
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> matrixCompMult(const Matrix<T, M, N> &x, const Matrix<T, M, N> &y);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> matrixCompMult(const Matrix<Type, Height, Width> &x, const Matrix<Type, Height, Width> &y);
 
 // Cartesian vector product
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> outerProduct(const Vector<T, N> &c, const Vector<T, M> &r);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> outerProduct(const Vector<Type, Width> &c, const Vector<Type, Height> &r);
 
 // Matrix transpose (columns and rows are swapped)
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, N, M> transpose(const Matrix<T, M, N> &m);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Width, Height> transpose(const Matrix<Type, Height, Width> &m);
 
 // Matrix determinant
-template <class T, unsigned int M, unsigned int N>
-inline T determinant(const Matrix<T, M, N> &m);
+template <typename Type, size_t Height, size_t Width>
+inline Type determinant(const Matrix<Type, Height, Width> &m);
 
 // Matrix inverse (through LU decomposition)
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> inverse(const Matrix<T, M, N> &m);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> inverse(const Matrix<Type, Height, Width> &m);
 
 // Output stream operator
-template <class T, unsigned int M, unsigned int N>
-inline std::ostream &operator <<(std::ostream &o, const Matrix<T, M, N> &m);
+template <typename Type, size_t Height, size_t Width>
+inline std::ostream &operator <<(std::ostream &o, const Matrix<Type, Height, Width> &m);
 
 // Generate a rotation matrix
 // Angle must be specified in radians.
 // 2D linear transform
-template <class T>
-inline Matrix<T, 2, 2> rotationMatrix(const T &angle);
+template <typename Type>
+inline Matrix<Type, 2, 2> rotationMatrix(const Type &angle);
 // 3D linear transform
-template <class T>
-inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const Vector<T, 3> &v);
-template <class T>
-inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const T &x, const T &y, const T &z);
+template <typename Type>
+inline Matrix<Type, 3, 3> rotationMatrix(const Type &angle, const Vector<Type, 3> &v);
+template <typename Type>
+inline Matrix<Type, 3, 3> rotationMatrix(const Type &angle, const Type &x, const Type &y, const Type &z);
 
 // Generate a scaling matrix
 // Linear transform
-template <class T, unsigned int M>
-inline Matrix<T, M, M> scalingMatrix(const Vector<T, M> &v);
+template <typename Type, size_t Height>
+inline Matrix<Type, Height, Height> scalingMatrix(const Vector<Type, Height> &v);
 // 2D linear transform
-template <class T>
-inline Matrix<T, 2, 2> scalingMatrix(const T &x, const T &y);
+template <typename Type>
+inline Matrix<Type, 2, 2> scalingMatrix(const Type &x, const Type &y);
 // 3D linear transform
-template <class T>
-inline Matrix<T, 3, 3> scalingMatrix(const T &x, const T &y, const T &z);
+template <typename Type>
+inline Matrix<Type, 3, 3> scalingMatrix(const Type &x, const Type &y, const Type &z);
 
 // Generate a translation matrix
 // Affine transform
-template <class T, unsigned int M>
-inline Matrix<T, M + 1, M + 1> translationMatrix(const Vector<T, M> &v);
+template <typename Type, size_t Height>
+inline Matrix<Type, Height + 1, Height + 1> translationMatrix(const Vector<Type, Height> &v);
 // 2D affine transform
-template <class T>
-inline Matrix<T, 3, 3> translationMatrix(const T &x, const T &y);
+template <typename Type>
+inline Matrix<Type, 3, 3> translationMatrix(const Type &x, const Type &y);
 // 3D affine transform
-template <class T>
-inline Matrix<T, 4, 4> translationMatrix(const T &x, const T &y, const T &z);
+template <typename Type>
+inline Matrix<Type, 4, 4> translationMatrix(const Type &x, const Type &y, const Type &z);
 
 // Generate a perspective projection matrix
 // Specification through field-of-view angle, aspect ratio and near/far planes.
 // Angle must be specified in radians.
-template <class T>
-inline Matrix<T, 4, 4> perspectiveMatrix(const T &fovy, const T &aspect, const T &nearz, const T &farz);
+template <typename Type>
+inline Matrix<Type, 4, 4> perspectiveMatrix(const Type &fovy, const Type &aspect, const Type &nearz, const Type &farz);
 // Specification through view frustum edges (left, right, bottom, top, near, far)
-template <class T>
-inline Matrix<T, 4, 4> frustumMatrix(const T &l, const T &r, const T &b, const T &t, const T &n, const T &f);
+template <typename Type>
+inline Matrix<Type, 4, 4> frustumMatrix(const Type &l, const Type &r, const Type &b, const Type &t, const Type &n, const Type &f);
 
 // Generate an orthographic projection matrix
 // Specification through view cube edges (left, right, bottom, top, near, far).
-template <class T>
-inline Matrix<T, 4, 4> orthoMatrix(const T &l, const T &r, const T &b, const T &t, const T &n, const T &f);
+template <typename Type>
+inline Matrix<Type, 4, 4> orthoMatrix(const Type &l, const Type &r, const Type &b, const Type &t, const Type &n, const Type &f);
 
 // Predefined types
 typedef Matrix<float, 2, 2> mat2;
@@ -268,180 +268,180 @@ typedef Matrix<float, 4, 4> mat4x4;
 
 // Implementation
 
-template <class T, unsigned int M, unsigned int N>
-inline T &Matrix<T, M, N>::element(unsigned int index) {
-	return (*this)[index / M][index % M];
+template <typename Type, size_t Height, size_t Width>
+inline Type &Matrix<Type, Height, Width>::element(size_t index) {
+	return (*this)[index / Height][index % Height];
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline const T &Matrix<T, M, N>::element(unsigned int index) const {
-	return (*this)[index / M][index % M];
+template <typename Type, size_t Height, size_t Width>
+inline const Type &Matrix<Type, Height, Width>::element(size_t index) const {
+	return (*this)[index / Height][index % Height];
 }
 
-template <class T, unsigned int M, unsigned int N>
-template <unsigned int X>
-inline void Matrix<T, M, N>::initialize() { }
+template <typename Type, size_t Height, size_t Width>
+template <size_t Index>
+inline void Matrix<Type, Height, Width>::initialize() { }
 
-template <class T, unsigned int M, unsigned int N>
-template <unsigned int X, typename... Args>
-inline void Matrix<T, M, N>::initialize(const T &v, Args... args) {
+template <typename Type, size_t Height, size_t Width>
+template <size_t Index, typename... Args>
+inline void Matrix<Type, Height, Width>::initialize(const Type &v, Args... args) {
 	// The condition is < and not <= because there is a dedicated terminal initializer for a single scalar
-	static_assert(X + 1 < M * N, "Too many initializers");
-	element(X) = v;
-	initialize<X + 1>(args...);
+	static_assert(Index + 1 < Height * Width, "Too many initializers");
+	element(Index) = v;
+	initialize<Index + 1>(args...);
 }
 
-template <class T, unsigned int M, unsigned int N>
-template <unsigned int X, typename... Args, unsigned int P>
-inline void Matrix<T, M, N>::initialize(const Vector<T, P> &v, Args... args) {
-	static_assert(X + P <= M * N, "Too many initializers");
-	for (unsigned int p = 0; p < P; p++) {
-		element(X + p) = v[p];
+template <typename Type, size_t Height, size_t Width>
+template <size_t Index, typename... Args, size_t Size, typename Permutation>
+inline void Matrix<Type, Height, Width>::initialize(const Vector<Type, Size, Permutation> &v, Args... args) {
+	static_assert(Index + Permutation::Elements <= Height * Width, "Too many initializers");
+	for (size_t p = 0; p < Permutation::Elements; p++) {
+		element(Index + p) = v[p];
 	}
-	initialize<X + P>(args...);
+	initialize<Index + Permutation::Elements>(args...);
 }
 
-template <class T, unsigned int M, unsigned int N>
-template <unsigned int X>
-inline void Matrix<T, M, N>::initialize(const T &v) {
-	static_assert(X + 1 <= M * N, "Too many initializers");
-	if (X == 0) {
-		for (unsigned int i = 0; i < M; i++) {
-			for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+template <size_t Index>
+inline void Matrix<Type, Height, Width>::initialize(const Type &v) {
+	static_assert(Index + 1 <= Height * Width, "Too many initializers");
+	if (Index == 0) {
+		for (size_t i = 0; i < Height; i++) {
+			for (size_t j = 0; j < Width; j++) {
 				if (i == j) {
 					// Diagonal element, fill with value
 					(*this)[j][i] = v;
 				} else {
 					// Anything else, fill with 0
-					(*this)[j][i] = static_cast<const T>(0);
+					(*this)[j][i] = Type(0);
 				}
 			}
 		}
 	} else {
-		element(X) = v;
+		element(Index) = v;
 	}
 }
 
-template <class T, unsigned int M, unsigned int N>
-template <unsigned int X, typename ForwardIterator>
-inline void Matrix<T, M, N>::initialize(std::pair<ForwardIterator, ForwardIterator> iterator) {
-	static_assert(X == 0, "No other arguments are allowed when initializing a matrix from an iterator");
-	unsigned int index = X;
+template <typename Type, size_t Height, size_t Width>
+template <size_t Index, typename ForwardIterator>
+inline void Matrix<Type, Height, Width>::initialize(std::pair<ForwardIterator, ForwardIterator> iterator) {
+	static_assert(Index == 0, "No other arguments are allowed when initializing a matrix from an iterator");
+	size_t index = Index;
 	for (ForwardIterator it = iterator.first; it != iterator.second; it++, index++) {
 		element(index) = *it;
 	}
 }
 
-template <class T, unsigned int M, unsigned int N>
-template <unsigned int X>
-inline void Matrix<T, M, N>::initialize(const T *v) {
-	static_assert(X == 0, "No other arguments are allowed when initializing a matrix from an array");
-	for (unsigned int p = 0; p < M * N; p++) {
-		element(X + p) = v[p];
+template <typename Type, size_t Height, size_t Width>
+template <size_t Index>
+inline void Matrix<Type, Height, Width>::initialize(const Type *v) {
+	static_assert(Index == 0, "No other arguments are allowed when initializing a matrix from an array");
+	for (size_t p = 0; p < Height * Width; p++) {
+		element(Index + p) = v[p];
 	}
 }
 
-template <class T, unsigned int M, unsigned int N>
-template <unsigned int X, class U, unsigned int P, unsigned int R>
-inline void Matrix<T, M, N>::initialize(const Matrix<U, P, R> &m) {
-	static_assert(X == 0, "No other arguments are allowed when copy-constructing a matrix");
-	for (unsigned int i = 0; i < M; i++) {
-		for (unsigned int j = 0; j < N; j++) {
-			if (i < P && j < R) {
+template <typename Type, size_t Height, size_t Width>
+template <size_t Index, typename TypeM, size_t HeightM, size_t WidthM>
+inline void Matrix<Type, Height, Width>::initialize(const Matrix<TypeM, HeightM, WidthM> &m) {
+	static_assert(Index == 0, "No other arguments are allowed when copy-constructing a matrix");
+	for (size_t i = 0; i < Height; i++) {
+		for (size_t j = 0; j < Width; j++) {
+			if (i < HeightM && j < WidthM) {
 				// Component available, copy
-				(*this)[j][i] = static_cast<const T>(m[j][i]);
+				(*this)[j][i] = Type(m[j][i]);
 			} else {
 				// Component not available, fill
 				if (i == j) {
 					// Diagonal element, fill with identity
-					(*this)[j][i] = static_cast<const T>(1);
+					(*this)[j][i] = Type(1);
 				} else {
 					// Anything else, fill with 0
-					(*this)[j][i] = static_cast<const T>(0);
+					(*this)[j][i] = Type(0);
 				}
 			}
 		}
 	}
 }
 
-template <class T, unsigned int M, unsigned int N>
+template <typename Type, size_t Height, size_t Width>
 template <typename... Args>
-inline Matrix<T, M, N>::Matrix(Args... args) {
+inline Matrix<Type, Height, Width>::Matrix(Args... args) {
 	initialize<0>(args...);
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> &Matrix<T, M, N>::operator =(const Matrix<T, M, N> &other) {
-	for (unsigned int j = 0; j < N; j++) {
-		_a[j] = other[j];
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> &Matrix<Type, Height, Width>::operator =(const Matrix<Type, Height, Width> &other) {
+	for (size_t j = 0; j < Width; j++) {
+		(*this)[j] = other[j];
 	}
 	return *this;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> &Matrix<T, M, N>::operator +=(const Matrix<T, M, N> &other) {
-	for (unsigned int j = 0; j < N; j++) {
-		_a[j] += other[j];
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> &Matrix<Type, Height, Width>::operator +=(const Matrix<Type, Height, Width> &other) {
+	for (size_t j = 0; j < Width; j++) {
+		(*this)[j] += other[j];
 	}
 	return *this;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator +(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b) {
-	Matrix<T, M, N> ret = a;
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator +(const Matrix<Type, Height, Width> &a, const Matrix<Type, Height, Width> &b) {
+	Matrix<Type, Height, Width> ret = a;
 	ret += b;
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> &Matrix<T, M, N>::operator -=(const Matrix<T, M, N> &other) {
-	for (unsigned int j = 0; j < N; j++) {
-		_a[j] -= other[j];
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> &Matrix<Type, Height, Width>::operator -=(const Matrix<Type, Height, Width> &other) {
+	for (size_t j = 0; j < Width; j++) {
+		(*this)[j] -= other[j];
 	}
 	return *this;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator -(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b) {
-	Matrix<T, M, N> ret = a;
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator -(const Matrix<Type, Height, Width> &a, const Matrix<Type, Height, Width> &b) {
+	Matrix<Type, Height, Width> ret = a;
 	ret -= b;
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> &Matrix<T, M, N>::operator *=(const T &x) {
-	for (unsigned int i = 0; i < M * N; i++) {
-		_a[i] *= x;
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> &Matrix<Type, Height, Width>::operator *=(const Type &x) {
+	for (size_t i = 0; i < Height * Width; i++) {
+		(*this)[i] *= x;
 	}
 	return *this;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator *(const Matrix<T, M, N> &a, const T &x) {
-	Matrix<T, M, N> ret = a;
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator *(const Matrix<Type, Height, Width> &a, const Type &x) {
+	Matrix<Type, Height, Width> ret = a;
 	ret *= x;
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> &Matrix<T, M, N>::operator /=(const T &x) {
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> &Matrix<Type, Height, Width>::operator /=(const Type &x) {
 	*this *= 1 / x;
 	return *this;
 }
 
-template <class T, unsigned int M, unsigned int N, class U>
-inline Matrix<T, M, N> operator /(const Matrix<T, M, N> &a, const U &x) {
-	Matrix<T, M, N> ret = a;
+template <typename Type, size_t Height, size_t Width, class U>
+inline Matrix<Type, Height, Width> operator /(const Matrix<Type, Height, Width> &a, const U &x) {
+	Matrix<Type, Height, Width> ret = a;
 	ret /= x;
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline std::ostream &operator <<(std::ostream &o, const Matrix<T, M, N> &m) {
+template <typename Type, size_t Height, size_t Width>
+inline std::ostream &operator <<(std::ostream &o, const Matrix<Type, Height, Width> &m) {
 	o << "{";
-	for (unsigned int i = 0; i < M; i++) {
+	for (size_t i = 0; i < Height; i++) {
 		o << "\n\t";
-		for (unsigned int j = 0; j < N; j++) {
+		for (size_t j = 0; j < Width; j++) {
 			o << m[j][i] << "\t";
 		}
 	}
@@ -449,15 +449,15 @@ inline std::ostream &operator <<(std::ostream &o, const Matrix<T, M, N> &m) {
 	return o;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline bool operator ==(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b) {
-	for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+inline bool operator ==(const Matrix<Type, Height, Width> &a, const Matrix<Type, Height, Width> &b) {
+	for (size_t j = 0; j < Width; j++) {
 		if (a[j] != b[j]) {
 			return false;
 		}
 	}
-	/*for (unsigned int i = 0; i < M; i++) {
-		for (unsigned int j = 0; j < N; j++) {
+	/*for (size_t i = 0; i < Height; i++) {
+		for (size_t j = 0; j < Width; j++) {
 			if (a[j][i] != b[j][i]) {
 				return false;
 			}
@@ -466,24 +466,24 @@ inline bool operator ==(const Matrix<T, M, N> &a, const Matrix<T, M, N> &b) {
 	return true;
 }
 
-template <class T, unsigned int M, unsigned int N, unsigned int P>
-inline Matrix<T, M, P> operator *(const Matrix<T, M, N> &a, const Matrix<T, N, P> &b) {
+template <typename Type, size_t Height, size_t Width, size_t WidthB>
+inline Matrix<Type, Height, WidthB> operator *(const Matrix<Type, Height, Width> &a, const Matrix<Type, Width, WidthB> &b) {
 	//      4 x 3               3 x 4              4 x 4
 	// | a00 a01 a02 |   | b00 b01 b02 b03 |   | a00*b00+a01*b10+a02*b20 a00*b01+a01*b11+a02*b21 ... |
 	// | a10 a11 a12 | * | b10 b11 b12 b33 | = | a10*b00+a11*b10+a12*b20 ...                         |
 	// | a20 a21 a22 |   | b20 b21 b22 b33 |   | ...                                                 |
 	// | a30 a31 a32 |                         | ...                                                 |
-	Matrix<T, M, P> ret;
-	Matrix<T, N, M> t = transpose(a);
-	for (unsigned int i = 0; i < M; i++) {
-		for (unsigned int j = 0; j < P; j++) {
+	Matrix<Type, Height, WidthB> ret;
+	Matrix<Type, Width, Height> t = transpose(a);
+	for (size_t i = 0; i < Height; i++) {
+		for (size_t j = 0; j < WidthB; j++) {
 			ret[j][i] = dot(t[i], b[j]);
 		}
 	}
-	/*for (unsigned int i = 0; i < M; i++) {
-		for (unsigned int j = 0; j < P; j++) {
+	/*for (size_t i = 0; i < Height; i++) {
+		for (size_t j = 0; j < P; j++) {
 			ret[j][i] = 0;
-			for (unsigned int k = 0; k < N; k++) {
+			for (size_t k = 0; k < Width; k++) {
 				ret[j][i] += a[k][i] * b[j][k];
 			}
 		}
@@ -491,90 +491,90 @@ inline Matrix<T, M, P> operator *(const Matrix<T, M, N> &a, const Matrix<T, N, P
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Vector<T, M> operator *(const Matrix<T, M, N> &a, const Vector<T, N> &b) {
+template <typename Type, size_t Height, size_t Width>
+inline Vector<Type, Height> operator *(const Matrix<Type, Height, Width> &a, const Vector<Type, Width> &b) {
 	// Transpose the matrix
-	Vector<T, M> ret;
-	Matrix<T, N, M> t = transpose(a);
-	for (unsigned int i = 0; i < M; i++) {
+	Vector<Type, Height> ret;
+	Matrix<Type, Width, Height> t = transpose(a);
+	for (size_t i = 0; i < Height; i++) {
 		ret[i] = dot(t[i], b);
 	}
-	/*for (unsigned int i = 0; i < M; i++) {
+	/*for (size_t i = 0; i < Height; i++) {
 		ret[i] = 0;
-		for (unsigned int k = 0; k < N; k++) {
+		for (size_t k = 0; k < Width; k++) {
 			ret[i] += a[k][i] * b[k];
 		}
 	}*/
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline const T *Matrix<T, M, N>::internal() const {
+template <typename Type, size_t Height, size_t Width>
+inline const Type *Matrix<Type, Height, Width>::internal() const {
 	return &(*this)[0][0];
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Vector<T, M> &Matrix<T, M, N>::operator [](unsigned int j) {
+template <typename Type, size_t Height, size_t Width>
+inline Vector<Type, Height> &Matrix<Type, Height, Width>::operator [](size_t j) {
 #ifdef GLAM_RANGE_CHECKS
-	if (j < N) {
+	if (j < Width) {
 		return _a[j];
 	}
-	throw DimensionOutOfRangeException("Matrix column index out of range", N, j);
+	throw DimensionOutOfRangeException("Matrix column index out of range", Width, j);
 #else
 	return _a[j];
 #endif
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline const Vector<T, M> &Matrix<T, M, N>::operator [](unsigned int j) const {
+template <typename Type, size_t Height, size_t Width>
+inline const Vector<Type, Height> &Matrix<Type, Height, Width>::operator [](size_t j) const {
 #ifdef GLAM_RANGE_CHECKS
-	if (j < N) {
+	if (j < Width) {
 		return _a[j];
 	}
-	throw DimensionOutOfRangeException("Matrix column index out of range", N, j);
+	throw DimensionOutOfRangeException("Matrix column index out of range", Width, j);
 #else
 	return _a[j];
 #endif
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> matrixCompMult(const Matrix<T, M, N> &x, const Matrix<T, M, N> &y) {
-	Matrix<T, M, N> ret;
-	for (unsigned int i = 0; i < M; i++) {
-		for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> matrixCompMult(const Matrix<Type, Height, Width> &x, const Matrix<Type, Height, Width> &y) {
+	Matrix<Type, Height, Width> ret;
+	for (size_t i = 0; i < Height; i++) {
+		for (size_t j = 0; j < Width; j++) {
 			ret[j][i] = x[j][i] * y[j][i];
 		}
 	}
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> outerProduct(const Vector<T, M> &c, const Vector<T, N> &r) {
-	return Matrix<T, M, 1>(c) * Matrix<T, 1, N>(r);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> outerProduct(const Vector<Type, Height> &c, const Vector<Type, Width> &r) {
+	return Matrix<Type, Height, 1>(c) * Matrix<Type, 1, Width>(r);
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline LuDecomposition<T, M, N>::LuDecomposition(const Matrix<T, M, N> &m) : lower(1), upper(m), permutation(1), swaps(0) {
-	static_assert(M == N, "Matrix is not square");
+template <typename Type, size_t Height, size_t Width>
+inline LuDecomposition<Type, Height, Width>::LuDecomposition(const Matrix<Type, Height, Width> &m) : lower(1), upper(m), permutation(1), swaps(0) {
+	static_assert(Height == Width, "Matrix is not square");
 	// Initializer list: prepare result (lower and upper triangular matrices, permutation, reset the swap counter)
 	// Loop through all rows except the last (which will simply become 0 0 .. 0 1 in L)
-	for (unsigned int n = 0; n < M - 1; n++) {
+	for (size_t n = 0; n < Height - 1; n++) {
 		// Prepare the intermediate lower matrix (one column filled)
-		Matrix<T, M, N> ln(1);
+		Matrix<Type, Height, Width> ln(1);
 		// Check if a swap is needed
-		unsigned int s = M;
-		for (unsigned int i = n; i < M && s == M; i++) {
+		size_t s = Height;
+		for (size_t i = n; i < Height && s == Height; i++) {
 			if (upper[i][n] != 0) {
 				s = i;
 			}
 		}
-		if (s == M) {
+		if (s == Height) {
 			// All coefficients of column n are 0
 			throw NonInvertibleMatrixException("Singular matrix, can't find solution for inverse");
 		} else if (s != n) {
 			// (n, n) is 0, swap row n with row s (which has a non-zero coefficient)
 			// Also swap the corresponding rows in the permutation matrix
-			for (unsigned int j = 0; j < N; j++) {
+			for (size_t j = 0; j < Width; j++) {
 				std::swap(upper[j][n], upper[j][s]);
 				std::swap(permutation[j][n], permutation[j][s]);
 			}
@@ -582,8 +582,8 @@ inline LuDecomposition<T, M, N>::LuDecomposition(const Matrix<T, M, N> &m) : low
 			swaps++;
 		}
 		// Calculate lower matrix coefficients for this column
-		for (unsigned int i = n + 1; i < M; i++) {
-			T v = upper[n][i] / upper[n][n];
+		for (size_t i = n + 1; i < Height; i++) {
+			Type v = upper[n][i] / upper[n][n];
 			// And assign them to the appropriate Ln
 			ln[n][i] = -v;
 			// and L fields
@@ -594,262 +594,262 @@ inline LuDecomposition<T, M, N>::LuDecomposition(const Matrix<T, M, N> &m) : low
 	}
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, N, M> transpose(const Matrix<T, M, N> &m) {
-	Matrix<T, N, M> ret;
-	for (unsigned int i = 0; i < M; i++) {
-		for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Width, Height> transpose(const Matrix<Type, Height, Width> &m) {
+	Matrix<Type, Width, Height> ret;
+	for (size_t i = 0; i < Height; i++) {
+		for (size_t j = 0; j < Width; j++) {
 			ret[i][j] = m[j][i];
 		}
 	}
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline T determinant(const Matrix<T, M, N> &m) {
-	static_assert(M == N && M > 0, "Matrix is not square");
+template <typename Type, size_t Height, size_t Width>
+inline Type determinant(const Matrix<Type, Height, Width> &m) {
+	static_assert(Height == Width && Height > 0, "Matrix is not square");
 	// Decompose into triangular parts
 	try {
-		LuDecomposition<T, M, N> lups(m);
+		LuDecomposition<Type, Height, Width> lups(m);
 		// det(A) = det(P^-1) * det(L) * det(U) = (-1)^S * (l11 * l22 * ...) * (u11 * u22 * ...)
 		// Since the diagonal of L is all 1s, its determinant is also 1, so
 		// det(A) = (-1)^S * (u11 * u22 * ...)
 		// Calculate d according to (-1)^S here, S = number of exchanges in P^-1
-		T d;
+		Type d;
 		if (lups.swaps & 1) {
-			d = static_cast<T>(-1);
+			d = Type(-1);
 		} else {
-			d = static_cast<T>(1);
+			d = Type(1);
 		}
-		for (unsigned int i = 0; i < M; i++) {
+		for (size_t i = 0; i < Height; i++) {
 			d *= lups.upper[i][i];
 		}
 		return d;
 	} catch (NonInvertibleMatrixException &ex) {
-		return T(0);
+		return Type(0);
 	}
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> inverse(const Matrix<T, M, N> &m) {
-	static_assert(M == N && M > 0, "Matrix is not square");
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> inverse(const Matrix<Type, Height, Width> &m) {
+	static_assert(Height == Width && Height > 0, "Matrix is not square");
 	// Decompose into triangular parts
-	LuDecomposition<T, M, N> lups(m);
-	// Start with AX = I, where X is the inverse of A
+	LuDecomposition<Type, Height, Width> lups(m);
+	// Start with AX = I, where Index is the inverse of A
 	// A = P^-1LU, so P^-1LUX = I, and thus LUX = P (with P = I if no row swapping was needed)
 	// Substitute UX = Y, yielding LY = P
 	// Calculate Y through forward substitution of L
-	Matrix<T, M, N> y;
+	Matrix<Type, Height, Width> y;
 	// Process each column independently
-	for (unsigned int j = 0; j < N; j++) {
+	for (size_t j = 0; j < Width; j++) {
 		// Substitute each row from the previous rows
-		for (unsigned int i = 0; i < M; i++) {
+		for (size_t i = 0; i < Height; i++) {
 			// Fetch the starting value from P
-			T diff = lups.permutation[j][i];
+			Type diff = lups.permutation[j][i];
 			// Subtract the product of the values from the previous rows (from the top) times the corresponding values in L
-			for (unsigned int k = 0; k < i; k++) {
+			for (size_t k = 0; k < i; k++) {
 				diff -= lups.lower[k][i] * y[j][k];
 			}
 			// No division necessary, the diagonal is always 1
 			y[j][i] = diff;
 		}
 	}
-	// Calculate X from UX = Y through backward substitution of U
-	Matrix<T, M, N> x;
+	// Calculate Index from UX = Y through backward substitution of U
+	Matrix<Type, Height, Width> x;
 	// Process each column independently
-	for (unsigned int j = 0; j < N; j++) {
+	for (size_t j = 0; j < Width; j++) {
 		// Substitute each row from the previous rows, work backwards
-		for (unsigned int i = M; i-- > 0;) {
+		for (size_t i = Height; i-- > 0;) {
 			// Fetch the starting value from Y
-			T diff = y[j][i];
+			Type diff = y[j][i];
 			// Subtract the product of the values from the previous rows (from the bottom) times the corresponding values in U
-			for (unsigned int k = i + 1; k < M; k++) {
+			for (size_t k = i + 1; k < Height; k++) {
 				diff -= lups.upper[k][i] * x[j][k];
 			}
 			// Divide by the diagonal coefficient
 			x[j][i] = diff / lups.upper[i][i];
 		}
 	}
-	// X is the inverse of A
+	// Index is the inverse of A
 	return x;
 }
 
-template <class T>
-inline Matrix<T, 2, 2> rotationMatrix(const T &angle) {
-	T s = sin(angle);
-	T c = cos(angle);
+template <typename Type>
+inline Matrix<Type, 2, 2> rotationMatrix(const Type &angle) {
+	Type s = sin(angle);
+	Type c = cos(angle);
 	// note column-major order
-	T data[] = {
+	Type data[] = {
 		c, s,
 		-s, c,
 	};
-	return Matrix<T, 2, 2>(data);
+	return Matrix<Type, 2, 2>(data);
 }
 
-template <class T>
-inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const Vector<T, 3> &v) {
-	Vector<T, 3> u = normalize(v);
-	T s = sin(angle);
-	T c = cos(angle);
+template <typename Type>
+inline Matrix<Type, 3, 3> rotationMatrix(const Type &angle, const Vector<Type, 3> &v) {
+	Vector<Type, 3> u = normalize(v);
+	Type s = sin(angle);
+	Type c = cos(angle);
 	// note column-major order
-	T data[] = {
+	Type data[] = {
 		u[0] * u[0] + (1 - u[0] * u[0]) * c, u[0] * u[1] * (1 - c) + u[2] * s, u[0] * u[2] * (1 - c) - u[1] * s,
 		u[0] * u[1] * (1 - c) - u[2] * s, u[1] * u[1] + (1 - u[1] * u[1]) * c, u[1] * u[2] * (1 - c) + u[0] * s,
 		u[0] * u[2] * (1 - c) + u[1] * s, u[1] * u[2] * (1 - c) - u[0] * s, u[2] * u[2] + (1 - u[2] * u[2]) * c,
 	};
-	return Matrix<T, 3, 3>(data);
+	return Matrix<Type, 3, 3>(data);
 }
 
-template <class T>
-inline Matrix<T, 3, 3> rotationMatrix(const T &angle, const T &x, const T &y, const T &z){
-	return rotationMatrix(angle, Vector<T, 3>(x, y, z));
+template <typename Type>
+inline Matrix<Type, 3, 3> rotationMatrix(const Type &angle, const Type &x, const Type &y, const Type &z){
+	return rotationMatrix(angle, Vector<Type, 3>(x, y, z));
 }
 
-template <class T, unsigned int M>
-inline Matrix<T, M, M> scalingMatrix(const Vector<T, M> &v) {
-	Matrix<T, M, M> ret(1);
-	for (unsigned int i = 0; i < M; i++) {
+template <typename Type, size_t Height>
+inline Matrix<Type, Height, Height> scalingMatrix(const Vector<Type, Height> &v) {
+	Matrix<Type, Height, Height> ret(1);
+	for (size_t i = 0; i < Height; i++) {
 		ret[i][i] = v[i];
 	}
 	return ret;
 }
 
-template <class T>
-inline Matrix<T, 2, 2> scalingMatrix(const T &x, const T &y) {
-	return scalingMatrix(Vector<T, 2>(x, y));
+template <typename Type>
+inline Matrix<Type, 2, 2> scalingMatrix(const Type &x, const Type &y) {
+	return scalingMatrix(Vector<Type, 2>(x, y));
 }
 
-template <class T>
-inline Matrix<T, 3, 3> scalingMatrix(const T &x, const T &y, const T &z) {
-	return scalingMatrix(Vector<T, 3>(x, y, z));
+template <typename Type>
+inline Matrix<Type, 3, 3> scalingMatrix(const Type &x, const Type &y, const Type &z) {
+	return scalingMatrix(Vector<Type, 3>(x, y, z));
 }
 
-template <class T>
-inline Matrix<T, 4, 4> scalingMatrix(const T &x, const T &y, const T &z, const T &w) {
-	return scalingMatrix(Vector<T, 4>(x, y, z, w));
+template <typename Type>
+inline Matrix<Type, 4, 4> scalingMatrix(const Type &x, const Type &y, const Type &z, const Type &w) {
+	return scalingMatrix(Vector<Type, 4>(x, y, z, w));
 }
 
-template <class T, unsigned int M>
-inline Matrix<T, M + 1, M + 1> translationMatrix(const Vector<T, M> &v) {
-	Matrix<T, M + 1, M + 1> ret(1);
-	for (unsigned int i = 0; i < M; i++) {
-		ret[M][i] = v[i];
+template <typename Type, size_t Height>
+inline Matrix<Type, Height + 1, Height + 1> translationMatrix(const Vector<Type, Height> &v) {
+	Matrix<Type, Height + 1, Height + 1> ret(1);
+	for (size_t i = 0; i < Height; i++) {
+		ret[Height][i] = v[i];
 	}
 	return ret;
 }
 
-template <class T>
-inline Matrix<T, 3, 3> translationMatrix(const T &x, const T &y) {
-	return translationMatrix(Vector<T, 2>(x, y));
+template <typename Type>
+inline Matrix<Type, 3, 3> translationMatrix(const Type &x, const Type &y) {
+	return translationMatrix(Vector<Type, 2>(x, y));
 }
 
-template <class T>
-inline Matrix<T, 4, 4> translationMatrix(const T &x, const T &y, const T &z) {
-	return translationMatrix(Vector<T, 3>(x, y, z));
+template <typename Type>
+inline Matrix<Type, 4, 4> translationMatrix(const Type &x, const Type &y, const Type &z) {
+	return translationMatrix(Vector<Type, 3>(x, y, z));
 }
 
-template <class T>
-inline Matrix<T, 4, 4> perspectiveMatrix(const T &fovy, const T &aspect, const T &nearz, const T &farz) {
-	T f = T(1) / tan(fovy / T(2));
+template <typename Type>
+inline Matrix<Type, 4, 4> perspectiveMatrix(const Type &fovy, const Type &aspect, const Type &nearz, const Type &farz) {
+	Type f = Type(1) / tan(fovy / Type(2));
 	// note column-major order
-	T data[] = {
+	Type data[] = {
 		f / aspect, 0, 0, 0,
 		0, f, 0, 0,
-		0, 0, (farz + nearz) / (nearz - farz), T(-1),
-		0, 0, T(2) * farz * nearz / (nearz - farz), 0
+		0, 0, (farz + nearz) / (nearz - farz), Type(-1),
+		0, 0, Type(2) * farz * nearz / (nearz - farz), 0
 	};
-	return Matrix<T, 4, 4>(data);
+	return Matrix<Type, 4, 4>(data);
 }
 
-template <class T>
-inline Matrix<T, 4, 4> frustumMatrix(const T &l, const T &r, const T &b, const T &t, const T &n, const T &f) {
-	T data[] = {
-		T(2) * n / (r - l), 0, 0, 0,
-		0, T(2) * n / (t - b), 0, 0,
-		(r + l) / (r - l), (t + b) / (t - b), -((f + n) / (f - n)), T(-1),
-		0, 0, T(-2) * f * n / (f - n), 0,
-	};
-	return Matrix<float, 4, 4>(data);
-}
-
-template <class T>
-inline Matrix<T, 4, 4> orthoMatrix(const T &l, const T &r, const T &b, const T &t, const T &n, const T &f) {
-	T data[] = {
-		T(2) / (r - l), 0, 0, 0,
-		0, T(2) / (t - b), 0, 0,
-		0, 0, T(-2) / (f - n), 0,
-		-((r + l) / (r - l)), -((t + b) / (t - b)), -((f + n) / (f - n)), T(1),
+template <typename Type>
+inline Matrix<Type, 4, 4> frustumMatrix(const Type &l, const Type &r, const Type &b, const Type &t, const Type &n, const Type &f) {
+	Type data[] = {
+		Type(2) * n / (r - l), 0, 0, 0,
+		0, Type(2) * n / (t - b), 0, 0,
+		(r + l) / (r - l), (t + b) / (t - b), -((f + n) / (f - n)), Type(-1),
+		0, 0, Type(-2) * f * n / (f - n), 0,
 	};
 	return Matrix<float, 4, 4>(data);
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> &Matrix<T, M, N>::operator +=(const T &x) {
-	Vector<T, M> col(x);
-	for (unsigned int j = 0; j < N; j++) {
+template <typename Type>
+inline Matrix<Type, 4, 4> orthoMatrix(const Type &l, const Type &r, const Type &b, const Type &t, const Type &n, const Type &f) {
+	Type data[] = {
+		Type(2) / (r - l), 0, 0, 0,
+		0, Type(2) / (t - b), 0, 0,
+		0, 0, Type(-2) / (f - n), 0,
+		-((r + l) / (r - l)), -((t + b) / (t - b)), -((f + n) / (f - n)), Type(1),
+	};
+	return Matrix<float, 4, 4>(data);
+}
+
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> &Matrix<Type, Height, Width>::operator +=(const Type &x) {
+	Vector<Type, Height> col(x);
+	for (size_t j = 0; j < Width; j++) {
 		(*this)[j] += col;
 	}
 	return *this;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> &Matrix<T, M, N>::operator -=(const T &x) {
-	Vector<T, M> col(x);
-	for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> &Matrix<Type, Height, Width>::operator -=(const Type &x) {
+	Vector<Type, Height> col(x);
+	for (size_t j = 0; j < Width; j++) {
 		(*this)[j] -= col;
 	}
 	return *this;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator +(const Matrix<T, M, N> &a, const T &b) {
-	Matrix<T, M, N> ret(a);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator +(const Matrix<Type, Height, Width> &a, const Type &b) {
+	Matrix<Type, Height, Width> ret(a);
 	ret += b;
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator +(const T &a, const Matrix<T, M, N> &b) {
-	Vector<T, M> col(a);
-	Matrix<T, M, N> ret;
-	for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator +(const Type &a, const Matrix<Type, Height, Width> &b) {
+	Vector<Type, Height> col(a);
+	Matrix<Type, Height, Width> ret;
+	for (size_t j = 0; j < Width; j++) {
 		ret[j] = col + b[j];
 	}
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator -(const Matrix<T, M, N> &a, const T &b) {
-	Matrix<T, M, N> ret(a);
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator -(const Matrix<Type, Height, Width> &a, const Type &b) {
+	Matrix<Type, Height, Width> ret(a);
 	ret -= b;
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator -(const T &a, const Matrix<T, M, N> &b) {
-	Vector<T, M> col(a);
-	Matrix<T, M, N> ret;
-	for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator -(const Type &a, const Matrix<Type, Height, Width> &b) {
+	Vector<Type, Height> col(a);
+	Matrix<Type, Height, Width> ret;
+	for (size_t j = 0; j < Width; j++) {
 		ret[j] = col - b[j];
 	}
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator /(const T &x, const Matrix<T, M, N> &a) {
-	Vector<T, M> col(x);
-	Matrix<T, M, N> ret;
-	for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator /(const Type &x, const Matrix<Type, Height, Width> &a) {
+	Vector<Type, Height> col(x);
+	Matrix<Type, Height, Width> ret;
+	for (size_t j = 0; j < Width; j++) {
 		ret[j] = col / a[j];
 	}
 	return ret;
 }
 
-template <class T, unsigned int M, unsigned int N>
-inline Matrix<T, M, N> operator *(const T &x, const Matrix<T, M, N> &a) {
-	Vector<T, M> col(x);
-	Matrix<T, M, N> ret;
-	for (unsigned int j = 0; j < N; j++) {
+template <typename Type, size_t Height, size_t Width>
+inline Matrix<Type, Height, Width> operator *(const Type &x, const Matrix<Type, Height, Width> &a) {
+	Vector<Type, Height> col(x);
+	Matrix<Type, Height, Width> ret;
+	for (size_t j = 0; j < Width; j++) {
 		ret[j] = col / a[j];
 	}
 	return ret;
