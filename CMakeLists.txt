@@ -164,6 +164,14 @@ else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 constexpr.")
 endif()
 
+find_path(GMP_INCLUDE_DIRS gmp.h)
+find_library(GMP_LIBRARIES NAMES gmp)
+find_path(GMPXX_INCLUDE_DIRS gmpxx.h)
+find_library(GMPXX_LIBRARIES NAMES gmpxx)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(GMP DEFAULT_MSG GMP_LIBRARIES GMP_INCLUDE_DIRS)
+find_package_handle_standard_args(GMPXX DEFAULT_MSG GMPXX_LIBRARIES GMPXX_INCLUDE_DIRS)
+
 configure_file(
 	"${PROJECT_SOURCE_DIR}/config.h.in"
 	"${PROJECT_BINARY_DIR}/glam/config.h"
