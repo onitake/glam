@@ -52,16 +52,6 @@ typedef Vector<mpf_class, 14> VectorBigFloat14;
 typedef Matrix<mpz_class, 14, 14> MatrixBigInt14;
 typedef Matrix<mpf_class, 14, 14> MatrixBigFloat14;
 
-// gmp does not have a power function that takes two mpz arguments and no modulus, so we use the mpz^ulong variant instead
-static inline VectorBigInt14 pow(const VectorBigInt14 &x, const VectorULong14 &y) {
-	VectorBigInt14 ret;
-	for (size_t c = 0; c < 14; c++) {
-		mpz_pow_ui(ret[c].get_mpz_t(), x[c].get_mpz_t(), y[c]);
-	}
-	return ret;
-}
-
-
 static const unsigned long powersData[] = { 123, 152, 185, 220, 397, 449, 503, 563, 979, 1059, 1143, 1229, 1319, 1412 };
 static const BigInt basicData[] = {
 	-32, 6, 78, -93, 54, 65, 29, 93, 45, -13, 11, -72, -92, 47,
@@ -96,6 +86,17 @@ static const BigInt smallData[] = {
 	-485, -566, -998, -545, 168, 877, -691, -986, -68, 120, 255, 421, -534, -805,
 };
 
+// gmp does not have a power function that takes two mpz arguments and no modulus, so we use the mpz^ulong variant instead
+template <size_t Size, typename Permutation, size_t SizeY, typename PermutationY>
+static inline Vector<BigInt, Permutation::Elements> pow(const Vector<BigInt, Size, Permutation> &x, const Vector<unsigned long, SizeY, PermutationY> &y) {
+	static_assert(Permutation::Elements == PermutationY::Elements, "Vectors differ in number of elements");
+	Vector<BigInt, Permutation::Elements> ret;
+	for (size_t c = 0; c < Permutation::Elements; c++) {
+		mpz_pow_ui(ret[c].get_mpz_t(), x[c].get_mpz_t(), y[c]);
+	}
+	return ret;
+}
+
 int main(int argc, char **argv) {
 	bool set = false;
 	BigInt alldet;
@@ -104,6 +105,8 @@ int main(int argc, char **argv) {
 		VectorULong14 powersVector = VectorULong14(make_pair(powersData, powersData + 14));
 		MatrixBigInt14 powersMatrix = scalingMatrix(pow(VectorBigInt14(10), powersVector));
 		MatrixBigInt14 smallMatrix = MatrixBigInt14(make_pair(smallData, smallData + 14 * 14));
+		// Columns and rows seem to be swapped. Transpose to produce the correct result.
+		// Unclear if this is caused by GLAM or the test case.
 		MatrixBigInt14 bigMatrix = transpose(basicMatrix * powersMatrix + smallMatrix);
 		BigInt det = determinant(bigMatrix);
 		if (set) {
