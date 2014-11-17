@@ -1,3 +1,13 @@
+
+# glam cmake script
+# Determines compiler features and sets up config.h
+# Options:
+# -DGLAM_MATH_CONST             Enable constants like glam::CONSTANTS<>::PI and ::E (currently broken)
+# -DCMAKE_BUILD_TYPE=Release    Configure for release build
+# -DCMAKE_BUILD_TYPE=Debug      Configure for debug build
+# -DGLAM_DEBUG                  Enable debugging messages
+# -DGLAM_RANGE_CHECKS           Enable range checks and overflow exceptions
+
 cmake_minimum_required(VERSION 2.6)
 
 project(GLAM)
@@ -15,10 +25,14 @@ if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
 	#set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# TODO Currently broken
+unset(GLAM_MATH_CONST)
+
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
 include(CheckCXXSourceRuns)
 include(CheckIncludeFileCXX)
+include(FindPackageHandleStandardArgs)
 
 find_package(CxxTest)
 if(CXXTEST_FOUND)
@@ -44,14 +58,19 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	endif()
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
 	unset(GLAM_DEBUG)
-	set(GLAM_RANGE_CHECKS)
+	unset(GLAM_RANGE_CHECKS)
 	check_cxx_compiler_flag("-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g" GLAM_HAS_CXX_OPTION_OPTIMIZE_GCC)
 	if(GLAM_HAS_CXX_OPTION_OPTIMIZE_GCC)
 		set(GLAM_OPTIMIZE_FLAGS "-Wall -Ofast -ffast-math -ftree-vectorize -ftree-parallelize-loops=4 -g")
 	else()
-		check_cxx_compiler_flag("/O2 /Qpar /Zi /DEBUG" GLAM_HAS_CXX_OPTION_OPTIMIZE_VC)
-		if(GLAM_HAS_CXX_OPTION_OPTIMIZE_VC)
-			set(GLAM_OPTIMIZE_FLAGS "/O2 /Qpar /Zi /DEBUG")
+		check_cxx_compiler_flag("-Wall -Ofast -ffast-math -ftree-vectorize -g" GLAM_HAS_CXX_OPTION_OPTIMIZE_CLANG)
+		if(GLAM_HAS_CXX_OPTION_OPTIMIZE_CLANG)
+			set(GLAM_OPTIMIZE_FLAGS "-Wall -Ofast -ffast-math -ftree-vectorize -g")
+		else()
+			check_cxx_compiler_flag("/O2 /Qpar /Zi /DEBUG" GLAM_HAS_CXX_OPTION_OPTIMIZE_VC)
+			if(GLAM_HAS_CXX_OPTION_OPTIMIZE_VC)
+				set(GLAM_OPTIMIZE_FLAGS "/O2 /Qpar /Zi /DEBUG")
+			endif()
 		endif()
 	endif()
 	if(GLAM_OPTIMIZE_FLAGS)
@@ -168,7 +187,6 @@ find_path(GMP_INCLUDE_DIRS gmp.h)
 find_library(GMP_LIBRARIES NAMES gmp)
 find_path(GMPXX_INCLUDE_DIRS gmpxx.h)
 find_library(GMPXX_LIBRARIES NAMES gmpxx)
-include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(GMP DEFAULT_MSG GMP_LIBRARIES GMP_INCLUDE_DIRS)
 find_package_handle_standard_args(GMPXX DEFAULT_MSG GMPXX_LIBRARIES GMPXX_INCLUDE_DIRS)
 

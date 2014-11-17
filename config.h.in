@@ -12,3 +12,4 @@
 #cmakedefine GLAM_RANGE_CHECKS
 #cmakedefine GLAM_HAS_LONG_DOUBLE
 #cmakedefine GLAM_DEBUG
+#cmakedefine GLAM_MATH_CONST

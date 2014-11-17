@@ -36,13 +36,21 @@
 namespace glam {
 
 // Mathematical constants
-// The generic implementation derives its values from double precision rational numbers.
+// The generic implementation derives its values from double (or long double, if available) precision rational numbers.
 // If your type needs more precision or different values, provide a template specialization.
+#ifdef GLAM_MATH_CONST
 template <typename Type>
 struct CONSTANTS {
+#ifdef GLAM_HAS_LONG_DOUBLE
+	static constexpr Type PI = Type(3.141592653589793238462643383279502884L);
+	static constexpr Type E = Type(2.718281828459045235360287471352662498L);
+#else
 	static constexpr Type PI = Type(3.14159265358979323846);
 	static constexpr Type E = Type(2.7182818284590452354);
+#endif
 };
+#endif
+
 
 // Scalar/vector template discrimination helper
 // Triggers SFINAE if Type is not a scalar type (or a compile-time error if no compatible overload is available)
@@ -190,14 +198,6 @@ typedef unsigned int uint;
 
 // Implementation
 
-#ifdef GLAM_HAS_LONG_DOUBLE
-template <>
-struct CONSTANTS<long double> {
-	static constexpr long double PI = 3.141592653589793238462643383279502884L;
-	static constexpr long double E = 2.718281828459045235360287471352662498L;
-};
-#endif
-
 template <typename Type>
 inline Type atan(const Type &y, const Type &x) {
 	return atan(y / x);
@@ -205,12 +205,28 @@ inline Type atan(const Type &y, const Type &x) {
 
 template <typename Type>
 inline Type radians(const Type &degrees) {
-	return CONSTANTS<Type>::PI * degrees / Type(180);
+#ifdef GLAM_MATH_CONST
+	return degrees * CONSTANTS<Type>::PI / Type(180);
+#else
+#ifdef GLAM_HAS_LONG_DOUBLE
+	return degrees * Type(3.141592653589793238462643383279502884L) / Type(180.0);
+#else
+	return degrees * Type(3.14159265358979323846) / Type(180.0);
+#endif
+#endif
 }
 
 template <typename Type>
 inline Type degrees(const Type &radians) {
-	return Type(180) * radians / CONSTANTS<Type>::PI;
+#ifdef GLAM_MATH_CONST
+	return radians * Type(180) / CONSTANTS<Type>::PI;
+#else
+#ifdef GLAM_HAS_LONG_DOUBLE
+	return radians * Type(180) / Type(3.141592653589793238462643383279502884L);
+#else
+	return radians * Type(180) / Type(3.14159265358979323846);
+#endif
+#endif
 }
 
 template <typename Type>
