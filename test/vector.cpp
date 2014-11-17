@@ -32,6 +32,8 @@
 #include <glam/vector.h>
 #include <glam/matrix.h>
 #include <glam/config.h>
+#include <cstdlib>
+#include <cmath>
 
 class VectorTest : public CxxTest::TestSuite {
 public:
@@ -252,11 +254,42 @@ public:
 		u7.yx = u8.yx;
 		TS_ASSERT_EQUALS(u7[0], 10.0f);
 		TS_ASSERT_EQUALS(u7[1], 20.0f);
-		glam::vec2 u9 = v;
-		glam::vec2 u10(10, 20);
-		u9.yx += u10;
-		TS_ASSERT_EQUALS(u9[0], 21.0f);
-		TS_ASSERT_EQUALS(u9[1], 12.0f);
+	}
+	void testVec3PermuteAlt() {
+		glam::vec3 v;
+		v.rgb = glam::vec3(0.5f, 0.0f, 1.0f);
+		glam::vec3 u2 = v.bgr;
+		TS_ASSERT_EQUALS(u2[0], 1.0f);
+		TS_ASSERT_EQUALS(u2[1], 0.0f);
+		TS_ASSERT_EQUALS(u2[2], 0.5f);
+		glam::vec3 u3;
+		u3.zyx = v.rgb;
+		TS_ASSERT_EQUALS(u3[0], 1.0f);
+		TS_ASSERT_EQUALS(u3[1], 0.0f);
+		TS_ASSERT_EQUALS(u3[2], 0.5f);
+		glam::vec3 u4;
+		u4.stp = v.xyz;
+		TS_ASSERT_EQUALS(u4[0], 0.5f);
+		TS_ASSERT_EQUALS(u4[1], 0.0f);
+		TS_ASSERT_EQUALS(u4[2], 1.0f);
+		glam::vec3 u5;
+		u5.p = v.x;
+		TS_ASSERT_EQUALS(u5[0], 0.0f);
+		TS_ASSERT_EQUALS(u5[1], 0.0f);
+		TS_ASSERT_EQUALS(u5[2], 0.5f);
+		glam::vec3 u6 = v;
+		u6.tp = v.xx;
+		TS_ASSERT_EQUALS(u6[0], 0.5f);
+		TS_ASSERT_EQUALS(u6[1], 0.5f);
+		TS_ASSERT_EQUALS(u6[2], 0.5f);
+	}
+	void testVec2PermuteMath() {
+		glam::vec2 v(1, 2);
+		glam::vec2 u1 = v;
+		glam::vec2 u2(10, 20);
+		u1.yx += u2;
+		TS_ASSERT_EQUALS(u1[0], 21.0f);
+		TS_ASSERT_EQUALS(u1[1], 12.0f);
 	}
 	void testVec3Bits() {
 		glam::vec3 vf1(1.0f, -1.0f, 0.5f);
@@ -290,10 +323,34 @@ public:
 	void testPackHalf() {
 		glam::vec2 vf1(10.0f, -0.125f);
 		unsigned int p1 = glam::packHalf2x16(vf1);
-		TS_ASSERT_EQUALS(p1, 0xb8004480);
-		unsigned int p2 = 0xb8004480;
+		TS_ASSERT_EQUALS(p1, 0xb0004900);
+		unsigned int p2 = 0xb0004900;
 		glam::vec2 vf2 = glam::unpackHalf2x16(p2);
 		TS_ASSERT_DELTA(vf2[0], 10.0f, 1e-4);
 		TS_ASSERT_DELTA(vf2[1], -0.125f, 1e-4);
+		glam::vec2 vf3(768.0f, 5.779e-41f);
+		unsigned int p3 = glam::packHalf2x16(vf3);
+		TS_ASSERT_EQUALS(p3, 0x00056200);
+		unsigned int p4 = 0x00056200;
+		glam::vec2 vf4 = glam::unpackHalf2x16(p4);
+		TS_ASSERT_DELTA(vf4[0], 768.0f, 1e-4);
+		TS_ASSERT_DELTA(vf4[1], 5.779e-41f, 1e-4);
+		glam::vec2 vf5(-INFINITY, NAN);
+		unsigned int p5 = glam::packHalf2x16(vf5);
+		//std::printf("vf5=(%g,%g)=(0x%08x,0x%08x) p5=0x%08x\n", vf5.x, vf5.y, *(uint32_t *) &vf5.x, *(uint32_t *) &vf5.y, p5);
+		TS_ASSERT((p5 & 0xffff) == 0xfc00 && (p5 & 0x7c000000) == 0x7c000000 && (p5 & 0x03ff0000) != 0x00000000);
+		unsigned int p6 = 0x7e00fc00;
+		glam::vec2 vf6 = glam::unpackHalf2x16(p6);
+		TS_ASSERT(std::isinf(vf6[0]) && std::signbit(vf6[0]));
+		TS_ASSERT(std::isnan(vf6[1]));
+		//std::printf("vf6=(%g,%g)=(0x%08x,0x%08x) p6=0x%08x\n", vf6.x, vf6.y, *(uint32_t *) &vf6.x, *(uint32_t *) &vf6.y, p6);
+		for (int i = 0; i <= 15; i++) {
+			glam::vec2 vfi(glam::pow(1.5f, float(i)), glam::pow(2.0f, -float(i)));
+			unsigned int pi = glam::packHalf2x16(vfi);
+			glam::vec2 vfj = glam::unpackHalf2x16(pi);
+			//std::printf("vfi=(%g,%g)=(0x%08x,0x%08x) pi=0x%08x vfj=(%g,%g)=(0x%08x,0x%08x)\n", vfi.x, vfi.y, *(uint32_t *) &vfi.x, *(uint32_t *) &vfi.y, pi, vfj.x, vfj.y, *(uint32_t *) &vfj.x, *(uint32_t *) &vfj.y);
+			TS_ASSERT_DELTA(vfi[0], vfj[0], 1e0);
+			TS_ASSERT_DELTA(vfi[1], vfj[1], 1e-4);
+		}
 	}
 };

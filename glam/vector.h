@@ -132,47 +132,50 @@ typedef Vector<unsigned int, 4> uvec4;
 	Vector<type, length, Permutatator<type, length, member0, member1, member2> > name;
 #define GLAM_PERM_MAKE4_4(type, length, name, member0, member1, member2, member3) \
 	Vector<type, length, Permutatator<type, length, member0, member1, member2, member3> > name;
-#define GLAM_PERM_MAKE4_3(type, length, prefix, member0, member1, member2) \
-	GLAM_PERM_MAKE4_4(type, length, prefix##x, member0, member1, member2, 0) \
-	GLAM_PERM_MAKE4_4(type, length, prefix##y, member0, member1, member2, 1) \
-	GLAM_PERM_MAKE4_4(type, length, prefix##z, member0, member1, member2, 2) \
-	GLAM_PERM_MAKE4_4(type, length, prefix##w, member0, member1, member2, 3) \
+#define GLAM_PERM_MAKE4_3(type, name0, name1, name2, name3, length, prefix, member0, member1, member2) \
+	GLAM_PERM_MAKE4_4(type, length, prefix##name0, member0, member1, member2, 0) \
+	GLAM_PERM_MAKE4_4(type, length, prefix##name1, member0, member1, member2, 1) \
+	GLAM_PERM_MAKE4_4(type, length, prefix##name2, member0, member1, member2, 2) \
+	GLAM_PERM_MAKE4_4(type, length, prefix##name3, member0, member1, member2, 3) \
 	GLAM_PERM_MAKE3_3(type, length, prefix, member0, member1, member2)
-#define GLAM_PERM_MAKE4_2(type, length, prefix, member0, member1) \
-	GLAM_PERM_MAKE4_3(type, length, prefix##x, member0, member1, 0) \
-	GLAM_PERM_MAKE4_3(type, length, prefix##y, member0, member1, 1) \
-	GLAM_PERM_MAKE4_3(type, length, prefix##z, member0, member1, 2) \
-	GLAM_PERM_MAKE4_3(type, length, prefix##w, member0, member1, 3) \
+#define GLAM_PERM_MAKE4_2(type, name0, name1, name2, name3, length, prefix, member0, member1) \
+	GLAM_PERM_MAKE4_3(type, name0, name1, name2, name3, length, prefix##name0, member0, member1, 0) \
+	GLAM_PERM_MAKE4_3(type, name0, name1, name2, name3, length, prefix##name1, member0, member1, 1) \
+	GLAM_PERM_MAKE4_3(type, name0, name1, name2, name3, length, prefix##name2, member0, member1, 2) \
+	GLAM_PERM_MAKE4_3(type, name0, name1, name2, name3, length, prefix##name3, member0, member1, 3) \
 	GLAM_PERM_MAKE2_2(type, length, prefix, member0, member1)
-#define GLAM_PERM_MAKE4_1(type, length, prefix, member0) \
-	GLAM_PERM_MAKE4_2(type, length, prefix##x, member0, 0) \
-	GLAM_PERM_MAKE4_2(type, length, prefix##y, member0, 1) \
-	GLAM_PERM_MAKE4_2(type, length, prefix##z, member0, 2) \
-	GLAM_PERM_MAKE4_2(type, length, prefix##w, member0, 3)
-#define GLAM_PERM_MAKE4_0(type) \
-	GLAM_PERM_MAKE4_1(type, 4, x, 0) \
-	GLAM_PERM_MAKE4_1(type, 4, y, 1) \
-	GLAM_PERM_MAKE4_1(type, 4, z, 2) \
-	GLAM_PERM_MAKE4_1(type, 4, w, 3)
-#define GLAM_PERM_MAKE3_2(type, length, prefix, member0, member1) \
-	GLAM_PERM_MAKE3_3(type, length, prefix##x, member0, member1, 0) \
-	GLAM_PERM_MAKE3_3(type, length, prefix##y, member0, member1, 1) \
-	GLAM_PERM_MAKE3_3(type, length, prefix##z, member0, member1, 2) \
+#define GLAM_PERM_MAKE4_1(type, name0, name1, name2, name3, length, prefix, member0) \
+	GLAM_PERM_MAKE4_2(type, name0, name1, name2, name3, length, prefix##name0, member0, 0) \
+	GLAM_PERM_MAKE4_2(type, name0, name1, name2, name3, length, prefix##name1, member0, 1) \
+	GLAM_PERM_MAKE4_2(type, name0, name1, name2, name3, length, prefix##name2, member0, 2) \
+	GLAM_PERM_MAKE4_2(type, name0, name1, name2, name3, length, prefix##name3, member0, 3)
+#define GLAM_PERM_MAKE4_0(type, name0, name1, name2, name3) \
+	GLAM_PERM_MAKE4_1(type, name0, name1, name2, name3, 4, name0, 0) \
+	GLAM_PERM_MAKE4_1(type, name0, name1, name2, name3, 4, name1, 1) \
+	GLAM_PERM_MAKE4_1(type, name0, name1, name2, name3, 4, name2, 2) \
+	GLAM_PERM_MAKE4_1(type, name0, name1, name2, name3, 4, name3, 3) \
+	struct { type name0; type name1; type name2; type name3; }
+#define GLAM_PERM_MAKE3_2(type, name0, name1, name2, length, prefix, member0, member1) \
+	GLAM_PERM_MAKE3_3(type, length, prefix##name0, member0, member1, 0) \
+	GLAM_PERM_MAKE3_3(type, length, prefix##name1, member0, member1, 1) \
+	GLAM_PERM_MAKE3_3(type, length, prefix##name2, member0, member1, 2) \
 	GLAM_PERM_MAKE2_2(type, length, prefix, member0, member1)
-#define GLAM_PERM_MAKE3_1(type, length, prefix, member0) \
-	GLAM_PERM_MAKE3_2(type, length, prefix##x, member0, 0) \
-	GLAM_PERM_MAKE3_2(type, length, prefix##y, member0, 1) \
-	GLAM_PERM_MAKE3_2(type, length, prefix##z, member0, 2)
-#define GLAM_PERM_MAKE3_0(type) \
-	GLAM_PERM_MAKE3_1(type, 3, x, 0) \
-	GLAM_PERM_MAKE3_1(type, 3, y, 1) \
-	GLAM_PERM_MAKE3_1(type, 3, z, 2)
-#define GLAM_PERM_MAKE2_1(type, length, prefix, member0) \
-	GLAM_PERM_MAKE2_2(type, length, prefix##x, member0, 0) \
-	GLAM_PERM_MAKE2_2(type, length, prefix##y, member0, 1)
-#define GLAM_PERM_MAKE2_0(type) \
-	GLAM_PERM_MAKE2_1(type, 2, x, 0) \
-	GLAM_PERM_MAKE2_1(type, 2, y, 1)
+#define GLAM_PERM_MAKE3_1(type, name0, name1, name2, length, prefix, member0) \
+	GLAM_PERM_MAKE3_2(type, name0, name1, name2, length, prefix##name0, member0, 0) \
+	GLAM_PERM_MAKE3_2(type, name0, name1, name2, length, prefix##name1, member0, 1) \
+	GLAM_PERM_MAKE3_2(type, name0, name1, name2, length, prefix##name2, member0, 2)
+#define GLAM_PERM_MAKE3_0(type, name0, name1, name2) \
+	GLAM_PERM_MAKE3_1(type, name0, name1, name2, 3, name0, 0) \
+	GLAM_PERM_MAKE3_1(type, name0, name1, name2, 3, name1, 1) \
+	GLAM_PERM_MAKE3_1(type, name0, name1, name2, 3, name2, 2) \
+	struct { type name0; type name1; type name2; }
+#define GLAM_PERM_MAKE2_1(type, name0, name1, length, prefix, member0) \
+	GLAM_PERM_MAKE2_2(type, length, prefix##name0, member0, 0) \
+	GLAM_PERM_MAKE2_2(type, length, prefix##name1, member0, 1)
+#define GLAM_PERM_MAKE2_0(type, name0, name1) \
+	GLAM_PERM_MAKE2_1(type, name0, name1, 2, name0, 0) \
+	GLAM_PERM_MAKE2_1(type, name0, name1, 2, name1, 1) \
+	struct { type name0; type name1; }
 
 
 // Specializations
@@ -182,16 +185,12 @@ class Vector<Type, 2, Pass<Type, 2> > {
 public:
 	union {
 		Type _v[2];
-		struct {
-			Type x, y;
-		};
-		struct {
-			Type r, g;
-		};
-		struct {
-			Type s, t;
-		};
-		GLAM_PERM_MAKE2_0(Type)
+		// Produces permutations: x, y, xx, xy, yx, yy
+		GLAM_PERM_MAKE2_0(Type, x, y);
+		// Produces permutations: r, g, rr, rg, gr, gg
+		GLAM_PERM_MAKE2_0(Type, r, g);
+		// Produces permutations: s, t, ss, st, ts tt
+		GLAM_PERM_MAKE2_0(Type, s, t);
 	};
 	
 	template <typename... Args>
@@ -212,16 +211,12 @@ class Vector<Type, 3, Pass<Type, 3> > {
 public:
 	union {
 		Type _v[3];
-		struct {
-			Type x, y, z;
-		};
-		struct {
-			Type r, g, a;
-		};
-		struct {
-			Type s, t, p;
-		};
-		GLAM_PERM_MAKE3_0(Type)
+		// Produces permutations: x, y, z, xx, xy, xz, yx, yy, yz, zx, zy, zz, xxx, xxy, xxz, xyx, ...
+		GLAM_PERM_MAKE3_0(Type, x, y, z);
+		// Produces permutations: r, g, b, rr, rg, rb, gr, gg, gb, br, bg, bb, rrr, rrg, rrb, rgr, ...
+		GLAM_PERM_MAKE3_0(Type, r, g, b);
+		// Produces permutations: s, t, p, ss, st, sp, ts, tt, tp, ps, pt, pp, sss, sst, ssp, sts, ...
+		GLAM_PERM_MAKE3_0(Type, s, t, p);
 	};
 	
 	template <typename... Args>
@@ -242,16 +237,12 @@ class Vector<Type, 4, Pass<Type, 4> > {
 public:
 	union {
 		Type _v[4];
-		struct {
-			Type x, y, z, w;
-		};
-		struct {
-			Type r, g, b, a;
-		};
-		struct {
-			Type s, t, p, q;
-		};
-		GLAM_PERM_MAKE4_0(Type)
+		// Produces permutations: x, y, z, w, xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, wx, wy, wz, ww, xxx, xxy, xxz, xyx, ..., xxxx, xxxy, ...
+		GLAM_PERM_MAKE4_0(Type, x, y, z, w);
+		// Produces permutations: r, g, b, a, rr, rg, rb, ra, gr, gg, gb, ga, br, bg, bb, ba, ar, ag, ab, aa, rrr, rrg, rrb, rgr, ..., rrrr, rrrg, ...
+		GLAM_PERM_MAKE4_0(Type, r, g, b, a);
+		// Produces permutations: s, t, p, q, ss, st, sp, sq, ts, tt, tp, tq, ps, pt, pp, pq, qs, qt, qp, qq, sss, sst, ssp, sts, ..., ssss, ssst, ...
+		GLAM_PERM_MAKE4_0(Type, s, t, p, q);
 	};
 	
 	template <typename... Args>
@@ -1689,65 +1680,77 @@ template <size_t Size, typename Permutation>
 inline unsigned int packHalf2x16(const Vector<float, Size, Permutation> &v) {
 	static_assert(Permutation::Elements == 2, "Vector must have exactly two elements");
 	Vector<unsigned int, 2> bits = floatBitsToUInt(v);
-	//                | 31   | 30   | 29   | 28   | 27   | 26   | 25   | 24   | 23   | 22   | ..   | 00   |
-	// IEEE 754 32bit | sign | exps | exponent                                       | value              |
-	// 1 bit sign, 1 bit exponent sign, 7 bits exponent, 23 bits value
-	//                | 15   | 14   | 13   | 12   | 11   | 10   | 09   | 08   | ..   | 00   |
-	// IEEE 754 16bit | sign | exps | exponent                         | value              |
-	// 1 bit sign, 1 bit exponent sign, 5 bits exponent, 9 bits value
+	//          | 31   | 30   | 29   | 28   | 27   | 26   | 25   | 24   | 23   | 22   | ..   | 00   |
+	// binary32 | sign | exponent (bias -127)                                  | value              |
+	//          | 15   |                      14   | 13   | 12   | 11   | 10   | 09   | ..   | 00   |
+	// binary16 | sign |                      exponent (bias -15)              | value              |
 	Vector<unsigned int, 2> sign = (bits >> 16) & 0xc000u;
-	Vector<unsigned int, 2> expvalue = (bits >> 14) & 0x3fffu;
+	Vector<unsigned int, 2> expvalue = (bits >> 13) & 0x3fffu;
 	bits = sign | expvalue;
 	return bits[0] | (bits[1] << 16);
 }
 
 inline Vector<float, 2> unpackHalf2x16(unsigned int v) {
 	Vector<unsigned int, 2> bits(v & 0xffffu, v >> 16);
-	Vector<unsigned int, 2> sign = (bits & 0xc000u) << 16;
-	Vector<unsigned int, 2> expvalue = (bits & 0x3fffu) << 14;
-	Vector<unsigned int, 2> ext = expvalue & 0x08000000u;
-	ext |= (ext << 1) | (ext << 2);
-	bits = sign | expvalue | ext;
+	// Unpacking is much more complicated than packing.
+	// We need to extend the exponent, which involves special handling for the special numbers.
+	Vector<unsigned int, 2> sign = bits & 0x8000u;
+	Vector<unsigned int, 2> biasexp = bits & 0x7c00u;
+	Vector<unsigned int, 2> value = bits & 0x03ffu;
+	// zero or subnormal
+	Vector<bool, 2> ezero = equal(biasexp, Vector<unsigned int, 2>(0x0000, 0x0000));
+	// infinity or Nan
+	Vector<bool, 2> emax = equal(biasexp, Vector<unsigned int, 2>(0x7c00, 0x7c00));
+	// anything else
+	Vector<bool, 2> eother = !(ezero | emax);
+	// bit flipping to avoid multiply and add:
+	// calculate the two's complement of the booleans (false => 0x00000000, true => 0xffffffff)
+	// mask the appropriate bits
+	// combine
+	// 0x3fc00 = (0b11111111) << 10
+	// 0x1c000 = (127 - 15) << 10
+	Vector<unsigned int, 2> exp = (-Vector<unsigned int, 2>(emax) & 0x3fc00u) | (-Vector<unsigned int, 2>(eother) & (biasexp + 0x1c000u));
+	bits = (sign << 16) | ((value | exp) << 13);
 	return uintBitsToFloat(bits);
 }
 
 template <typename Type, size_t Size, typename Permutation>
-inline Vector<Type, Permutation::Elements> &operator +=(Vector<Type, Size, Permutation> &self, const Type &v) {
+inline Vector<Type, Size, Permutation> &operator +=(Vector<Type, Size, Permutation> &self, const Type &v) {
 	return self += Vector<Type, Permutation::Elements>(v);
 }
 
 template <typename Type, size_t Size, typename Permutation>
-inline Vector<Type, Permutation::Elements> &operator -=(Vector<Type, Size, Permutation> &self, const Type &v) {
+inline Vector<Type, Size, Permutation> &operator -=(Vector<Type, Size, Permutation> &self, const Type &v) {
 	return self -= Vector<Type, Permutation::Elements>(v);
 }
 
 template <typename Type, size_t Size, typename Permutation>
-inline Vector<Type, Permutation::Elements> &operator *=(Vector<Type, Size, Permutation> &self, const Type &v) {
+inline Vector<Type, Size, Permutation> &operator *=(Vector<Type, Size, Permutation> &self, const Type &v) {
 	return self *= Vector<Type, Permutation::Elements>(v);
 }
 
 template <typename Type, size_t Size, typename Permutation>
-inline Vector<Type, Permutation::Elements> &operator /=(Vector<Type, Size, Permutation> &self, const Type &v) {
+inline Vector<Type, Size, Permutation> &operator /=(Vector<Type, Size, Permutation> &self, const Type &v) {
 	return self /= Vector<Type, Permutation::Elements>(v);
 }
 
 template <typename Type, size_t Size, typename Permutation>
-inline Vector<Type, Permutation::Elements> &operator %=(Vector<Type, Size, Permutation> &self, const Type &v) {
+inline Vector<Type, Size, Permutation> &operator %=(Vector<Type, Size, Permutation> &self, const Type &v) {
 	return self %= Vector<Type, Permutation::Elements>(v);
 }
 
 template <typename Type, size_t Size, typename Permutation>
-inline Vector<Type, Permutation::Elements> &operator &=(Vector<Type, Size, Permutation> &self, const Type &v) {
+inline Vector<Type, Size, Permutation> &operator &=(Vector<Type, Size, Permutation> &self, const Type &v) {
 	return self &= Vector<Type, Permutation::Elements>(v);
 }
 
 template <typename Type, size_t Size, typename Permutation>
-inline Vector<Type, Permutation::Elements> &operator |=(Vector<Type, Size, Permutation> &self, const Type &v) {
+inline Vector<Type, Size, Permutation> &operator |=(Vector<Type, Size, Permutation> &self, const Type &v) {
 	return self |= Vector<Type, Permutation::Elements>(v);
 }
 
 template <typename Type, size_t Size, typename Permutation>
-inline Vector<Type, Permutation::Elements> &operator ^=(Vector<Type, Size, Permutation> &self, const Type &v) {
+inline Vector<Type, Size, Permutation> &operator ^=(Vector<Type, Size, Permutation> &self, const Type &v) {
 	return self ^= Vector<Type, Permutation::Elements>(v);
 }
 
