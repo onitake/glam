@@ -635,7 +635,7 @@ inline Matrix<Type, Height, Width> inverse(const Matrix<Type, Height, Width> &m)
 	static_assert(Height == Width && Height > 0, "Matrix is not square");
 	// Decompose into triangular parts
 	LuDecomposition<Type, Height, Width> lups(m);
-	// Start with AX = I, where Index is the inverse of A
+	// Start with AX = I, where X is the inverse of A
 	// A = P^-1LU, so P^-1LUX = I, and thus LUX = P (with P = I if no row swapping was needed)
 	// Substitute UX = Y, yielding LY = P
 	// Calculate Y through forward substitution of L
@@ -654,11 +654,11 @@ inline Matrix<Type, Height, Width> inverse(const Matrix<Type, Height, Width> &m)
 			y[j][i] = diff;
 		}
 	}
-	// Calculate Index from UX = Y through backward substitution of U
+	// Calculate X from UX = Y through backward substitution of U
 	Matrix<Type, Height, Width> x;
 	// Process each column independently
 	for (size_t j = 0; j < Width; j++) {
-		// Substitute each row from the previous rows, work backwards
+		// Substitute each row from the previous rows, work from bottom to top
 		for (size_t i = Height; i-- > 0;) {
 			// Fetch the starting value from Y
 			Type diff = y[j][i];
@@ -670,7 +670,7 @@ inline Matrix<Type, Height, Width> inverse(const Matrix<Type, Height, Width> &m)
 			x[j][i] = diff / lups.upper[i][i];
 		}
 	}
-	// Index is the inverse of A
+	// X is the inverse of A
 	return x;
 }
 
