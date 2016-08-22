@@ -18,6 +18,8 @@ example/linalgperf
 example/vecmath
 example/gmp
 example/benchmark
+example/benchmark2
 test/math
 test/vector
 test/matrix
+test/vector_sse

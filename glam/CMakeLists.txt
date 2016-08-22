@@ -4,4 +4,5 @@ install(FILES
 	matrix.h
 	vector.h
 	vector.tpp
+	x86/vector_sse.h
 DESTINATION include/glam)

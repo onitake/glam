@@ -184,6 +184,18 @@ else()
 endif()
 
 check_cxx_source_compiles("
+#include <x86intrin.h>
+int main() {
+	__m128 v = _mm_set_ps(1.0f, 2.0f, 3.0f, 4.0f);
+	__m128 w = _mm_sqrt_ps(v);
+	return 0;
+}
+" GLAM_VECTOR_SSE)
+if(GLAM_VECTOR_SSE)
+	message(STATUS "Compiler supports SSE intrinsics, enabling SSE vector overloads. You still need to include glam/vector_sse.h to use.")
+endif()
+
+check_cxx_source_compiles("
 #include <cmath>
 int main() {
 	static_assert(std::isinf(INFINITY) && std::isnan(NAN));

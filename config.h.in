@@ -13,4 +13,5 @@
 #cmakedefine GLAM_HAS_LONG_DOUBLE
 #cmakedefine GLAM_DEBUG
 #cmakedefine GLAM_MATH_CONST
+#cmakedefine GLAM_VECTOR_SSE
 #cmakedefine GLAM_HAS_BROKEN_ISINF
