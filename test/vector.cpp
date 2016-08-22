@@ -337,11 +337,9 @@ public:
 		TS_ASSERT_DELTA(vf4[1], 5.779e-41f, 1e-4);
 		glam::vec2 vf5(-INFINITY, NAN);
 		unsigned int p5 = glam::packHalf2x16(vf5);
-		//std::printf("vf5=(%g,%g)=(0x%08x,0x%08x) p5=0x%08x\n", vf5.x, vf5.y, *(uint32_t *) &vf5.x, *(uint32_t *) &vf5.y, p5);
 		TS_ASSERT((p5 & 0xffff) == 0xfc00 && (p5 & 0x7c000000) == 0x7c000000 && (p5 & 0x03ff0000) != 0x00000000);
 		unsigned int p6 = 0x7e00fc00;
 		glam::vec2 vf6 = glam::unpackHalf2x16(p6);
-		//std::printf("vf6=(%g,%g)=(0x%08x,0x%08x) p6=0x%08x\n", vf6.x, vf6.y, *(uint32_t *) &vf6.x, *(uint32_t *) &vf6.y, p6);
 #ifndef GLAM_HAS_BROKEN_ISINF
 		// this will fail with -ffast-math, according to http://stackoverflow.com/questions/22931147/22931368#22931368
 		TS_ASSERT(std::isinf(vf6[0]) && std::signbit(vf6[0]) && std::isnan(vf6[1]));
@@ -352,7 +350,6 @@ public:
 			glam::vec2 vfi(glam::pow(1.5f, float(i)), glam::pow(2.0f, -float(i)));
 			unsigned int pi = glam::packHalf2x16(vfi);
 			glam::vec2 vfj = glam::unpackHalf2x16(pi);
-			//std::printf("vfi=(%g,%g)=(0x%08x,0x%08x) pi=0x%08x vfj=(%g,%g)=(0x%08x,0x%08x)\n", vfi.x, vfi.y, *(uint32_t *) &vfi.x, *(uint32_t *) &vfi.y, pi, vfj.x, vfj.y, *(uint32_t *) &vfj.x, *(uint32_t *) &vfj.y);
 			TS_ASSERT_DELTA(vfi[0], vfj[0], 1e0);
 			TS_ASSERT_DELTA(vfi[1], vfj[1], 1e-4);
 		}
