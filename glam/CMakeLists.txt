@@ -3,4 +3,5 @@ install(FILES
 	exception.h
 	matrix.h
 	vector.h
+	vector.tpp
 DESTINATION include/glam)
