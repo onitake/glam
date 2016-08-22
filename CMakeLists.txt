@@ -183,6 +183,19 @@ else()
 	message(FATAL_ERROR "Your compiler doesn't support C++11 constexpr.")
 endif()
 
+check_cxx_source_compiles("
+#include <cmath>
+int main() {
+	static_assert(std::isinf(INFINITY) && std::isnan(NAN));
+	return 0;
+}
+" GLAM_HAS_WORKING_ISINF)
+if(GLAM_HAS_WORKING_ISINF)
+else()
+	message(WARNING "isinf/isnan are broken on this compiler (most likely due to -ffast-math). Avoiding them.")
+	set(GLAM_HAS_BROKEN_ISINF 1)
+endif()
+
 find_path(GMP_INCLUDE_DIRS gmp.h)
 find_library(GMP_LIBRARIES NAMES gmp)
 find_path(GMPXX_INCLUDE_DIRS gmpxx.h)

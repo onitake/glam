@@ -341,9 +341,13 @@ public:
 		TS_ASSERT((p5 & 0xffff) == 0xfc00 && (p5 & 0x7c000000) == 0x7c000000 && (p5 & 0x03ff0000) != 0x00000000);
 		unsigned int p6 = 0x7e00fc00;
 		glam::vec2 vf6 = glam::unpackHalf2x16(p6);
-		TS_ASSERT(std::isinf(vf6[0]) && std::signbit(vf6[0]));
-		TS_ASSERT(std::isnan(vf6[1]));
 		//std::printf("vf6=(%g,%g)=(0x%08x,0x%08x) p6=0x%08x\n", vf6.x, vf6.y, *(uint32_t *) &vf6.x, *(uint32_t *) &vf6.y, p6);
+#ifndef GLAM_HAS_BROKEN_ISINF
+		// this will fail with -ffast-math, according to http://stackoverflow.com/questions/22931147/22931368#22931368
+		TS_ASSERT(std::isinf(vf6[0]) && std::signbit(vf6[0]) && std::isnan(vf6[1]));
+#else
+		TS_ASSERT(*(uint32_t *) &vf6[0] == 0xff800000 && *(uint32_t *) &vf6[1] == 0x7fc00000);
+#endif
 		for (int i = 0; i <= 15; i++) {
 			glam::vec2 vfi(glam::pow(1.5f, float(i)), glam::pow(2.0f, -float(i)));
 			unsigned int pi = glam::packHalf2x16(vfi);
